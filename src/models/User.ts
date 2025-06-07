@@ -46,7 +46,7 @@ const userSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      select: false, // Don't include in queries by default
+      select: false, // Don't include in queries by default, should be hidden unless explicitly requested
     },
     phone: {
       type: String,
@@ -93,7 +93,7 @@ const userSchema = new Schema<IUser>(
 
 // Indexes for performance
 //Like a book's index - jump to exact page instead of reading whole book
-userSchema.index({ email: 1 });
+// userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ restaurants: 1 });
 

@@ -4,10 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { IoFastFoodOutline } from "react-icons/io5";
 import { IoMenu } from "react-icons/io5";
+import { signOut, useSession } from "next-auth/react"
+import { toast } from "react-hot-toast"
+
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const { data: session } = useSession();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -60,21 +64,32 @@ const Navbar = () => {
             </button>
           </div>
 
-          <div className="absolute right-10">
-            <>
+        <div className="absolute right-10 flex items-center space-x-3">
+            {session ? (
+              <>
+                <span className="text-sm text-gray-300">
+                  Hello, {session.user?.name}
+                </span>
+                <button
+                  onClick={async () => {
+                  const promise = signOut({ callbackUrl: '/' });
+                  // Show toast before redirect
+                  toast.success('Signed out successfully');
+                  await promise;
+                  }}
+                  className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white cursor-pointer"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
               <Link
-                href="/login"
+                href="/signin"
                 className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white"
               >
                 Login
               </Link>
-              <Link
-                href="/register"
-                className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white"
-              >
-                Register
-              </Link>
-            </>
+            )}
           </div>
         </div>
       </div>
