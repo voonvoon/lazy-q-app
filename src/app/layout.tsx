@@ -3,10 +3,15 @@
 //
 
 import type { Metadata } from "next";
-import { Geist, Geist_Mono} from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
+
+import { SessionProvider } from "next-auth/react";
+import { Toaster } from "react-hot-toast";
+
+// Wrap your children with SessionProvider
 
 const geistSans = Geist({
   variable: "--font-geist-sans", //most text, headings, etc
@@ -18,13 +23,12 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
-
 export const metadata: Metadata = {
   title: "LazyQ - Food Ordering Made Easy",
-  description: "Multi-tenant food ordering platform for restaurants and customers",
+  description:
+    "Multi-tenant food ordering platform for restaurants and customers",
   keywords: ["food ordering", "restaurant", "delivery", "takeout"],
-    icons: {
+  icons: {
     icon: "/food-logo.svg",
     shortcut: "/food-logo.svg",
     apple: "/food-logo.svg",
@@ -41,15 +45,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="min-h-screen bg-background">
-          <Navbar />
-          {children}
-          <Footer />
-        </div>
+        <SessionProvider>
+          <div className="flex flex-col min-h-screen bg-background">
+            <Toaster />
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </SessionProvider>
       </body>
     </html>
   );
 }
 
-
-//cheat github to think this is a new file
