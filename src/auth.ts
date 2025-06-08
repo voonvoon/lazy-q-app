@@ -76,6 +76,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
     //Link user accounts
+    //User signs in → Provider authenticates
+    //NextAuth receives data → Creates user, account, profile objects
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
         await dbConnect();
@@ -83,6 +85,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (existingUser) {
           // Link to existing user
+          // Override Google data with MongoDB data for consistency
           user.id = existingUser._id.toString();
           user.role = existingUser.role;
 
@@ -93,7 +96,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               image: user.image, // Also add Google profile image
             });
           }
-          return true;
+          return true; //true allows sign-in to proceed
         } else {
           // Create new user for Google sign-in
           try {
@@ -105,6 +108,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               emailVerified: new Date(),
               // Don't set password for Google users
             });
+            // Set user ID and role for session
             user.id = newUser._id.toString();
             user.role = newUser.role;
             return true;
