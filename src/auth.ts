@@ -62,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.role = user.role; //Takes the user's role and puts it inside the token
+        token.image = user.image; 
       }
       return token;
     },
@@ -72,6 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         //NextAuth automatically adds the user's ID to the token
         session.user.id = token.sub!;
         session.user.role = token.role as string;
+        session.user.image = token.image as string; 
       }
       return session;
     },

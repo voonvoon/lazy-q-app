@@ -4,14 +4,16 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { IoFastFoodOutline } from "react-icons/io5";
 import { IoMenu } from "react-icons/io5";
-import { signOut, useSession } from "next-auth/react"
-import { toast } from "react-hot-toast"
-
+import { signOut, useSession } from "next-auth/react";
+import { toast } from "react-hot-toast";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
+
+  console.log("Session:", session);
+
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -64,22 +66,31 @@ const Navbar = () => {
             </button>
           </div>
 
-        <div className="absolute right-10 flex items-center space-x-3">
+          <div className="absolute right-10 flex items-center space-x-3">
             {session ? (
               <>
-                <span className="text-sm text-gray-300">
-                  Hello, {session.user?.name}
-                </span>
+                <div className="flex items-center space-x-2">
+                  {/* Google Profile Image */}
+                  {session.user?.image && (
+                    <img
+                      src={session.user.image}
+                      alt={session.user?.name || "Profile"}
+                      className="w-8 h-8 rounded-full border-2 border-gray-300"
+                    />
+                  )}
+                  <span className="text-sm text-gray-300">
+                    Hello, {session.user?.name}
+                  </span>
+                </div>
                 <button
                   onClick={async () => {
-                  const promise = signOut({ callbackUrl: '/' });
-                  // Show toast before redirect
-                  toast.success('Signed out successfully');
-                  await promise;
+                    const promise = signOut({ callbackUrl: "/" });
+                    toast.success("Signed out successfully");
+                    await promise;
                   }}
                   className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white cursor-pointer"
                 >
-                  Sign Out
+                  Logout
                 </button>
               </>
             ) : (

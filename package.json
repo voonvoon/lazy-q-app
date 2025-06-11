@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@auth/mongodb-adapter": "^3.9.1",
+    "@casl/ability": "^6.7.3",
     "bcryptjs": "^3.0.2",
     "crypto-js": "^4.2.0",
     "mongodb": "^6.16.0",

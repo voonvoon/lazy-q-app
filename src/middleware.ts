@@ -5,7 +5,7 @@ import NextAuth from "next-auth";
 
 const { auth } = NextAuth(authConfig);
 
-const protectedRoutes = ["/test-middleware", "/dashboard/admin"];
+const protectedRoutes = ["/test-middleware", "/dashboard/admin", "/dashboard/super-admin"];
 
 export default async function middleware(req: NextRequest) {
   const session = await auth();
