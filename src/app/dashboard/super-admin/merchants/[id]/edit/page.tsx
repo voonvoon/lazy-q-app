@@ -5,16 +5,19 @@ import Merchant from "@/models/Merchants";
 import { notFound } from "next/navigation";
 
 interface EditMerchantPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default async function EditMerchantPage({ params }: EditMerchantPageProps) {
+  // Await the params in Next.js 15
+  const { id } = await params;
+  
   await dbConnect();
   
   // Fetch existing merchant data
-  const merchant = await Merchant.findById(params.id).lean();
+  const merchant = await Merchant.findById(id).lean();
 
   if (!merchant || Array.isArray(merchant)) {
     notFound(); // Shows 404 page
