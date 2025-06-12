@@ -1,7 +1,6 @@
 // lib/casl/abilities.ts
 import {
-  createMongoAbility,
-  defineAbility,
+  createMongoAbility,//Make CASL speak MongoDB language
   AbilityBuilder,
 } from "@casl/ability";
 
@@ -46,5 +45,6 @@ export function defineAbilityFor(user: any) {
     cannot("manage", "Merchant");
   }
 
-  return build();
+  // build() compiles all rules into final ability:
+  return build();// ← Creates the complete ability object
 }
