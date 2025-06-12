@@ -2,6 +2,7 @@
 import { getUserMerchants } from "@/lib/actions/merchants";
 import Link from "next/link";
 import { FiPlus, FiShoppingBag, FiUsers, FiDollarSign } from "react-icons/fi";
+import DeleteMerchantButton from "@/components/DeleteMerchantButton"; 
 
 export default async function SuperAdminPage() {
   const { merchants } = await getUserMerchants();
@@ -78,6 +79,9 @@ export default async function SuperAdminPage() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Created
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -97,27 +101,46 @@ export default async function SuperAdminPage() {
                     {merchant.merchantId}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      merchant.plan === 'premium' 
-                        ? 'bg-purple-100 text-purple-800'
-                        : merchant.plan === 'basic'
-                        ? 'bg-blue-100 text-blue-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        merchant.plan === "premium"
+                          ? "bg-purple-100 text-purple-800"
+                          : merchant.plan === "basic"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
+                    >
                       {merchant.plan}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      merchant.isActive 
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {merchant.isActive ? 'Active' : 'Inactive'}
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        merchant.isActive
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {merchant.isActive ? "Active" : "Inactive"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {new Date(merchant.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <div className="flex flex-col space-y-2">
+                    <Link
+                    href={`/dashboard/super-admin/merchants/${merchant._id}/edit`}
+                    className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                    >
+                    Edit
+                    </Link>
+                    {/* ✅ Replace View link with Delete button */}
+                    <DeleteMerchantButton 
+                    merchantId={merchant._id as string}
+                    merchantName={merchant.name}
+                    />
+                  </div>
                   </td>
                 </tr>
               ))}
@@ -130,27 +153,31 @@ export default async function SuperAdminPage() {
 }
 
 // Stats Card Component
-function StatsCard({ 
-  title, 
-  value, 
-  icon: Icon, 
-  color 
-}: { 
-  title: string; 
-  value: string | number; 
-  icon: any; 
-  color: string; 
+function StatsCard({
+  title,
+  value,
+  icon: Icon,
+  color,
+}: {
+  title: string;
+  value: string | number;
+  icon: any;
+  color: string;
 }) {
   const colorClasses = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    purple: 'bg-purple-500',
+    blue: "bg-blue-500",
+    green: "bg-green-500",
+    purple: "bg-purple-500",
   };
 
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <div className="flex items-center">
-        <div className={`${colorClasses[color as keyof typeof colorClasses]} p-3 rounded-lg`}>
+        <div
+          className={`${
+            colorClasses[color as keyof typeof colorClasses]
+          } p-3 rounded-lg`}
+        >
           <Icon className="w-6 h-6 text-white" />
         </div>
         <div className="ml-4">

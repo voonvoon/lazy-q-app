@@ -5,6 +5,7 @@ import Merchant from "@/models/Merchants";
 import { notFound } from "next/navigation";
 
 interface EditMerchantPageProps {
+  //This page receives a params object that's a Promise containing an id string
   params: Promise<{
     id: string;
   }>;
@@ -18,8 +19,10 @@ export default async function EditMerchantPage({ params }: EditMerchantPageProps
   
   // Fetch existing merchant data
   const merchant = await Merchant.findById(id).lean();
+  //.lean() = Get plain JavaScript object instead of Mongoose document!
 
   if (!merchant || Array.isArray(merchant)) {
+    //notFound() = Shows Next.js 404 error page! 
     notFound(); // Shows 404 page
   }
 
