@@ -222,7 +222,7 @@ export async function deleteMerchant(merchantId: string) {
 
     // Revalidate cached data
     revalidatePath("/dashboard/super-admin");
-    revalidatePath(`/dashboard/${merchant.slug}`);
+    // revalidatePath(`/dashboard/${merchant.slug}`);
 
     return {
       success: true,
@@ -233,6 +233,49 @@ export async function deleteMerchant(merchantId: string) {
     return {
       error:
         error instanceof Error ? error.message : "Failed to delete merchant",
+    };
+  }
+}
+
+
+export async function toggleMerchantStatus(merchantId: string) {
+  try {
+    // CASL Permission Check
+    await checkPermission("update", "Merchant");
+
+    await dbConnect();
+
+    // Find the current merchant
+    const merchant = await Merchant.findById(merchantId);
+    if (!merchant) {
+      return {
+        error: "Merchant not found"
+      };
+    }
+
+    // Toggle the status
+    const newStatus = !merchant.isActive;
+    
+    const updatedMerchant = await Merchant.findByIdAndUpdate(
+      merchantId,
+      { isActive: newStatus },
+      { new: true }
+    );
+
+    // Revalidate cached data
+    revalidatePath("/dashboard/super-admin");
+    revalidatePath(`/dashboard/${merchant.slug}`);
+    
+    return { 
+      success: true,
+      isActive: newStatus,
+      message: `${merchant.name} ${newStatus ? 'activated' : 'deactivated'} successfully`
+    };
+
+  } catch (error) {
+    console.error("Error toggling merchant status:", error);
+    return {
+      error: error instanceof Error ? error.message : "Failed to toggle merchant status"
     };
   }
 }

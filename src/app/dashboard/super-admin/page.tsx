@@ -2,7 +2,8 @@
 import { getUserMerchants } from "@/lib/actions/merchants";
 import Link from "next/link";
 import { FiPlus, FiShoppingBag, FiUsers, FiDollarSign } from "react-icons/fi";
-import DeleteMerchantButton from "@/components/DeleteMerchantButton"; 
+import DeleteMerchantButton from "@/components/DeleteMerchantButton";
+import ToggleMerchantStatus from "@/components/ToggleMerchantStatus";
 
 export default async function SuperAdminPage() {
   const { merchants } = await getUserMerchants();
@@ -80,7 +81,13 @@ export default async function SuperAdminPage() {
                   Created
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
+                  Edit
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Active
+                </th>
+                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Delete
                 </th>
               </tr>
             </thead>
@@ -128,19 +135,28 @@ export default async function SuperAdminPage() {
                     {new Date(merchant.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex flex-col space-y-2">
-                    <Link
-                    href={`/dashboard/super-admin/merchants/${merchant._id}/edit`}
-                    className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
-                    >
-                    Edit
-                    </Link>
-                    {/* ✅ Replace View link with Delete button */}
-                    <DeleteMerchantButton 
-                    merchantId={merchant._id as string}
-                    merchantName={merchant.name}
+                    <div className="flex flex-col space-y-2">
+                      <Link
+                        href={`/dashboard/super-admin/merchants/${merchant._id}/edit`}
+                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                      >
+                        Edit
+                      </Link>
+                      
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <ToggleMerchantStatus
+                      merchantId={merchant._id as string}
+                      merchantName={merchant.name}
+                      initialStatus={merchant.isActive}
                     />
-                  </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                  <DeleteMerchantButton
+                        merchantId={merchant._id as string}
+                        merchantName={merchant.name}
+                      />
                   </td>
                 </tr>
               ))}
