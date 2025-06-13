@@ -6,6 +6,7 @@ import { getAdminUsers } from "@/lib/actions/users";
 import { IMerchant } from "@/models/Merchants";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import toast from 'react-hot-toast'; // ← Add this import
 
 interface MerchantFormProps {
   merchant?: IMerchant;
@@ -76,8 +77,23 @@ export default function MerchantForm({
         return;
       }
 
-      // Success! Redirect manually
-      router.push("/dashboard/super-admin");
+     // ✅ Success toast
+      if (isEditing) {
+        toast.success(`${merchant?.name} updated successfully! ✅`, {
+          duration: 4000,
+          icon: '🎉',
+        });
+      } else {
+        toast.success('Restaurant created successfully! 🏪', {
+          duration: 4000,
+          icon: '🎉',
+        });
+      }
+
+      // Small delay to let user see the success toast before redirect
+      setTimeout(() => {
+        router.push("/dashboard/super-admin");
+      }, 1000);
     } catch (error) {
       // This might catch the NEXT_REDIRECT error, which is actually success
       if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
@@ -376,7 +392,7 @@ export default function MerchantForm({
           <button
             type="button"
             onClick={() => router.back()} //Go back to the previous page!
-            className="px-6 py-3 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+            className="px-6 py-3 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
             disabled={isSubmitting}
           >
             Cancel
@@ -384,7 +400,7 @@ export default function MerchantForm({
           <button
             type="submit"
             disabled={isSubmitting || (!isEditing && adminUsers.length === 0)}
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50"
+            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting
               ? isEditing

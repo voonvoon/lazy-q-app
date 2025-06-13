@@ -4,6 +4,7 @@
 import { deleteMerchant } from "@/lib/actions/merchants";
 import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
+import toast from 'react-hot-toast';
 
 interface DeleteMerchantButtonProps {
   merchantId: string;
@@ -29,13 +30,13 @@ export default function DeleteMerchantButton({
       const result = await deleteMerchant(merchantId);
       
       if (result.error) {
-        alert(`Error: ${result.error}`);
+        toast.error(`Error: ${result.error}`);
       } else {
-        alert(`Success: ${result.message}`);
+        toast.success(`Success: ${result.message}`);
         // Page will automatically refresh due to revalidatePath
       }
     } catch (error) {
-      alert('Failed to delete merchant');
+      toast.error('Failed to delete merchant');
     } finally {
       setIsDeleting(false);
       setShowConfirm(false);
@@ -74,7 +75,7 @@ export default function DeleteMerchantButton({
       title={`Delete ${merchantName}`}
     >
       <FiTrash2 className="w-3 h-3" />
-      <span>Delete</span>
+      <span className="text-sm font-medium">Delete</span>
     </button>
   );
 }
