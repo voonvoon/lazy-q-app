@@ -34,8 +34,10 @@ export interface IMerchant extends Document {
 
   // Payment & Integration Settings
   paymentConfig: {
-    fiuuPublicKey?: string;
-    fiuuPrivateKey?: string; // Should be encrypted
+    fiuuVerifyKey?: string; // Stored as-is (public key)
+    fiuuPrivateKey?: string; // Stored encrypted
+    isConfigured?: boolean; // Flag to check if payment is set up
+    lastUpdated?: Date; // Track when keys were last updated
   };
 
   printServerApi?: string;
@@ -127,12 +129,28 @@ const merchantSchema = new Schema<IMerchant>(
     ],
 
     paymentConfig: {
-      fiuuPublicKey: String,
-      fiuuPrivateKey: String, // Should be encrypted
+      fiuuVerifyKey: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+      fiuuPrivateKey: {
+        type: String,
+        trim: true,
+        default: "",
+        // This will store the encrypted version
+      },
+      isConfigured: {
+        type: Boolean,
+        default: false,
+      },
+      lastUpdated: {
+        type: Date,
+        default: Date.now,
+      },
     },
 
-    printServerApi: String, 
-    
+    printServerApi: String,
 
     logo: String,
     coverImage: String,

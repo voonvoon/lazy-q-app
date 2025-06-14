@@ -7,6 +7,7 @@ import Merchant from "@/models/Merchants";
 import { generateSlug, ensureUniqueSlug } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { checkPermission } from "@/lib/casl/permissions";
+import { encrypt } from "@/lib/crypto";
 
 // Create merchant action
 export async function createMerchant(formData: FormData) {
@@ -30,6 +31,11 @@ export async function createMerchant(formData: FormData) {
     const plan = (formData.get("plan") as string) || "free";
     const printServerApi = formData.get("printServerApi") as string;
     const ownerId = formData.get("owner") as string;
+    const fiuuVerifyKey = formData.get("fiuuVerifyKey") as string;
+    const fiuuPrivateKey = formData.get("fiuuPrivateKey") as string;
+
+    // Encrypt private key if provided
+    const encryptedPrivateKey = fiuuPrivateKey ? encrypt(fiuuPrivateKey) : "";
 
     // Validate required fields
     if (!name || !street || !city || !state || !zipCode || !ownerId) {
@@ -73,6 +79,12 @@ export async function createMerchant(formData: FormData) {
       },
       plan,
       printServerApi,
+      paymentConfig: {
+        fiuuVerifyKey: fiuuVerifyKey || "",
+        fiuuPrivateKey: encryptedPrivateKey,
+        isConfigured: !!(fiuuVerifyKey && fiuuPrivateKey),
+        lastUpdated: new Date(),
+      },
     });
 
     // Revalidate any cached data
@@ -115,7 +127,9 @@ export async function getUserMerchants() {
       session!.user.role === "super_admin" ? {} : { owner: session!.user.id };
 
     const merchants = await Merchant.find(query)
-       .select("name slug merchantId address isActive plan printServerApi createdAt updatedAt owner")
+      .select(
+        "name slug merchantId address isActive plan printServerApi createdAt updatedAt owner"
+      )
       .sort({ createdAt: -1 })
       .lean();
 
@@ -165,7 +179,37 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
     const phone = formData.get("phone") as string;
     const email = formData.get("email") as string;
     const printServerApi = formData.get("printServerApi") as string;
+    const street = formData.get("street") as string;
+    const city = formData.get("city") as string;
+    const state = formData.get("state") as string;
+    const zipCode = formData.get("zipCode") as string;
+    const country = formData.get("country") as string;
+    const plan = (formData.get("plan") as string) || "free";
+    const fiuuVerifyKey = formData.get("fiuuVerifyKey") as string;
+    const fiuuPrivateKey = formData.get("fiuuPrivateKey") as string;
 
+    // Encrypt private key if provided , in case other fields update causes it to be empty
+    const paymentConfigUpdates: any = {};
+
+    if (fiuuVerifyKey?.trim() && fiuuPrivateKey?.trim()) {
+      // Both keys provided - update the entire payment config
+      paymentConfigUpdates["paymentConfig.fiuuVerifyKey"] =
+        fiuuVerifyKey.trim();
+      paymentConfigUpdates["paymentConfig.fiuuPrivateKey"] = encrypt(
+        fiuuPrivateKey.trim()
+      );
+      paymentConfigUpdates["paymentConfig.isConfigured"] = true;
+      paymentConfigUpdates["paymentConfig.lastUpdated"] = new Date();
+
+      console.log("✅ Payment config will be updated - both keys provided");
+    } else if (fiuuVerifyKey?.trim() || fiuuPrivateKey?.trim()) {
+      // Only one key provided - show warning but don't update
+      console.log("⚠️ Payment config not updated - both keys required");
+      // Could return a warning message here if needed
+    } else {
+      // No keys provided - keep existing config unchanged
+      console.log("ℹ️ Payment config unchanged - no keys provided");
+    }
     // Update merchant
     const updatedMerchant = await Merchant.findByIdAndUpdate(
       merchantId,
@@ -175,6 +219,15 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
         phone,
         email,
         printServerApi,
+        plan,
+        address: {
+          street: street.trim(),
+          city: city.trim(),
+          state: state.trim(),
+          zipCode: zipCode.trim(),
+          country: country?.trim() || "Malaysia",
+        },
+        ...paymentConfigUpdates,
       },
       { new: true }
     );
@@ -237,7 +290,6 @@ export async function deleteMerchant(merchantId: string) {
   }
 }
 
-
 export async function toggleMerchantStatus(merchantId: string) {
   try {
     // CASL Permission Check
@@ -249,13 +301,13 @@ export async function toggleMerchantStatus(merchantId: string) {
     const merchant = await Merchant.findById(merchantId);
     if (!merchant) {
       return {
-        error: "Merchant not found"
+        error: "Merchant not found",
       };
     }
 
     // Toggle the status
     const newStatus = !merchant.isActive;
-    
+
     const updatedMerchant = await Merchant.findByIdAndUpdate(
       merchantId,
       { isActive: newStatus },
@@ -265,17 +317,21 @@ export async function toggleMerchantStatus(merchantId: string) {
     // Revalidate cached data
     revalidatePath("/dashboard/super-admin");
     revalidatePath(`/dashboard/${merchant.slug}`);
-    
-    return { 
+
+    return {
       success: true,
       isActive: newStatus,
-      message: `${merchant.name} ${newStatus ? 'activated' : 'deactivated'} successfully`
+      message: `${merchant.name} ${
+        newStatus ? "activated" : "deactivated"
+      } successfully`,
     };
-
   } catch (error) {
     console.error("Error toggling merchant status:", error);
     return {
-      error: error instanceof Error ? error.message : "Failed to toggle merchant status"
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to toggle merchant status",
     };
   }
 }

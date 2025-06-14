@@ -6,7 +6,8 @@ import { getAdminUsers } from "@/lib/actions/users";
 import { IMerchant } from "@/models/Merchants";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import toast from 'react-hot-toast'; // ← Add this import
+import toast from "react-hot-toast";
+import { FiEye, FiEyeOff, FiLock, FiKey } from "react-icons/fi";
 
 interface MerchantFormProps {
   merchant?: IMerchant;
@@ -28,6 +29,7 @@ export default function MerchantForm({
   const [error, setError] = useState<string | null>(null);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [showPrivateKey, setShowPrivateKey] = useState(false); // ← New state
 
   // Fetch admin users on component mount
   useEffect(() => {
@@ -53,14 +55,15 @@ export default function MerchantForm({
     setIsSubmitting(true);
     setError(null);
 
+    const loadingToast = toast.loading(
+      isEditing ? `Updating ${merchant?.name}...` : "Creating new restaurant..."
+    );
+
     try {
       let result;
 
       if (isEditing) {
         result = await updateMerchant(
-          //Is this really a restaurant? not empty?
-          //Does it have an ID number?
-          //can safely read the ID?
           typeof merchant === "object" && merchant !== null && "_id" in merchant
             ? String((merchant as { _id: unknown })._id)
             : "",
@@ -70,46 +73,48 @@ export default function MerchantForm({
         result = await createMerchant(formData);
       }
 
-      // Check if there's an error in the result
+      toast.dismiss(loadingToast);
+
       if (result && "error" in result) {
+        toast.error(result.error ?? "An unknown error occurred");
         setError(result.error ?? "An unknown error occurred");
         setIsSubmitting(false);
         return;
       }
 
-     // ✅ Success toast
       if (isEditing) {
         toast.success(`${merchant?.name} updated successfully! ✅`, {
           duration: 4000,
-          icon: '🎉',
+          icon: "🎉",
         });
       } else {
-        toast.success('Restaurant created successfully! 🏪', {
+        toast.success("Restaurant created successfully! 🏪", {
           duration: 4000,
-          icon: '🎉',
+          icon: "🎉",
         });
       }
 
-      // Small delay to let user see the success toast before redirect
       setTimeout(() => {
         router.push("/dashboard/super-admin");
       }, 1000);
     } catch (error) {
-      // This might catch the NEXT_REDIRECT error, which is actually success
+      toast.dismiss(loadingToast);
+
       if (error instanceof Error && error.message.includes("NEXT_REDIRECT")) {
-        // This is actually a successful redirect, let it happen
         return;
       }
 
-      // Real error
-      setError(error instanceof Error ? error.message : "Something went wrong");
+      const errorMessage =
+        error instanceof Error ? error.message : "Something went wrong";
+      toast.error(errorMessage);
+      setError(errorMessage);
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 ">
+      <h2 className="text-2xl font-bold mb-6 text-gray-900">
         {isEditing ? `Edit ${merchant?.name}` : "Create New Restaurant"}
       </h2>
 
@@ -342,6 +347,85 @@ export default function MerchantForm({
           </div>
         </div>
 
+        {/* ✅ Payment Configuration Section - Always show */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <FiLock className="w-5 h-5 text-red-600" />
+            <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex-1">
+              Payment Configuration
+            </h3>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+            <div className="flex">
+              <FiKey className="w-5 h-5 text-yellow-400 mt-0.5" />
+              <div className="ml-3">
+                <p className="text-sm text-yellow-800">
+                  <strong>Security Notice:</strong> Private keys are encrypted
+                  before storage. Leave empty to keep existing keys when
+                  editing.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Verify Key (Public) */}
+          <div>
+            <label
+              htmlFor="fiuuVerifyKey"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              FiUU Verify Key (Public) 📖
+            </label>
+            <input
+              type="text"
+              id="fiuuVerifyKey"
+              name="fiuuVerifyKey"
+              defaultValue=""
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
+              placeholder="verify_key_1234567890abcdef"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              ✅ Safe for client-side code and webhooks
+            </p>
+          </div>
+
+          {/* Private Key */}
+          <div>
+            <label
+              htmlFor="fiuuPrivateKey"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              FiUU Private Key
+            </label>
+            <div className="relative">
+              <input
+                type={showPrivateKey ? "text" : "password"}
+                id="fiuuPrivateKey"
+                name="fiuuPrivateKey"
+                defaultValue="" // ← Always empty for security
+                className="w-full p-3 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
+                placeholder="sk_test_..."
+              />
+              <button
+                type="button"
+                onClick={() => setShowPrivateKey(!showPrivateKey)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                {showPrivateKey ? (
+                  <FiEyeOff className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                ) : (
+                  <FiEye className="w-4 h-4 text-gray-400 hover:text-gray-600" />
+                )}
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-red-600">
+              ⚠️ Keep this secret! It will be encrypted before storage.
+              {isEditing && " Leave empty to keep existing key."}
+            </p>
+          </div>
+        </div>
+
         {/* Settings Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
@@ -391,7 +475,7 @@ export default function MerchantForm({
         <div className="flex justify-end space-x-4 pt-6 border-t">
           <button
             type="button"
-            onClick={() => router.back()} //Go back to the previous page!
+            onClick={() => router.back()}
             className="px-6 py-3 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
             disabled={isSubmitting}
           >
