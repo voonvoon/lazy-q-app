@@ -39,7 +39,7 @@ export async function createMerchant(formData: FormData) {
 
     // Validate required fields
     if (!name || !street || !city || !state || !zipCode || !ownerId) {
-      throw new Error("Name and address fields are required");
+      throw new Error("Name and address fields are required.");
     }
 
     // 🛡️ Validate ObjectId format
