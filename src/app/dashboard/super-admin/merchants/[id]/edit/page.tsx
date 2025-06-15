@@ -33,6 +33,14 @@ export default async function EditMerchantPage({ params }: EditMerchantPageProps
     owner: merchant.owner?.toString?.() ?? "",
     createdAt: merchant.createdAt?.toISOString?.() ?? "",
     updatedAt: merchant.updatedAt?.toISOString?.() ?? "",
+    //extract business hours cuz each obj has an _id field that we don't want to send to the client
+    businessHours: merchant.businessHours?.map((hour: { day: any; open: any; close: any; isClosed: any; }) => ({
+    day: hour.day,
+    open: hour.open,
+    close: hour.close,
+    isClosed: hour.isClosed,
+    // NO _id!
+  })) ?? [],
   };
 
   return (
