@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { FiEye, FiEyeOff, FiLock, FiKey } from "react-icons/fi";
+import { getPaymentConfig } from "@/lib/actions/payment-config";
+import BusinessHoursForm from "./BusinessHoursForm";
 
 interface MerchantFormProps {
   merchant?: IMerchant;
@@ -112,6 +114,19 @@ export default function MerchantForm({
     }
   };
 
+    // ✅ Prepare business hours data for editing
+  const getBusinessHoursForEdit = () => {
+    if (!isEditing || !merchant?.businessHours) return undefined;
+    
+    // Convert merchant business hours to component format
+    return merchant.businessHours.map(hour => ({
+      day: hour.day,
+      open: hour.open || '09:00',
+      close: hour.close || '22:00', 
+      isClosed: hour.isClosed || false
+    }));
+  };
+
   return (
     <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow">
       <h2 className="text-2xl font-bold mb-6 text-gray-900">
@@ -164,7 +179,6 @@ export default function MerchantForm({
             </div>
           </div>
         )}
-
         {/* Basic Info Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
@@ -206,7 +220,6 @@ export default function MerchantForm({
             />
           </div>
         </div>
-
         {/* Contact Info Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
@@ -250,6 +263,11 @@ export default function MerchantForm({
           </div>
         </div>
 
+        {/* Business Hours Section */}
+         <BusinessHoursForm 
+          defaultHours={getBusinessHoursForEdit()}
+          isEditing={isEditing}
+        />
         {/* Address Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
@@ -346,7 +364,6 @@ export default function MerchantForm({
             />
           </div>
         </div>
-
         {/* ✅ Payment Configuration Section - Always show */}
         <div className="space-y-4">
           <div className="flex items-center space-x-2">
@@ -425,7 +442,6 @@ export default function MerchantForm({
             </p>
           </div>
         </div>
-
         {/* Settings Section */}
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
@@ -470,7 +486,27 @@ export default function MerchantForm({
             </div>
           </div>
         </div>
-
+ 
+        {/* Simple Debug - DEV ONLY */}
+        {isEditing && process.env.NODE_ENV === "development" && (
+          <div className="mt-2 p-4 bg-gray-100 rounded text-xs">
+            <button
+              type="button"
+              onClick={async () => {
+                const result = await getPaymentConfig(
+                  String((merchant as any)._id)
+                );
+                console.log("🧪 Debug:", result);
+                alert(
+                  `Verify: ${result.config?.fiuuVerifyKey}\nSecret: ${result.config?.fiuuPrivateKey}`
+                );
+              }}
+              className="px-4 py-4 bg-gray-800 text-white rounded text-xs cursor-pointer"
+            >
+              See Secret Values (DEV ONLY)
+            </button>
+          </div>
+        )}
         {/* Submit Button */}
         <div className="flex justify-end space-x-4 pt-6 border-t">
           <button

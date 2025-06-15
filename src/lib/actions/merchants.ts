@@ -37,6 +37,20 @@ export async function createMerchant(formData: FormData) {
     // Encrypt private key if provided
     const encryptedPrivateKey = fiuuPrivateKey ? encrypt(fiuuPrivateKey) : "";
 
+    //create schedule
+    // Extract business hours
+    const businessHours = [];
+    for (let i = 0; i < 7; i++) {
+      const day = formData.get(`businessHours[${i}][day]`) as string;
+      const open = formData.get(`businessHours[${i}][open]`) as string;
+      const close = formData.get(`businessHours[${i}][close]`) as string;
+      const isClosed = formData.get(`businessHours[${i}][isClosed]`) === "true";
+
+      if (day) {
+        businessHours.push({ day, open, close, isClosed });
+      }
+    }
+
     // Validate required fields
     if (!name || !street || !city || !state || !zipCode || !ownerId) {
       throw new Error("Name and address fields are required.");
@@ -82,9 +96,12 @@ export async function createMerchant(formData: FormData) {
       paymentConfig: {
         fiuuVerifyKey: fiuuVerifyKey || "",
         fiuuPrivateKey: encryptedPrivateKey,
+        //!! converts any value to a proper boolean without flipping it
+        //Convert to boolean: Do we have BOTH a verify key AND a secret key?
         isConfigured: !!(fiuuVerifyKey && fiuuPrivateKey),
         lastUpdated: new Date(),
       },
+      businessHours,
     });
 
     // Revalidate any cached data
@@ -191,6 +208,7 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
     // Encrypt private key if provided , in case other fields update causes it to be empty
     const paymentConfigUpdates: any = {};
 
+    //cuz " ".trim() -> "" (falsy ❌)
     if (fiuuVerifyKey?.trim() && fiuuPrivateKey?.trim()) {
       // Both keys provided - update the entire payment config
       paymentConfigUpdates["paymentConfig.fiuuVerifyKey"] =
@@ -210,6 +228,21 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
       // No keys provided - keep existing config unchanged
       console.log("ℹ️ Payment config unchanged - no keys provided");
     }
+
+    //create schedule
+    // Extract business hours
+    const businessHours = [];
+    for (let i = 0; i < 7; i++) {
+      const day = formData.get(`businessHours[${i}][day]`) as string;
+      const open = formData.get(`businessHours[${i}][open]`) as string;
+      const close = formData.get(`businessHours[${i}][close]`) as string;
+      const isClosed = formData.get(`businessHours[${i}][isClosed]`) === "true";
+
+      if (day) {
+        businessHours.push({ day, open, close, isClosed });
+      }
+    }
+
     // Update merchant
     const updatedMerchant = await Merchant.findByIdAndUpdate(
       merchantId,
@@ -228,6 +261,7 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
           country: country?.trim() || "Malaysia",
         },
         ...paymentConfigUpdates,
+        businessHours
       },
       { new: true }
     );
