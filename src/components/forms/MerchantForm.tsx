@@ -163,7 +163,7 @@ export default function MerchantForm({
                   id="owner"
                   name="owner"
                   required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                  className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                 >
                   <option value="">Select an admin user...</option>
                   {adminUsers.map((user) => (
@@ -198,7 +198,7 @@ export default function MerchantForm({
               name="name"
               required
               defaultValue={merchant?.name || ""}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="Pizza Palace"
             />
           </div>
@@ -214,7 +214,7 @@ export default function MerchantForm({
               id="description"
               name="description"
               defaultValue={merchant?.description || ""}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="Best pizza in town!"
               rows={3}
             />
@@ -239,7 +239,7 @@ export default function MerchantForm({
                 id="phone"
                 name="phone"
                 defaultValue={merchant?.phone || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="+60123456789"
               />
             </div>
@@ -256,7 +256,7 @@ export default function MerchantForm({
                 id="email"
                 name="email"
                 defaultValue={merchant?.email || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="admin@pizzapalace.com"
               />
             </div>
@@ -287,7 +287,7 @@ export default function MerchantForm({
               name="street"
               required
               defaultValue={merchant?.address?.street || ""}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
               placeholder="123 Main Street"
             />
           </div>
@@ -306,7 +306,7 @@ export default function MerchantForm({
                 name="city"
                 required
                 defaultValue={merchant?.address?.city || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="Kuala Lumpur"
               />
             </div>
@@ -324,7 +324,7 @@ export default function MerchantForm({
                 name="state"
                 required
                 defaultValue={merchant?.address?.state || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="Selangor"
               />
             </div>
@@ -342,7 +342,7 @@ export default function MerchantForm({
                 name="zipCode"
                 required
                 defaultValue={merchant?.address?.zipCode || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="50000"
               />
             </div>
@@ -360,7 +360,7 @@ export default function MerchantForm({
               id="country"
               name="country"
               defaultValue={merchant?.address?.country || "Malaysia"}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
             />
           </div>
         </div>
@@ -399,7 +399,7 @@ export default function MerchantForm({
               id="fiuuVerifyKey"
               name="fiuuVerifyKey"
               defaultValue=""
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
               placeholder="verify_key_1234567890abcdef"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -421,7 +421,7 @@ export default function MerchantForm({
                 id="fiuuPrivateKey"
                 name="fiuuPrivateKey"
                 defaultValue="" // ← Always empty for security
-                className="w-full p-3 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
+                className="w-full p-3 pr-12 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
                 placeholder="sk_test_..."
               />
               <button
@@ -460,7 +460,7 @@ export default function MerchantForm({
                 id="plan"
                 name="plan"
                 defaultValue={merchant?.plan || "free"}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
               >
                 <option value="free">Free</option>
                 <option value="basic">Basic</option>
@@ -480,7 +480,7 @@ export default function MerchantForm({
                 id="printServerApi"
                 name="printServerApi"
                 defaultValue={merchant?.printServerApi || ""}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
                 placeholder="https://print-server.example.com/api"
               />
             </div>

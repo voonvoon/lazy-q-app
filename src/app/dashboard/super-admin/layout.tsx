@@ -1,4 +1,3 @@
-
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
@@ -45,15 +44,16 @@ export default async function SuperAdminLayout({
               <NavLink href="/dashboard/super-admin" icon={FiShield}>
                 Overview
               </NavLink>
+              <NavLink href="/dashboard/super-admin/create-admin" icon={FiUsers}>
+               Create Admin
+              </NavLink>
               <NavLink
                 href="/dashboard/super-admin/merchants"
                 icon={FiShoppingBag}
               >
                 Merchants
               </NavLink>
-              <NavLink href="/dashboard/super-admin/users" icon={FiUsers}>
-                Users
-              </NavLink>
+
               <NavLink href="/dashboard/super-admin/analytics" icon={FiShield}>
                 Analytics
               </NavLink>

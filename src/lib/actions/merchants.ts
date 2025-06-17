@@ -44,8 +44,11 @@ export async function createMerchant(formData: FormData) {
       const day = formData.get(`businessHours[${i}][day]`) as string;
       const open = formData.get(`businessHours[${i}][open]`) as string;
       const close = formData.get(`businessHours[${i}][close]`) as string;
+      //=== "true" :Convert string 'true'/'false' to boolean
+      //=== "true" needed as FormData always returns strings, not booleans!
       const isClosed = formData.get(`businessHours[${i}][isClosed]`) === "true";
 
+      // If day exists, the whole object is valid, hence we push it
       if (day) {
         businessHours.push({ day, open, close, isClosed });
       }
