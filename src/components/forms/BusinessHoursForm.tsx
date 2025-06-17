@@ -12,14 +12,14 @@ interface BusinessHour {
 
 interface BusinessHoursFormProps {
   defaultHours?: BusinessHour[];
-  isEditing?: boolean; // ✅ Add this
+  isEditing?: boolean; 
 }
 
 export default function BusinessHoursForm({
-  defaultHours,
+  defaultHours, // editing mode will pass this prop
   isEditing,
 }: BusinessHoursFormProps) {
-  // ✅ Default hours template
+  // Default hours template
   const getDefaultHours = (): BusinessHour[] => [
     { day: "monday", open: "09:00", close: "22:00", isClosed: false },
     { day: "tuesday", open: "09:00", close: "22:00", isClosed: false },
@@ -27,12 +27,12 @@ export default function BusinessHoursForm({
     { day: "thursday", open: "09:00", close: "22:00", isClosed: false },
     { day: "friday", open: "09:00", close: "22:00", isClosed: false },
     { day: "saturday", open: "09:00", close: "22:00", isClosed: false },
-    { day: "sunday", open: "09:00", close: "22:00", isClosed: true },
+    { day: "sunday", open: "09:00", close: "22:00", isClosed: false },
   ];
 
   const [hours, setHours] = useState<BusinessHour[]>(getDefaultHours());
 
-  // ✅ Update state when defaultHours changes (editing mode)
+  // Update state when defaultHours changes (editing mode)
   useEffect(() => {
     if (defaultHours && defaultHours.length > 0) {
       setHours(defaultHours);
@@ -40,7 +40,7 @@ export default function BusinessHoursForm({
   }, [defaultHours]);
 
   const updateHour = (
-    index: number,
+    index: number,  
     field: keyof BusinessHour,
     value: string | boolean
   ) => {
@@ -120,11 +120,12 @@ export default function BusinessHoursForm({
               </div>
             )}
 
-            {/* Hidden Form Inputs */}
+            {/* Hidden inputs are for SERVER COMMUNICATION */}
+            {/* These invisible inputs mirror your React state */}
             <input
               type="hidden"
-              name={`businessHours[${index}][day]`}
-              value={hour.day}
+              name={`businessHours[${index}][day]`} // ← This "name" sends data so server can get!
+              value={hour.day} // this value come from the state
             />
             <input
               type="hidden"
