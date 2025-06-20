@@ -8,6 +8,7 @@ import { generateSlug, ensureUniqueSlug } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { checkPermission } from "@/lib/casl/permissions";
 import { encrypt } from "@/lib/crypto";
+import { redirect } from "next/navigation";
 
 // Create merchant action
 export async function createMerchant(formData: FormData) {
@@ -264,7 +265,7 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
           country: country?.trim() || "Malaysia",
         },
         ...paymentConfigUpdates,
-        businessHours
+        businessHours,
       },
       { new: true }
     );
@@ -286,6 +287,68 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
     return {
       error:
         error instanceof Error ? error.message : "Failed to update merchant",
+    };
+  }
+}
+
+export async function getMerchantsByUserId() {
+  try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      redirect('/login');
+    }
+
+    await dbConnect();
+    
+    console.log('🔍 Searching merchants for user ID:', session.user.id);
+    
+    // ✅ NO .populate() - just get merchant fields directly
+    const merchants = await Merchant.find({ 
+      owner: session.user.id 
+    })
+    .select('_id name email isActive address phone createdAt') // ✅ Select only what you need
+    .sort({ createdAt: -1 })
+    .lean();
+    
+    console.log('🏪 Found merchants:', merchants.length);
+    
+    // ✅ Convert ObjectIds to strings
+    const serializedMerchants = merchants.map(merchant => ({
+      _id: String(merchant._id),
+      name: merchant.name,
+      email: merchant.email,
+      isActive: merchant.isActive,
+        address: merchant.address ? {
+        street: merchant.address.street || '',
+        city: merchant.address.city || '',
+        state: merchant.address.state || '',
+        zipCode: merchant.address.zipCode || '',
+        country: merchant.address.country || ''
+      } : {
+        street: '',
+        city: '',
+        state: '',
+        zipCode: '',
+        country: ''
+      },
+      phone: merchant.phone,
+      createdAt: merchant.createdAt
+    }));
+    
+    return {
+      success: true,
+      merchants: serializedMerchants,
+      total: merchants.length
+    };
+    
+  } catch (error) {
+    console.error('❌ Error fetching merchants:', error);
+    
+    return {
+      success: false,
+      error: 'Failed to fetch merchant data',
+      merchants: []
     };
   }
 }
