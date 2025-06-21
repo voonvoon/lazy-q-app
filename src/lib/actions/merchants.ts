@@ -293,6 +293,9 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
 
 export async function getMerchantsByUserId() {
   try {
+
+    await checkPermission("read", "Merchant");
+    
     const session = await auth();
     
     if (!session?.user?.id) {
