@@ -9,25 +9,9 @@ import MerchantSelector from "@/components/admin/MerchantSelector";
 import { getMerchantsByUserId } from "@/lib/actions/merchants";
 
 export default function AdminPage() {
-    const [isLoadingData, setIsLoadingData] = useState(true);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [error, setError] = useState<string | undefined | null>(null);
-  
-  // const [mockMerchants] = useState([
-  //   {
-  //     _id: "test-restaurant-1",
-  //     name: "Pizza Palace",
-  //     email: "pizza@example.com",
-  //     isActive: true,
-  //     address: "123 Pizza Street",
-  //   },
-  //   {
-  //     _id: "test-restaurant-2",
-  //     name: "Burger Barn",
-  //     email: "burger@example.com",
-  //     isActive: true,
-  //     address: "456 Burger Avenue",
-  //   },
-  // ]);
+
 
   const {
     selectedMerchant,
@@ -42,21 +26,21 @@ export default function AdminPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        console.log('🚀 Fetching real merchant data...');
+        console.log('🚀 Fetching merchant data...');
         setIsLoadingData(true);
         
         const result = await getMerchantsByUserId();
         
         if (result.success) {
-          console.log('✅ Got real data:', result.merchants);
+          console.log('Merchants data:', result.merchants);
           initializeMerchants(result.merchants);
         } else {
-          console.error('❌ Server action failed:', result.error);
+          console.error('Server action failed:', result.error);
           setError(result.error);
         }
         
       } catch (err) {
-        console.error('❌ Error fetching data:', err);
+        console.error('Error fetching data:', err);
         setError('Failed to load merchant data');
       } finally {
         setIsLoadingData(false);
@@ -75,7 +59,7 @@ export default function AdminPage() {
   if (isLoading || isLoadingData) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold">Loading...</h1>
+        <h1 className="text-2xl font-semibold text-black">Loading...</h1>
       </div>
     );
   }
@@ -84,7 +68,7 @@ export default function AdminPage() {
     return (
       <div className="max-w-2xl mx-auto p-6">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="text-red-800 font-semibold">❌ Error Loading Data</h2>
+          <h2 className="text-red-800 font-semibold">Error Loading Data</h2>
           <p className="text-red-700 mt-1">{error}</p>
           <button 
             onClick={() => window.location.reload()}
@@ -104,8 +88,9 @@ export default function AdminPage() {
         <div className="text-6xl mb-6">🏪</div>
         <h1 className="text-2xl font-semibold text-gray-900 mb-4">No Restaurants Found</h1>
         <p className="text-gray-600 mb-8">
-          You don't have any restaurants associated with your account yet.
+          You don't have any restaurants associated with your account yet. Please contact support to add your first restaurant.
         </p>
+        
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <p className="text-blue-800 font-semibold">🔍 Real Database Query Results:</p>
           <p className="text-blue-700 text-sm mt-1">
@@ -126,13 +111,13 @@ export default function AdminPage() {
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            🏪 Restaurant Dashboard
+          <h1 className="text-3xl font-bold text-gray-900 mb-1">
+            Restaurant Dashboard
           </h1>
-          <p className="text-gray-600">
+            <p className="text-gray-600 text-sm font-medium">
             You manage {allMerchants.length} restaurants. Select one to
             continue:
-          </p>
+            </p>
         </div>
 
         {/* Debug Info */}
@@ -152,6 +137,7 @@ export default function AdminPage() {
       </div>
     );
   }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -272,12 +258,12 @@ export default function AdminPage() {
         {/* Test Actions */}
         <div className="bg-white rounded-lg shadow-sm border p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            🧪 Test Actions
+            Test Actions
           </h2>
           <div className="space-x-4">
             <button
               onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors cursor-pointer"
             >
               🔄 Test Reload (Should Remember Selection)
             </button>
@@ -287,7 +273,7 @@ export default function AdminPage() {
                 localStorage.clear();
                 window.location.reload();
               }}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors"
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition-colors cursor-pointer"
             >
               🗑️ Clear Selection & Reload
             </button>

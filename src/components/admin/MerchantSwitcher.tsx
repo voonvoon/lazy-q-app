@@ -18,11 +18,12 @@ export default function MerchantSwitcher() {
       <select
         value={selectedMerchantId || ''}
         onChange={(e) => handleMerchantChange(e.target.value)}
-        className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[200px] text-black"
+        className="bg-gray-50 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-[200px] text-black cursor-pointer outline-none"
+        style={{ boxShadow: 'none' }}
       >
         {allMerchants.map((merchant) => (
           <option key={merchant._id} value={merchant._id}>
-            {merchant.name}
+        {merchant.name}
           </option>
         ))}
       </select>
