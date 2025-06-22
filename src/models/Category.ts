@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, Types } from 'mongoose';
+import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface ICategory extends Document {
   name: string;
@@ -11,11 +11,11 @@ export interface ICategory extends Document {
 const CategorySchema = new Schema<ICategory>(
   {
     name: { type: String, required: true },
-    slug: { type: String, required: true, unique: true },
-    merchant: { type: Schema.Types.ObjectId, ref: 'Merchant', required: true },
+    slug: { type: String, required: true },
+    merchant: { type: Schema.Types.ObjectId, ref: "Merchant", required: true },
   },
   { timestamps: true }
 );
 
 export default mongoose.models.Category ||
-  mongoose.model<ICategory>('Category', CategorySchema);
+  mongoose.model<ICategory>("Category", CategorySchema);

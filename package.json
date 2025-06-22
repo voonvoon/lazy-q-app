@@ -11,6 +11,7 @@
   "dependencies": {
     "@auth/mongodb-adapter": "^3.9.1",
     "@casl/ability": "^6.7.3",
+    "@hookform/resolvers": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "crypto-js": "^4.2.0",
     "mongodb": "^6.16.0",
@@ -19,8 +20,10 @@
     "next-auth": "^5.0.0-beta.28",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.58.1",
     "react-hot-toast": "^2.5.2",
-    "react-icons": "^5.5.0"
+    "react-icons": "^5.5.0",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
