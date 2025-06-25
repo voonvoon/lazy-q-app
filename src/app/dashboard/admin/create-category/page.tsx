@@ -28,7 +28,11 @@ const COMMON_CATEGORIES = [
 
 //Zod schema for category validation
 const categorySchema = z.object({
-  name: z.string().min(2, "Category name too short"),
+  name: z
+    .string()
+    .trim()
+    .min(2, "Category name at least 2 chars")
+    .max(20, "Category name too long"),
 });
 
 //Auto Give me the TypeScript type for this schema.
@@ -48,7 +52,8 @@ export default function CreateCategoryPage() {
     setValue, //programmatically set the value of a form field
     reset, //Resets the form to its default values
     watch, //Allows you to watch the value of a form field
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, touchedFields }, //obj destuctured from formState contains current state of form, incl errors & submission status
+    //clearErrors, //Clears specific errors or all errors from the form
   } = useForm<CategoryForm>({
     //sets up the form
     resolver: zodResolver(categorySchema), //tells React Hook Form to use your Zod schema
@@ -74,6 +79,13 @@ export default function CreateCategoryPage() {
         </p>
       </div>
     );
+  }
+
+  function resetErrorHack() {
+    //this is a hack to reset errors without submitting the form
+    //it marks all fields as touched and updates errors, even if you don't actually submit.
+    //React Hook Form sometimes fails to sync validation/touched state for fields that are conditionally rendered (like your "Other" input).
+    //This hack ensures the form state is always correct, no matter how the user interacts.
   }
 
   // Handle create or update
@@ -112,6 +124,7 @@ export default function CreateCategoryPage() {
     } else {
       setDropdown("Other");
       reset({ name: cat.name });
+      handleSubmit(resetErrorHack)(); //trick to make error state updated, else no validation.
     }
     setSuccessMsg("");
     setErrorMsg("");
@@ -137,6 +150,12 @@ export default function CreateCategoryPage() {
     }
   }
 
+
+
+  console.log("errors------------------>>>", errors.name);
+  console.log("name value-------------->>>>", watch("name"));
+  console.log("dropdown value-------------->>>>", dropdown);
+
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
       <h1 className="text-2xl font-bold mb-4 text-black">
@@ -157,6 +176,10 @@ export default function CreateCategoryPage() {
                 setValue("name", e.target.value, { shouldValidate: true });
               } else {
                 setValue("name", "", { shouldValidate: true });
+                //below trick react-hook-form to triggers a full validation cycle
+                //marking all fields as touched and updating errors, even if you don't actually submit.
+                //handleSubmit(onFormSubmit)(); //trick
+                handleSubmit(resetErrorHack)(); 
               }
             }}
             disabled={isSubmitting}
@@ -178,7 +201,9 @@ export default function CreateCategoryPage() {
           )}
           {errors.name && (
             <div className="text-red-600 text-sm">{errors.name.message}</div>
-          )}
+          )} 
+
+     
         </div>
         {successMsg && <div className="mb-4 text-green-600">{successMsg}</div>}
         {errorMsg && <div className="mb-4 text-red-600">{errorMsg}</div>}
@@ -189,7 +214,7 @@ export default function CreateCategoryPage() {
             disabled={
               isSubmitting ||
               (dropdown === "Other" &&
-                !Boolean(watch("name") && watch("name").trim()))
+                !Boolean(watch("name") && watch("name").trim())) //mean name is empty
             }
           >
             {isSubmitting

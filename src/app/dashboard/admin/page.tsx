@@ -22,7 +22,7 @@ export default function AdminPage() {
   } = useMerchant();
 
 
-
+// Fetch merchants on initial load
   useEffect(() => {
     async function fetchData() {
       try {
