@@ -13,7 +13,10 @@ export default async function SuperAdminLayout({
   const session = await auth();
 
   // Double-check authorization
-  if (!session?.user || session.user.role !== "admin") {
+  if (
+    !session?.user ||
+    (session.user.role !== "admin" && session.user.role !== "super_admin")
+  ) {
     redirect("/dashboard/unauthorized");
   }
   return (
