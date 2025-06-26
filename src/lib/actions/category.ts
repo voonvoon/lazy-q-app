@@ -59,13 +59,6 @@ export async function getCategoriesByMerchant(merchantId: string) {
   return { success: true, categories: safeCategories };
 }
 
-// READ BY ID
-// export async function getCategoryById(id: string) {
-//   await dbConnect();
-//   const category = await Category.findById(id).lean();
-//   if (!category) return { success: false, error: "Category not found." };
-//   return { success: true, category };
-// }
 
 // UPDATE
 
