@@ -39,10 +39,10 @@ const categorySchema = z.object({
 type CategoryForm = z.infer<typeof categorySchema>;
 
 export default function CreateCategoryPage() {
-  const { selectedMerchant } = useMerchant();
-  const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [editCategory, setEditCategory] = useState<any>(null);
+  const { selectedMerchant } = useMerchant();//to get the selected merchant from context
+  const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]);//to hold selected category from dropdown
+  const [categories, setCategories] = useState<any[]>([]); //to hold fetched categories
+  const [editCategory, setEditCategory] = useState<any>(null);//to hold category being edited
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -69,16 +69,10 @@ export default function CreateCategoryPage() {
   }, [selectedMerchant, successMsg]);
 
   if (!selectedMerchant) {
-    return (
-      <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow text-center">
-        <h2 className="text-xl font-bold mb-2">
-          Please select a restaurant first
-        </h2>
-        <p className="text-gray-600">
-          You need to select a merchant before creating a category.
-        </p>
-      </div>
-    );
+    if (typeof window !== "undefined") {
+      window.location.href = "/dashboard/admin";
+    }
+    return null;
   }
 
   function resetErrorHack() {
@@ -150,11 +144,9 @@ export default function CreateCategoryPage() {
     }
   }
 
-
-
-  console.log("errors------------------>>>", errors.name);
-  console.log("name value-------------->>>>", watch("name"));
-  console.log("dropdown value-------------->>>>", dropdown);
+  // console.log("errors------------------>>>", errors.name);
+  // console.log("name value-------------->>>>", watch("name"));
+  // console.log("dropdown value-------------->>>>", dropdown);
 
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">

@@ -12,7 +12,7 @@ const CategorySchema = new Schema<ICategory>(
   {
     name: { type: String, required: true },
     slug: { type: String, required: true },
-    merchant: { type: Schema.Types.ObjectId, ref: "Merchant", required: true },
+    merchant: { type: Schema.Types.ObjectId, ref: "Merchant", required: true , index: true  },
   },
   { timestamps: true }
 );
