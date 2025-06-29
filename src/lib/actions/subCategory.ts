@@ -63,7 +63,7 @@ export async function getSubCategoriesByMerchantAndCategory(merchantId: string, 
 }
 
 // UPDATE
-export async function updateSubCategory(id: string, { name }: { name: string }) {
+export async function updateSubCategory(id: string, { name }: { name: string }) { //{ name } = destructure name from the arg obj.{ name: Drink }
   await checkPermission("manage", "Product");
   const session = await auth();
   if (!session?.user?.id) {

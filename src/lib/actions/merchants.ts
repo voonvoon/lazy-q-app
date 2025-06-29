@@ -310,7 +310,7 @@ export async function getMerchantsByUserId() {
     const merchants = await Merchant.find({ 
       owner: session.user.id 
     })
-    .select('_id name email isActive address phone createdAt') // ✅ Select only what you need
+    .select('_id name slug email isActive address phone createdAt') // ✅ Select only what you need
     .sort({ createdAt: -1 })
     .lean();
     
@@ -320,6 +320,7 @@ export async function getMerchantsByUserId() {
     const serializedMerchants = merchants.map(merchant => ({
       _id: String(merchant._id),
       name: merchant.name,
+      slug: merchant.slug,
       email: merchant.email,
       isActive: merchant.isActive,
         address: merchant.address ? {
