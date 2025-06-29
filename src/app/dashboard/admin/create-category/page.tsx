@@ -11,6 +11,7 @@ import {
 import { useForm } from "react-hook-form"; //helps you manage form state, validation, and submission
 import { z } from "zod"; //TypeScript-first schema validation library.
 import { zodResolver } from "@hookform/resolvers/zod"; //connects React Hook Form and Zod
+import { capitalizeFirst } from "@/lib/utils/capitalize";
 
 const COMMON_CATEGORIES = [
   "Appetizers",
@@ -39,10 +40,10 @@ const categorySchema = z.object({
 type CategoryForm = z.infer<typeof categorySchema>;
 
 export default function CreateCategoryPage() {
-  const { selectedMerchant } = useMerchant();//to get the selected merchant from context
-  const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]);//to hold selected category from dropdown
+  const { selectedMerchant } = useMerchant(); //to get the selected merchant from context
+  const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]); //to hold selected category from dropdown
   const [categories, setCategories] = useState<any[]>([]); //to hold fetched categories
-  const [editCategory, setEditCategory] = useState<any>(null);//to hold category being edited
+  const [editCategory, setEditCategory] = useState<any>(null); //to hold category being edited
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -150,6 +151,11 @@ export default function CreateCategoryPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
+      {selectedMerchant && (
+        <div className="mb-2 text-sm font-semibold text-blue-700">
+          Merchant: {selectedMerchant.name}
+        </div>
+      )}
       <h1 className="text-2xl font-bold mb-4 text-black">
         {editCategory ? "Edit Category" : "Create New Category"}
       </h1>
@@ -171,7 +177,7 @@ export default function CreateCategoryPage() {
                 //below trick react-hook-form to triggers a full validation cycle
                 //marking all fields as touched and updating errors, even if you don't actually submit.
                 //handleSubmit(onFormSubmit)(); //trick
-                handleSubmit(resetErrorHack)(); 
+                handleSubmit(resetErrorHack)();
               }
             }}
             disabled={isSubmitting}
@@ -189,13 +195,19 @@ export default function CreateCategoryPage() {
               className="w-full border rounded px-3 py-2 text-black mt-2"
               {...register("name")} //connects this input to React Hook Form
               disabled={isSubmitting}
+              onBlur={(e) => {
+                const value = e.target.value;
+                if (value) {
+                  setValue("name", capitalizeFirst(value), {
+                    shouldValidate: true,
+                  });
+                }
+              }}
             />
           )}
           {errors.name && (
             <div className="text-red-600 text-sm">{errors.name.message}</div>
-          )} 
-
-     
+          )}
         </div>
         {successMsg && <div className="mb-4 text-green-600">{successMsg}</div>}
         {errorMsg && <div className="mb-4 text-red-600">{errorMsg}</div>}

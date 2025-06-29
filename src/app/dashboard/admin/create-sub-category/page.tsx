@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMerchant } from "@/contexts/MerchantContext";
+import { capitalizeFirst } from "@/lib/utils/capitalize";
 
 // Import your actions
 import { getCategoriesByMerchant } from "@/lib/actions/category";
@@ -22,11 +23,11 @@ const subCategorySchema = z.object({
 });
 
 export default function CreateSubCategoryPage() {
-  const { selectedMerchant } = useMerchant();// Get the selected merchant from context
-  const [categories, setCategories] = useState<any[]>([]);// State to hold categories
-  const [subCategories, setSubCategories] = useState<any[]>([]);// State to hold subcategories
-  const [selectedCategory, setSelectedCategory] = useState<string>("");// State to hold selected category
-  const [editSubCategory, setEditSubCategory] = useState<any>(null);// State to hold subcategory being edited
+  const { selectedMerchant } = useMerchant(); // Get the selected merchant from context
+  const [categories, setCategories] = useState<any[]>([]); // State to hold categories
+  const [subCategories, setSubCategories] = useState<any[]>([]); // State to hold subcategories
+  const [selectedCategory, setSelectedCategory] = useState<string>(""); // State to hold selected category id
+  const [editSubCategory, setEditSubCategory] = useState<any>(null); // State to hold subcategory being edited
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -64,6 +65,7 @@ export default function CreateSubCategoryPage() {
 
   // Check if merchant is selected
   if (!selectedMerchant) {
+    //Check if this code is running in the browser (client-side)
     if (typeof window !== "undefined") {
       window.location.href = "/dashboard/admin";
     }
@@ -83,7 +85,7 @@ export default function CreateSubCategoryPage() {
       } else {
         result = await createSubCategory({
           name: data.name,
-          merchantId:selectedMerchant._id ,
+          merchantId: selectedMerchant._id,
           parentCategoryId: data.parentCategory,
         });
       }
@@ -91,15 +93,16 @@ export default function CreateSubCategoryPage() {
         setSuccessMsg(
           editSubCategory ? "Sub Category updated!" : "Sub Category created!"
         );
-        reset({ name: "", parentCategory: selectedCategory });// parent category dropdown stays on the currently selected category 
+        reset({ name: "", parentCategory: selectedCategory }); // parent category dropdown stays on the currently selected category
         setEditSubCategory(null);
         // Refresh subcategories
         if (selectedCategory) {
-          getSubCategoriesByMerchantAndCategory(selectedMerchant._id, selectedCategory).then(
-            (res) => {
-              if (res.success) setSubCategories(res.subCategories);
-            }
-          );
+          getSubCategoriesByMerchantAndCategory(
+            selectedMerchant._id,
+            selectedCategory
+          ).then((res) => {
+            if (res.success) setSubCategories(res.subCategories);
+          });
         }
       } else {
         setErrorMsg(result.error || "Failed to save sub category.");
@@ -127,11 +130,12 @@ export default function CreateSubCategoryPage() {
       reset({ name: "", parentCategory: selectedCategory });
       // Refresh subcategories
       if (selectedCategory) {
-        getSubCategoriesByMerchantAndCategory(selectedMerchant._id, selectedCategory).then(
-          (res) => {
-            if (res.success) setSubCategories(res.subCategories);
-          }
-        );
+        getSubCategoriesByMerchantAndCategory(
+          selectedMerchant._id,
+          selectedCategory
+        ).then((res) => {
+          if (res.success) setSubCategories(res.subCategories);
+        });
       }
     } else {
       setErrorMsg(result.error || "Failed to delete sub category.");
@@ -140,6 +144,11 @@ export default function CreateSubCategoryPage() {
 
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
+      {selectedMerchant && (
+        <div className="mb-1 text-sm font-semibold text-blue-700">
+          Merchant: {selectedMerchant.name}
+        </div>
+      )}
       <h1 className="text-2xl font-bold mb-6 text-black">
         {editSubCategory ? "Edit Sub Category" : "Create Sub Category"}
       </h1>
@@ -185,6 +194,14 @@ export default function CreateSubCategoryPage() {
           className="border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
           {...register("name")}
           disabled={isSubmitting}
+          onBlur={(e) => {
+            const value = e.target.value;
+            if (value) {
+              setValue("name", capitalizeFirst(value), {
+                shouldValidate: true,
+              });
+            }
+          }}
         />
         {errors.name && (
           <div className="text-red-600 text-sm mb-2">{errors.name.message}</div>
@@ -233,18 +250,19 @@ export default function CreateSubCategoryPage() {
       {/* Subcategories list */}
       {selectedCategory && (
         <div className="mt-8">
-          <h2 className="text-lg font-semibold mb-2 text-black">Sub Categories</h2>
+          <h2 className="text-lg font-semibold mb-2 text-black">
+            Sub Categories
+          </h2>
           <div className="flex flex-wrap gap-2">
             {subCategories.map((subCat) => (
               <button
                 key={subCat._id}
                 type="button"
-                //className="bg-gray-200 px-4 py-2 rounded hover:bg-blue-200"
                 className={`px-4 py-2 rounded border cursor-pointer ${
-              editSubCategory && editSubCategory._id === subCat._id
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-800 hover:bg-blue-100"
-            }`}
+                  editSubCategory && editSubCategory._id === subCat._id
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-100 text-gray-800 hover:bg-blue-100"
+                }`}
                 onClick={() => handleEdit(subCat)}
               >
                 {subCat.name}
