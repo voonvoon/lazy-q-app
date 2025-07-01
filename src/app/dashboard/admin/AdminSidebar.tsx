@@ -82,11 +82,11 @@ export default function AdminSidebar() {
             All Orders
           </NavLink>
           <NavLink 
-            href="/dashboard/admin/analytics" 
+            href="/dashboard/admin/create-item/68622e525811bfadc155fbde" 
             icon={FiShield}
             disabled={!isMerchantSelected}
           >
-            Analytics
+            Test Edit Item
           </NavLink>
           <NavLink 
             href="/dashboard/admin/settings" 
