@@ -1,12 +1,14 @@
+//[[...id]] syntax makes the id param optional.
 "use client";
 
 import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMerchant } from "@/contexts/MerchantContext";
 import { capitalizeFirst } from "@/lib/utils/capitalize";
-import { createItem } from "@/lib/actions/item";
+import { createItem, getItemById, updateItem } from "@/lib/actions/item";
 import { getCategoriesByMerchant } from "@/lib/actions/category";
 import { getSubCategoriesByMerchantAndCategory } from "@/lib/actions/subCategory";
 import imageCompression from "browser-image-compression";
@@ -16,12 +18,21 @@ import {
 } from "@/lib/actions/cloudinary";
 
 import toast from "react-hot-toast";
+import { FiUpload } from "react-icons/fi";
 import { FaSpinner } from "react-icons/fa";
+
 // Zod schema
 const itemSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  price: z.coerce.number().min(0, "Price must be positive"), //coerce let str to num so to avoid validation error on string input
+  //price: z.coerce.number().min(0, "Price must be positive"), //coerce let str to num so to avoid validation error on string input
+  price: z
+    .string()
+    .min(1, "Price is required")
+    .transform((val) => Number(val))
+    .refine((val) => !isNaN(val) && val >= 0, {
+      message: "Price must be positive",
+    }),
   availability: z.boolean(),
   image: z.array(
     z.object({
@@ -40,11 +51,13 @@ const itemSchema = z.object({
 });
 
 export default function CreateItemPage() {
-  const { selectedMerchant } = useMerchant();
+  const params = useParams();
+  const itemId = Array.isArray(params.id) ? params.id[0] : params.id; //safely get id, sometime maybe is array/undefined
+  console.log("Item ID from params----------------------->>>>", itemId);
+  const { selectedMerchant, isLoading } = useMerchant();
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategories, setSubCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [imageFiles, setImageFiles] = useState<File[]>([]); // File[]= array of File objects.
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [imageLoading, setImageLoading] = useState(false);
@@ -65,7 +78,7 @@ export default function CreateItemPage() {
     defaultValues: {
       title: "",
       description: "",
-      price: 0,
+      price: "0", //str cuz zod schema start with checking for string then transform to number
       availability: true,
       image: [],
       category: "",
@@ -74,8 +87,24 @@ export default function CreateItemPage() {
     },
   });
 
-  const formValues = watch();
+  //fetch item data if editing
+  useEffect(() => {
+    if (itemId) {
+      getItemById(itemId).then((res) => {
+        if (res.success && res.item) {
+          const itemData = {
+            ...res.item,
+            price: res.item.price?.toString() ?? "0",
+          };
+          reset(itemData);
+          setSelectedCategory(res.item.category); // <-- set selectedCategory for the select
+        }
+      });
+    }
+  }, [itemId]);
 
+  //log live form data for debugging
+  const formValues = watch();
   useEffect(() => {
     console.log(
       "Live form data---------------------------------->>",
@@ -127,7 +156,6 @@ export default function CreateItemPage() {
       setImageLoading(false);
       return;
     }
-    setImageFiles(files);
 
     // Compress images
     const compressedFiles = await Promise.all(
@@ -170,7 +198,7 @@ export default function CreateItemPage() {
         //update form value for images (with url and public_id)
         const prevImages =
           (getValues("image") as { url: string; public_id: string }[]) ?? [];
-        const combinedImageObjs = [...prevImages, ...newImages].slice(0, 4);
+        const combinedImageObjs = [...prevImages, ...newImages].slice(0, 4); //slice for safety although we already check total images above
         setValue("image", combinedImageObjs);
         console.log("Images uploaded successfully:", result.images);
         setImageLoading(false);
@@ -190,6 +218,28 @@ export default function CreateItemPage() {
   };
 
   // Handle form submit
+  // const onSubmit = async (data: any) => {
+  //   setSuccessMsg("");
+  //   setErrorMsg("");
+  //   if (!selectedMerchant?._id) {
+  //     setErrorMsg("Merchant not selected.");
+  //     return;
+  //   }
+
+  //   const result = await createItem({
+  //     ...data,
+  //     merchant: selectedMerchant._id,
+  //   });
+  //   if (result.success) {
+  //     setSuccessMsg("Item created!");
+  //     reset();
+
+  //     setSelectedCategory("");
+  //     setSubCategories([]);
+  //   } else {
+  //     setErrorMsg(result.error ?? "Failed to create item.");
+  //   }
+  // };
   const onSubmit = async (data: any) => {
     setSuccessMsg("");
     setErrorMsg("");
@@ -197,21 +247,38 @@ export default function CreateItemPage() {
       setErrorMsg("Merchant not selected.");
       return;
     }
-    // For now, image array will be empty or dummy data
-    const result = await createItem({
-      ...data,
-      merchant: selectedMerchant._id,
-    });
+
+    let result;
+    if (itemId) {
+      // Edit mode: update item
+      result = await updateItem(itemId, {
+        ...data,
+        merchant: selectedMerchant._id,
+      });
+    } else {
+      // Create mode: create item
+      result = await createItem({
+        ...data,
+        merchant: selectedMerchant._id,
+      });
+    }
+
     if (result.success) {
-      setSuccessMsg("Item created!");
+      setSuccessMsg(itemId ? "Item updated!" : "Item created!");
       reset();
-      setImageFiles([]);
       setSelectedCategory("");
       setSubCategories([]);
     } else {
-      setErrorMsg(result.error ?? "Failed to create item.");
+      setErrorMsg(
+        result.error ??
+          (itemId ? "Failed to update item." : "Failed to create item.")
+      );
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!selectedMerchant) {
     if (typeof window !== "undefined") {
@@ -224,71 +291,10 @@ export default function CreateItemPage() {
     <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
       <h1 className="text-2xl font-bold mb-6">Create New Item</h1>
       <form
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-3"
         onSubmit={handleSubmit(onSubmit)}
         autoComplete="off"
       >
-        {/* Image upload */}
-        <label className="font-medium">Images (max 4)</label>
-        <label className="inline-block bg-blue-500 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-600 transition-colors w-fit">
-          {imageLoading ? (
-            <span className="flex items-center gap-2">
-              <FaSpinner className="animate-spin" /> Loading...
-            </span>
-          ) : (
-            <span>Select Images</span>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImageChange}
-            disabled={isSubmitting}
-            className="hidden"
-          />
-        </label>
-
-        <div className="flex gap-2 mt-2">
-          {getValues("image")?.map((img, idx) => (
-            <div key={img.public_id} className="relative w-20 h-20">
-              <img
-                src={img.url}
-                alt={`preview-${idx}`}
-                className="w-20 h-20 object-cover rounded border"
-              />
-              <button
-                type="button"
-                className="absolute top-0 right-0 bg-black bg-opacity-60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                onClick={async () => {
-                  const confirmDelete = window.confirm(
-                    "Are you sure you want to delete this image?"
-                  );
-                  if (!confirmDelete) return;
-                  // Call server action to delete from Cloudinary
-                  setImageLoading(true);
-                  const res = await deleteImageFromCloudinary(img.public_id);
-                  if (res.success) {
-                    // Remove from form value and previews
-                    const updatedImages = getValues("image").filter(
-                      (i: any) => i.public_id !== img.public_id
-                    );
-                    setValue("image", updatedImages);
-                    setImageLoading(false);
-                    toast.success("Image deleted!");
-                  } else {
-                    toast.error(res.error || "Failed to delete image.");
-                    setImageLoading(false);
-                  }
-                }}
-                disabled={isSubmitting}
-                aria-label="Remove image"
-              >
-                ×
-              </button>
-            </div>
-          ))}
-        </div>
-
         {/* Title */}
         <label htmlFor="title" className="font-medium">
           Title
@@ -431,20 +437,90 @@ export default function CreateItemPage() {
         ))}
         <button
           type="button"
-          className="bg-green-500 text-white px-3 py-2 rounded w-fit cursor-pointer hover:bg-green-600 transition-colors"
+          className="border border-green-500 text-green-600 px-3 py-2 rounded w-fit cursor-pointer hover:bg-green-50 hover:border-green-600 transition-colors bg-white font-semibold"
           onClick={() => appendAddOn({ name: "", price: 0 })}
           disabled={isSubmitting}
         >
           Add Add-on
         </button>
 
+        {/* Image upload */}
+        <label className="font-medium">Upload Images (max 4)</label>
+        <label className="inline-flex items-center gap-2 border-1 border-blue-500 text-blue-600 px-4 py-2 rounded-lg cursor-pointer bg-white hover:bg-blue-50 hover:border-blue-700 transition-all w-fit font-semibold shadow-sm">
+          {imageLoading ? (
+            <span className="flex items-center gap-2">
+              <FaSpinner className="animate-spin text-lg" /> Loading...
+            </span>
+          ) : (
+            <>
+              <FiUpload className="text-xl" />
+              <span>Select Images</span>
+            </>
+          )}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleImageChange}
+            disabled={isSubmitting || imageLoading}
+            className="hidden"
+          />
+        </label>
+
+        <div className="flex gap-2 mt-2">
+          {getValues("image")?.map((img, idx) => (
+            <div key={img.public_id} className="relative w-20 h-20">
+              <img
+                src={img.url}
+                alt={`preview-${idx}`}
+                className="w-20 h-20 object-cover rounded border"
+              />
+              <button
+                type="button"
+                className="absolute top-0 right-0 bg-black bg-opacity-60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 cursor-pointer"
+                onClick={async () => {
+                  const confirmDelete = window.confirm(
+                    "Are you sure you want to delete this image? You will need to save changes to update the item."
+                  );
+                  if (!confirmDelete) return;
+                  // Call server action to delete from Cloudinary
+                  setImageLoading(true);
+                  const res = await deleteImageFromCloudinary(img.public_id);
+                  if (res.success) {
+                    // Remove from form value and previews
+                    const updatedImages = getValues("image").filter(
+                      (i: any) => i.public_id !== img.public_id
+                    );
+                    setValue("image", updatedImages);
+                    setImageLoading(false);
+                    toast.success("Image deleted!");
+                  } else {
+                    toast.error(res.error || "Failed to delete image.");
+                    setImageLoading(false);
+                  }
+                }}
+                disabled={isSubmitting}
+                aria-label="Remove image"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
+
         {/* Submit */}
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 rounded mt-4 hover:bg-blue-700 cursor-pointer transition-colors"
+          className="bg-blue-600 text-white py-3 rounded mt-4 hover:bg-blue-700 cursor-pointer transition-colors"
           disabled={isSubmitting}
         >
-          {isSubmitting ? "Creating..." : "Create"}
+          {isSubmitting
+            ? itemId
+              ? "Updating..."
+              : "Creating..."
+            : itemId
+            ? "Update"
+            : "Create"}
         </button>
         {successMsg && <div className="text-green-600 mt-2">{successMsg}</div>}
         {errorMsg && <div className="text-red-600 mt-2">{errorMsg}</div>}
