@@ -92,7 +92,7 @@ export async function updateItem(itemId: string, data: any) {
     if (!updated) {
       return { success: false, error: "Item not found or update failed." };
     }
-    //return { success: true, item: updated };
+    //return { success: true, item: updated }; tis hv err:RangeError: Maximum call stack size exceeded
     return { success: true};
   } catch (error) {
     return { success: false, error: "Failed to update item." };

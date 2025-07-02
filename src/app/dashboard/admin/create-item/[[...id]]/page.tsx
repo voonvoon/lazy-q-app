@@ -53,7 +53,6 @@ const itemSchema = z.object({
 export default function CreateItemPage() {
   const params = useParams();
   const itemId = Array.isArray(params.id) ? params.id[0] : params.id; //safely get id, sometime maybe is array/undefined
-  console.log("Item ID from params----------------------->>>>", itemId);
   const { selectedMerchant, isLoading } = useMerchant();
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategories, setSubCategories] = useState<any[]>([]);
@@ -61,8 +60,9 @@ export default function CreateItemPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [imageLoading, setImageLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
 
-  console.log("Selected Merchant-------------------->", selectedMerchant);
+  //console.log("Selected Merchant-------------------->", selectedMerchant);
 
   const {
     register,
@@ -97,9 +97,14 @@ export default function CreateItemPage() {
             price: res.item.price?.toString() ?? "0",
           };
           reset(itemData);
-          setSelectedCategory(res.item.category); // <-- set selectedCategory for the select
+          setSelectedCategory(res.item.category);
+          setNotFound(false);
+        } else {
+          setNotFound(true);
         }
       });
+    } else {
+      setNotFound(false);
     }
   }, [itemId]);
 
@@ -168,8 +173,6 @@ export default function CreateItemPage() {
       )
     );
 
-    console.log("Compressed files:", compressedFiles);
-
     // Convert to base64 for server upload
     const base64Files = await Promise.all(
       compressedFiles.map((file) => {
@@ -182,15 +185,13 @@ export default function CreateItemPage() {
       })
     );
 
-    console.log("Base64 files:", base64Files);
-
     // Upload to Cloudinary
     if (selectedMerchant?.slug) {
       const result = await uploadImagesToCloudinary(
         base64Files,
         selectedMerchant.slug
       );
-      console.log("Cloudinary upload result:", result);
+
       if (result.success) {
         // Combine existing and new images, but max 4
         const newImages = result.images ?? [];
@@ -200,8 +201,17 @@ export default function CreateItemPage() {
           (getValues("image") as { url: string; public_id: string }[]) ?? [];
         const combinedImageObjs = [...prevImages, ...newImages].slice(0, 4); //slice for safety although we already check total images above
         setValue("image", combinedImageObjs);
-        console.log("Images uploaded successfully:", result.images);
         setImageLoading(false);
+
+        // auto update item in edit mode when admidn uploads new images
+        if (itemId) {
+          await updateItem(itemId, {
+            ...getValues(),
+            image: combinedImageObjs,
+            merchant: selectedMerchant._id,
+          });
+          toast.success("Item auto saved after new image upload!");
+        }
       } else {
         setErrorMsg(result.error || "Image upload failed.");
         setImageLoading(false);
@@ -217,29 +227,7 @@ export default function CreateItemPage() {
     }
   };
 
-  // Handle form submit
-  // const onSubmit = async (data: any) => {
-  //   setSuccessMsg("");
-  //   setErrorMsg("");
-  //   if (!selectedMerchant?._id) {
-  //     setErrorMsg("Merchant not selected.");
-  //     return;
-  //   }
-
-  //   const result = await createItem({
-  //     ...data,
-  //     merchant: selectedMerchant._id,
-  //   });
-  //   if (result.success) {
-  //     setSuccessMsg("Item created!");
-  //     reset();
-
-  //     setSelectedCategory("");
-  //     setSubCategories([]);
-  //   } else {
-  //     setErrorMsg(result.error ?? "Failed to create item.");
-  //   }
-  // };
+  // Handle form submission
   const onSubmit = async (data: any) => {
     setSuccessMsg("");
     setErrorMsg("");
@@ -264,12 +252,21 @@ export default function CreateItemPage() {
     }
 
     if (result.success) {
-      setSuccessMsg(itemId ? "Item updated!" : "Item created!");
-      reset();
-      setSelectedCategory("");
-      setSubCategories([]);
+      //setSuccessMsg(itemId ? "Item updated!" : "Item created!");
+      toast.success(
+        itemId ? "Item updated successfully!" : "Item created successfully!"
+      );
+      if (!itemId) {
+        reset();
+        setSelectedCategory("");
+        setSubCategories([]);
+      }
     } else {
-      setErrorMsg(
+      // setErrorMsg(
+      //   result.error ??
+      //     (itemId ? "Failed to update item." : "Failed to create item.")
+      // );
+      toast.error(
         result.error ??
           (itemId ? "Failed to update item." : "Failed to create item.")
       );
@@ -285,6 +282,21 @@ export default function CreateItemPage() {
       window.location.href = "/dashboard/admin";
     }
     return null;
+  }
+
+  //if itemId is there but not valid
+  if (notFound) {
+    return (
+      <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
+        <h1 className="text-2xl font-bold mb-6 text-red-600">
+          No such product found.
+        </h1>
+        <p>
+          The product ID is invalid or the item no longer exists in the
+          database.
+        </p>
+      </main>
+    );
   }
 
   return (
@@ -480,7 +492,7 @@ export default function CreateItemPage() {
                 className="absolute top-0 right-0 bg-black bg-opacity-60 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 cursor-pointer"
                 onClick={async () => {
                   const confirmDelete = window.confirm(
-                    "Are you sure you want to delete this image? You will need to save changes to update the item."
+                    "Are you sure you want to delete this image?"
                   );
                   if (!confirmDelete) return;
                   // Call server action to delete from Cloudinary
@@ -494,6 +506,16 @@ export default function CreateItemPage() {
                     setValue("image", updatedImages);
                     setImageLoading(false);
                     toast.success("Image deleted!");
+
+                    // 🟢 Auto-update DB if editing
+                    if (itemId) {
+                      await updateItem(itemId, {
+                        ...getValues(), // get all current form values
+                        image: updatedImages,
+                        merchant: selectedMerchant._id,
+                      });
+                      toast.success("Item auto saved after image delete!");
+                    }
                   } else {
                     toast.error(res.error || "Failed to delete image.");
                     setImageLoading(false);
@@ -522,8 +544,6 @@ export default function CreateItemPage() {
             ? "Update"
             : "Create"}
         </button>
-        {successMsg && <div className="text-green-600 mt-2">{successMsg}</div>}
-        {errorMsg && <div className="text-red-600 mt-2">{errorMsg}</div>}
       </form>
     </main>
   );
