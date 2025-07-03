@@ -57,10 +57,9 @@ export default function CreateItemPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategories, setSubCategories] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
   const [imageLoading, setImageLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [merchantMismatch, setMerchantMismatch] = useState(false);
 
   //console.log("Selected Merchant-------------------->", selectedMerchant);
 
@@ -92,12 +91,22 @@ export default function CreateItemPage() {
     if (itemId) {
       getItemById(itemId).then((res) => {
         if (res.success && res.item) {
+          // Check item.merchant match currently selected merchant
+          // Type assertion to include merchant , tell TS: “Trust me, this item has merchant property”
+          const itemWithMerchant = res.item as typeof res.item & {
+            merchant: any;
+          };
+
+          if (itemWithMerchant.merchant !== selectedMerchant?._id) {
+            setMerchantMismatch(true);
+            return;
+          }
           const itemData = {
-            ...res.item,
-            price: res.item.price?.toString() ?? "0",
+            ...itemWithMerchant,
+            price: itemWithMerchant.price?.toString() ?? "0",
           };
           reset(itemData);
-          setSelectedCategory(res.item.category);
+          setSelectedCategory(itemWithMerchant.category);
           setNotFound(false);
         } else {
           setNotFound(true);
@@ -203,7 +212,7 @@ export default function CreateItemPage() {
         setValue("image", combinedImageObjs);
         setImageLoading(false);
 
-        // auto update item in edit mode when admidn uploads new images
+        // auto update item in edit mode when admin uploads new images
         if (itemId) {
           await updateItem(itemId, {
             ...getValues(),
@@ -213,7 +222,7 @@ export default function CreateItemPage() {
           toast.success("Item auto saved after new image upload!");
         }
       } else {
-        setErrorMsg(result.error || "Image upload failed.");
+        toast.error(result.error || "Image upload failed.");
         setImageLoading(false);
       }
     }
@@ -229,10 +238,8 @@ export default function CreateItemPage() {
 
   // Handle form submission
   const onSubmit = async (data: any) => {
-    setSuccessMsg("");
-    setErrorMsg("");
     if (!selectedMerchant?._id) {
-      setErrorMsg("Merchant not selected.");
+      toast.error("Merchant not selected.");
       return;
     }
 
@@ -252,7 +259,6 @@ export default function CreateItemPage() {
     }
 
     if (result.success) {
-      //setSuccessMsg(itemId ? "Item updated!" : "Item created!");
       toast.success(
         itemId ? "Item updated successfully!" : "Item created successfully!"
       );
@@ -262,10 +268,7 @@ export default function CreateItemPage() {
         setSubCategories([]);
       }
     } else {
-      // setErrorMsg(
-      //   result.error ??
-      //     (itemId ? "Failed to update item." : "Failed to create item.")
-      // );
+
       toast.error(
         result.error ??
           (itemId ? "Failed to update item." : "Failed to create item.")
@@ -298,9 +301,25 @@ export default function CreateItemPage() {
       </main>
     );
   }
+//if merchant mismatch
+  if (merchantMismatch) {
+    return (
+      <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
+        <h1 className="text-2xl font-bold mb-6 text-red-600">
+          You are not authorized to edit this item.
+        </h1>
+        <p>The item does not belong to the currently selected merchant.</p>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
+       {selectedMerchant && (
+        <div className="mb-2 text-sm font-semibold text-blue-700">
+          Merchant: {selectedMerchant.name}
+        </div>
+      )}
       <h1 className="text-2xl font-bold mb-6">Create New Item</h1>
       <form
         className="flex flex-col gap-3"
