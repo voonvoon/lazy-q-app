@@ -10,6 +10,7 @@ import {
   FiLayers,
   FiGift,
   FiShoppingCart,
+  FiPlusCircle
 } from "react-icons/fi";
 import { GiMeal, GiKnifeFork } from "react-icons/gi";
 
@@ -59,6 +60,13 @@ export default function AdminSidebar() {
             disabled={!isMerchantSelected}
           >
             Create Item
+          </NavLink>
+           <NavLink 
+            href="/dashboard/admin/create-addon" 
+            icon={FiPlusCircle}
+            disabled={!isMerchantSelected}
+          >
+            Create Add-on
           </NavLink>
           <NavLink 
             href="/dashboard/admin/create-coupon" 

@@ -25,7 +25,11 @@ export async function createItem(data: any) {
     slug,
   });
 
-  return { success: true, itemId: item._id.toString(), error: "Failed to create item." };
+  return {
+    success: true,
+    itemId: item._id.toString(),
+    error: "Failed to create item.",
+  };
 }
 
 export async function getItemById(itemId: string) {
@@ -38,7 +42,7 @@ export async function getItemById(itemId: string) {
   await dbConnect();
 
   try {
-    const item:any = await Item.findById(itemId).lean();
+    const item: any = await Item.findById(itemId).lean();
     if (!item) {
       return { success: false, error: "Item not found." };
     }
@@ -65,6 +69,7 @@ export async function getItemById(itemId: string) {
             price: addOn.price ?? 0,
           }))
         : [],
+      merchant: item.merchant ? item.merchant.toString() : "",
       createdAt: item.createdAt?.toISOString?.() ?? "",
       updatedAt: item.updatedAt?.toISOString?.() ?? "",
     };
@@ -93,7 +98,7 @@ export async function updateItem(itemId: string, data: any) {
       return { success: false, error: "Item not found or update failed." };
     }
     //return { success: true, item: updated }; tis hv err:RangeError: Maximum call stack size exceeded
-    return { success: true};
+    return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to update item." };
   }
