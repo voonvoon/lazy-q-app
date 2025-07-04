@@ -77,7 +77,7 @@ export default function CreateAddOnPage() {
         toast.success(editAddOn ? "Add-on updated!" : "Add-on created!");
         reset({ name: "", price: 0 });
         setEditAddOn(null);
-         setRefreshKey((k) => k + 1); 
+        setRefreshKey((k) => k + 1); 
       } else {
         toast.error(result.error || "Failed to save add-on.");
       }
@@ -101,7 +101,7 @@ export default function CreateAddOnPage() {
         toast.success("Add-on deleted!");
         reset({ name: "", price: 0 });
         setEditAddOn(null);
-         setRefreshKey((k) => k + 1); 
+        setRefreshKey((k) => k + 1); 
       } else {
         toast.error(result.error || "Failed to delete add-on.");
       }
@@ -143,7 +143,7 @@ export default function CreateAddOnPage() {
           <input
             id="addOnPrice"
             type="number"
-            step="0.01"
+            step="0.10"
             //min="0"
             className="w-full border rounded px-3 py-2 text-black"
             {...register("price")}
@@ -158,7 +158,7 @@ export default function CreateAddOnPage() {
           <button
             type="submit"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 cursor-pointer"
-            disabled={isSubmitting || !watch("name").trim()}
+            disabled={isSubmitting}
           >
             {isSubmitting
               ? editAddOn

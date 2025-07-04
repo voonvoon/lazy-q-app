@@ -6,6 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMerchant } from "@/contexts/MerchantContext";
 import { capitalizeFirst } from "@/lib/utils/capitalize";
+import toast from "react-hot-toast";
 
 // Import your actions
 import { getCategoriesByMerchant } from "@/lib/actions/category";
@@ -28,8 +29,6 @@ export default function CreateSubCategoryPage() {
   const [subCategories, setSubCategories] = useState<any[]>([]); // State to hold subcategories
   const [selectedCategory, setSelectedCategory] = useState<string>(""); // State to hold selected category id
   const [editSubCategory, setEditSubCategory] = useState<any>(null); // State to hold subcategory being edited
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
 
   const {
     register,
@@ -74,8 +73,6 @@ export default function CreateSubCategoryPage() {
 
   // Handle form submit
   const onSubmit = async (data: any) => {
-    setSuccessMsg("");
-    setErrorMsg("");
     try {
       let result;
       if (editSubCategory) {
@@ -90,7 +87,7 @@ export default function CreateSubCategoryPage() {
         });
       }
       if (result.success) {
-        setSuccessMsg(
+        toast.success(
           editSubCategory ? "Sub Category updated!" : "Sub Category created!"
         );
         reset({ name: "", parentCategory: selectedCategory }); // parent category dropdown stays on the currently selected category
@@ -105,10 +102,10 @@ export default function CreateSubCategoryPage() {
           });
         }
       } else {
-        setErrorMsg(result.error || "Failed to save sub category.");
+        toast.error(result.error || "Failed to save sub category.");
       }
     } catch (err) {
-      setErrorMsg("Something went wrong.");
+      toast.error("Something went wrong.");
     }
   };
 
@@ -121,11 +118,10 @@ export default function CreateSubCategoryPage() {
 
   // Handle delete
   const handleDelete = async (id: string) => {
-    setSuccessMsg("");
-    setErrorMsg("");
     const result = await deleteSubCategory(id);
     if (result.success) {
-      setSuccessMsg("Sub Category deleted!");
+      // setSuccessMsg("Sub Category deleted!");
+      toast.success("Sub Category deleted!");
       setEditSubCategory(null);
       reset({ name: "", parentCategory: selectedCategory });
       // Refresh subcategories
@@ -138,7 +134,7 @@ export default function CreateSubCategoryPage() {
         });
       }
     } else {
-      setErrorMsg(result.error || "Failed to delete sub category.");
+      toast.error(result.error || "Failed to delete sub category.");
     }
   };
 
@@ -191,7 +187,7 @@ export default function CreateSubCategoryPage() {
         <input
           id="name"
           type="text"
-          className="border border-gray-300 rounded px-3 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+          className="border border-gray-300 rounded px-3 py-2 mb-4  text-black"
           {...register("name")}
           disabled={isSubmitting}
           onBlur={(e) => {
@@ -243,8 +239,6 @@ export default function CreateSubCategoryPage() {
             </button>
           </div>
         )}
-        {successMsg && <div className="mt-4 text-green-600">{successMsg}</div>}
-        {errorMsg && <div className="mt-4 text-red-600">{errorMsg}</div>}
       </form>
 
       {/* Subcategories list */}

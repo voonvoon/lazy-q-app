@@ -48,7 +48,7 @@ export async function getAddOnsByMerchant(merchantId: string) {
   await dbConnect();
   try {
     const addOns = await AddOn.find({ merchant: merchantId })
-      .sort({ name: 1 })
+      .sort({ name: 1 }) //sort ascending(A->Z)
       .lean();
     return { success: true, addOns: addOns.map(serializeAddOn) };
   } catch (error) {

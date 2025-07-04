@@ -64,10 +64,7 @@ export async function getItemById(itemId: string) {
         ? item.subCategories.map((id: any) => id.toString())
         : [],
       addOns: Array.isArray(item.addOns)
-        ? item.addOns.map((addOn: any) => ({
-            name: addOn.name || "",
-            price: addOn.price ?? 0,
-          }))
+        ? item.addOns.map((id: any) => id.toString())
         : [],
       merchant: item.merchant ? item.merchant.toString() : "",
       createdAt: item.createdAt?.toISOString?.() ?? "",

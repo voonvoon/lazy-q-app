@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form"; //helps you manage form state, valida
 import { z } from "zod"; //TypeScript-first schema validation library.
 import { zodResolver } from "@hookform/resolvers/zod"; //connects React Hook Form and Zod
 import { capitalizeFirst } from "@/lib/utils/capitalize";
+import toast from "react-hot-toast";
 
 const COMMON_CATEGORIES = [
   "Appetizers",
@@ -44,9 +45,7 @@ export default function CreateCategoryPage() {
   const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]); //to hold selected category from dropdown
   const [categories, setCategories] = useState<any[]>([]); //to hold fetched categories
   const [editCategory, setEditCategory] = useState<any>(null); //to hold category being edited
-  const [successMsg, setSuccessMsg] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-
+const [refreshKey, setRefreshKey] = useState(0);
   const {
     register, //Connects input field to React Hook Form so can track their values & validation.
     handleSubmit, //func use on your <form> to handle form submission & validation.
@@ -67,7 +66,7 @@ export default function CreateCategoryPage() {
     getCategoriesByMerchant(selectedMerchant._id).then((res) => {
       if (res.success) setCategories(res.categories);
     });
-  }, [selectedMerchant, successMsg]);
+  }, [selectedMerchant,refreshKey]);
 
   if (!selectedMerchant) {
     if (typeof window !== "undefined") {
@@ -85,8 +84,6 @@ export default function CreateCategoryPage() {
 
   // Handle create or update
   async function onFormSubmit(data: CategoryForm) {
-    setSuccessMsg("");
-    setErrorMsg("");
     try {
       let result;
       if (editCategory) {
@@ -98,15 +95,16 @@ export default function CreateCategoryPage() {
         });
       }
       if (result.success) {
-        setSuccessMsg(editCategory ? "Category updated!" : "Category created!");
+        toast.success(editCategory ? "Category updated!" : "Category created!");
         reset({ name: COMMON_CATEGORIES[0] });
         setDropdown(COMMON_CATEGORIES[0]);
         setEditCategory(null);
+        setRefreshKey((k) => k + 1);
       } else {
-        setErrorMsg(result.error || "Failed to save category.");
+        toast.error(result.error || "Failed to save category.");
       }
     } catch {
-      setErrorMsg("Something went wrong.");
+      toast.error("Something went wrong.");
     }
   }
 
@@ -121,27 +119,24 @@ export default function CreateCategoryPage() {
       reset({ name: cat.name });
       handleSubmit(resetErrorHack)(); //trick to make error state updated, else no validation.
     }
-    setSuccessMsg("");
-    setErrorMsg("");
   }
 
   // Handle delete
   async function handleDelete() {
     if (!editCategory) return;
-    setSuccessMsg("");
-    setErrorMsg("");
     try {
       const result = await deleteCategory(editCategory._id);
       if (result.success) {
-        setSuccessMsg("Category deleted!");
+        toast.success("Category deleted!");
         reset({ name: COMMON_CATEGORIES[0] });
         setDropdown(COMMON_CATEGORIES[0]);
         setEditCategory(null);
+        setRefreshKey((k) => k + 1);
       } else {
-        setErrorMsg(result.error || "Failed to delete category.");
+        toast.error(result.error || "Failed to delete category.");
       }
     } catch {
-      setErrorMsg("Something went wrong.");
+      toast.error("Something went wrong.");
     }
   }
 
@@ -209,8 +204,6 @@ export default function CreateCategoryPage() {
             <div className="text-red-600 text-sm">{errors.name.message}</div>
           )}
         </div>
-        {successMsg && <div className="mb-4 text-green-600">{successMsg}</div>}
-        {errorMsg && <div className="mb-4 text-red-600">{errorMsg}</div>}
         <div className="flex gap-2">
           <button
             type="submit"
@@ -246,8 +239,6 @@ export default function CreateCategoryPage() {
                   setEditCategory(null);
                   reset({ name: COMMON_CATEGORIES[0] });
                   setDropdown(COMMON_CATEGORIES[0]);
-                  setSuccessMsg("");
-                  setErrorMsg("");
                 }}
                 disabled={isSubmitting}
               >
