@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMerchant } from "@/contexts/MerchantContext";
@@ -16,6 +16,7 @@ import {
   uploadImagesToCloudinary,
   deleteImageFromCloudinary,
 } from "@/lib/actions/cloudinary";
+import { getAddOnsByMerchant } from "@/lib/actions/addon";
 
 import toast from "react-hot-toast";
 import { FiUpload } from "react-icons/fi";
@@ -42,12 +43,7 @@ const itemSchema = z.object({
   ),
   category: z.string().min(1, "Category is required"),
   subCategories: z.array(z.string()),
-  addOns: z.array(
-    z.object({
-      name: z.string().min(1, "Add-on name required"),
-      price: z.coerce.number().min(0, "Add-on price must be positive"),
-    })
-  ),
+  addOns: z.array(z.string()),
 });
 
 export default function CreateItemPage() {
@@ -60,6 +56,8 @@ export default function CreateItemPage() {
   const [imageLoading, setImageLoading] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [merchantMismatch, setMerchantMismatch] = useState(false);
+  const [addOns, setAddOns] = useState<any[]>([]);
+  const [addOnDropdownOpen, setAddOnDropdownOpen] = useState(false);
 
   //console.log("Selected Merchant-------------------->", selectedMerchant);
 
@@ -85,6 +83,14 @@ export default function CreateItemPage() {
       addOns: [],
     },
   });
+
+  //fetch add-ons for selected merchant
+  useEffect(() => {
+    if (!selectedMerchant?._id) return;
+    getAddOnsByMerchant(selectedMerchant._id).then((res) => {
+      if (res.success) setAddOns(res.addOns ?? []);
+    });
+  }, [selectedMerchant]);
 
   //fetch item data if editing
   useEffect(() => {
@@ -125,16 +131,6 @@ export default function CreateItemPage() {
       formValues
     );
   }, [formValues]);
-
-  // AddOns field array
-  const {
-    fields: addOnFields, //from the useFieldArray hook
-    append: appendAddOn, //function to add new add-on
-    remove: removeAddOn, //function to remove an add-on
-  } = useFieldArray({
-    control,
-    name: "addOns",
-  });
 
   // Fetch categories on mount
   useEffect(() => {
@@ -268,7 +264,6 @@ export default function CreateItemPage() {
         setSubCategories([]);
       }
     } else {
-
       toast.error(
         result.error ??
           (itemId ? "Failed to update item." : "Failed to create item.")
@@ -301,7 +296,7 @@ export default function CreateItemPage() {
       </main>
     );
   }
-//if merchant mismatch
+  //if merchant mismatch
   if (merchantMismatch) {
     return (
       <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
@@ -315,7 +310,7 @@ export default function CreateItemPage() {
 
   return (
     <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
-       {selectedMerchant && (
+      {selectedMerchant && (
         <div className="mb-2 text-sm font-semibold text-blue-700">
           Merchant: {selectedMerchant.name}
         </div>
@@ -437,43 +432,61 @@ export default function CreateItemPage() {
         )}
 
         {/* Add-ons */}
+  
         <label className="font-medium">Add-ons</label>
-        {addOnFields.map((field, idx) => (
-          <div key={field.id} className="flex gap-2 items-center mb-2">
-            <input
-              type="text"
-              placeholder="Add-on name"
-              className="border rounded px-2 py-1"
-              {...register(`addOns.${idx}.name`)}
-              disabled={isSubmitting}
-            />
-            <input
-              type="number"
-              min="0"
-              step="0.10"
-              placeholder="Price"
-              className="border rounded px-2 py-1 w-24"
-              {...register(`addOns.${idx}.price`)}
-              disabled={isSubmitting}
-            />
-            <button
-              type="button"
-              className="text-red-600 px-2 cursor-pointer"
-              onClick={() => removeAddOn(idx)}
-              disabled={isSubmitting}
+        <div className="relative">
+          <button
+            type="button"
+            className="border rounded px-3 py-2 w-full text-left bg-white cursor-pointer hover:bg-blue-50 transition-colors"
+            onClick={() => setAddOnDropdownOpen((open) => !open)}
+            disabled={isSubmitting || addOns.length === 0}
+          >
+              Select add-ons
+          </button>
+          {addOnDropdownOpen && (
+            <div
+              className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-48 overflow-y-auto"
+              tabIndex={-1} // to allow focus and blur events
+              onBlur={() => setAddOnDropdownOpen(false)}
             >
-              ✕
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          className="border border-green-500 text-green-600 px-3 py-2 rounded w-fit cursor-pointer hover:bg-green-50 hover:border-green-600 transition-colors bg-white font-semibold"
-          onClick={() => appendAddOn({ name: "", price: 0 })}
-          disabled={isSubmitting}
-        >
-          Add Add-on
-        </button>
+              {addOns.map((addOn) => (
+                <label
+                  key={addOn._id}
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-blue-50 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    value={addOn._id}
+                    checked={getValues("addOns").includes(addOn._id)}
+                    onChange={(e) => {
+                      const checked = e.target.checked;
+                      const prev = getValues("addOns") || [];
+                      if (checked) {
+                        setValue("addOns", [...prev, addOn._id], {
+                          shouldValidate: true,
+                        });
+                      } else {
+                        setValue(
+                          "addOns",
+                          prev.filter((id) => id !== addOn._id),
+                          { shouldValidate: true }
+                        );
+                      }
+                    }}
+                    disabled={isSubmitting}
+                  />
+                  {addOn.name} (RM{addOn.price.toFixed(2)})
+                </label>
+              ))}
+              {addOns.length === 0 && (
+                <div className="px-3 py-2 text-gray-500">No add-ons found.</div>
+              )}
+            </div>
+          )}
+        </div>
+        {errors.addOns && (
+          <div className="text-red-600 text-sm">{errors.addOns.message}</div>
+        )}
 
         {/* Image upload */}
         <label className="font-medium">Upload Images (max 4)</label>

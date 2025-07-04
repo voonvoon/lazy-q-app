@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import Link from "next/link";
 import { useMerchant } from "@/contexts/MerchantContext";
@@ -10,13 +10,13 @@ import {
   FiLayers,
   FiGift,
   FiShoppingCart,
-  FiPlusCircle
+  FiPlusCircle,
 } from "react-icons/fi";
 import { GiMeal, GiKnifeFork } from "react-icons/gi";
 
 export default function AdminSidebar() {
   const { selectedMerchantId, isLoading } = useMerchant();
-  
+
   // Check if merchant is selected (context first, could fallback to localStorage if needed)
   const isMerchantSelected = !!selectedMerchantId;
 
@@ -38,10 +38,10 @@ export default function AdminSidebar() {
           <NavLink href="/dashboard/admin" icon={FiGrid}>
             Overview
           </NavLink>
-          
+
           {/* ✅ All other links are disabled unless merchant is selected */}
-          <NavLink 
-            href="/dashboard/admin/create-category" 
+          <NavLink
+            href="/dashboard/admin/create-category"
             icon={FiFolder}
             disabled={!isMerchantSelected}
           >
@@ -54,50 +54,51 @@ export default function AdminSidebar() {
           >
             Create Sub Category
           </NavLink>
-          <NavLink 
-            href="/dashboard/admin/create-item" 
-            icon={GiMeal}
-            disabled={!isMerchantSelected}
-          >
-            Create Item
-          </NavLink>
-           <NavLink 
-            href="/dashboard/admin/create-addon" 
+          <NavLink
+            href="/dashboard/admin/create-addon"
             icon={FiPlusCircle}
             disabled={!isMerchantSelected}
           >
             Create Add-on
           </NavLink>
-          <NavLink 
-            href="/dashboard/admin/create-coupon" 
+          <NavLink
+            href="/dashboard/admin/create-item"
+            icon={GiMeal}
+            disabled={!isMerchantSelected}
+          >
+            Create Item
+          </NavLink>
+
+          <NavLink
+            href="/dashboard/admin/create-coupon"
             icon={FiGift}
             disabled={!isMerchantSelected}
           >
             Create Coupon
           </NavLink>
-          <NavLink 
-            href="/dashboard/admin/all-items" 
+          <NavLink
+            href="/dashboard/admin/all-items"
             icon={GiKnifeFork}
             disabled={!isMerchantSelected}
           >
             All Items
           </NavLink>
-          <NavLink 
-            href="/dashboard/admin/all-orders" 
+          <NavLink
+            href="/dashboard/admin/all-orders"
             icon={FiShoppingCart}
             disabled={!isMerchantSelected}
           >
             All Orders
           </NavLink>
-          <NavLink 
-            href="/dashboard/admin/create-item/68622e525811bfadc155fbde" 
+          <NavLink
+            href="/dashboard/admin/create-item/686753f431c810003fb3cab7"
             icon={FiShield}
             disabled={!isMerchantSelected}
           >
             Test Edit Item
           </NavLink>
-          <NavLink 
-            href="/dashboard/admin/settings" 
+          <NavLink
+            href="/dashboard/admin/settings"
             icon={FiSettings}
             disabled={!isMerchantSelected}
           >
@@ -121,8 +122,9 @@ function NavLink({
   children: React.ReactNode;
   disabled?: boolean;
 }) {
-  const baseClasses = "group flex items-center px-4 py-2 text-sm font-medium transition-colors relative";
-  
+  const baseClasses =
+    "group flex items-center px-4 py-2 text-sm font-medium transition-colors relative";
+
   if (disabled) {
     return (
       <div
