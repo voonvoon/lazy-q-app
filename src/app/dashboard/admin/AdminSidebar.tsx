@@ -68,14 +68,6 @@ export default function AdminSidebar() {
           >
             Create Item
           </NavLink>
-
-          <NavLink
-            href="/dashboard/admin/create-coupon"
-            icon={FiGift}
-            disabled={!isMerchantSelected}
-          >
-            Create Coupon
-          </NavLink>
           <NavLink
             href="/dashboard/admin/all-items"
             icon={GiKnifeFork}
@@ -90,6 +82,15 @@ export default function AdminSidebar() {
           >
             All Orders
           </NavLink>
+
+          <NavLink
+            href="/dashboard/admin/create-coupon"
+            icon={FiGift}
+            disabled={!isMerchantSelected}
+          >
+            Create Coupon
+          </NavLink>
+
           <NavLink
             href="/dashboard/admin/create-item/686753f431c810003fb3cab7"
             icon={FiShield}
