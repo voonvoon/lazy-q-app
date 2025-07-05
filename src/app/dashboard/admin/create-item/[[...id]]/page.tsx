@@ -1,7 +1,7 @@
 //[[...id]] syntax makes the id param optional.
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,6 +21,7 @@ import { getAddOnsByMerchant } from "@/lib/actions/addon";
 import toast from "react-hot-toast";
 import { FiUpload } from "react-icons/fi";
 import { FaSpinner } from "react-icons/fa";
+import { IoIosArrowDown } from "react-icons/io";
 
 // Zod schema
 const itemSchema = z.object({
@@ -49,6 +50,7 @@ const itemSchema = z.object({
 export default function CreateItemPage() {
   const params = useParams();
   const itemId = Array.isArray(params.id) ? params.id[0] : params.id; //safely get id, sometime maybe is array/undefined
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const { selectedMerchant, isLoading } = useMerchant();
   const [categories, setCategories] = useState<any[]>([]);
   const [subCategories, setSubCategories] = useState<any[]>([]);
@@ -66,7 +68,7 @@ export default function CreateItemPage() {
     handleSubmit,
     setValue,
     getValues,
-    control, //is require for advanced form features like field arrays & custom components in React Hook Form.
+    //control, //is require for advanced form features like field arrays & custom components in React Hook Form.
     reset,
     watch, //watch is used to get live form data
     formState: { errors, isSubmitting },
@@ -173,7 +175,7 @@ export default function CreateItemPage() {
         imageCompression(file, {
           maxSizeMB: 1,
           maxWidthOrHeight: 1024,
-          useWebWorker: true, // Use web worker for compression so it doesn't block UI
+          useWebWorker: true, // Use web worker for compression so it doesn't block UI while processing
         })
       )
     );
@@ -308,6 +310,23 @@ export default function CreateItemPage() {
     );
   }
 
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        addOnDropdownOpen &&
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setAddOnDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [addOnDropdownOpen]);
+
   return (
     <main className="max-w-xl mx-auto my-8 p-8 border border-gray-200 rounded-lg bg-white text-black">
       {selectedMerchant && (
@@ -387,7 +406,7 @@ export default function CreateItemPage() {
         </label>
         <select
           id="category"
-          className="border rounded px-3 py-2"
+          className="border rounded px-3 py-2 cursor-pointer"
           {...register("category")}
           value={selectedCategory}
           onChange={(e) => {
@@ -432,7 +451,7 @@ export default function CreateItemPage() {
         )}
 
         {/* Add-ons */}
-  
+        {/* React Hook Form’s {...register("addOns")} NOT auto sync checked state for checkboxes inside custom dropdown, so need handle it manually */}
         <label className="font-medium">Add-ons</label>
         <div className="relative">
           <button
@@ -441,13 +460,15 @@ export default function CreateItemPage() {
             onClick={() => setAddOnDropdownOpen((open) => !open)}
             disabled={isSubmitting || addOns.length === 0}
           >
+            <div className="flex items-center justify-between">
               Select add-ons
+              <IoIosArrowDown />
+            </div>
           </button>
           {addOnDropdownOpen && (
             <div
+              ref={dropdownRef}
               className="absolute z-10 mt-1 w-full bg-white border rounded shadow max-h-48 overflow-y-auto"
-              tabIndex={-1} // to allow focus and blur events
-              onBlur={() => setAddOnDropdownOpen(false)}
             >
               {addOns.map((addOn) => (
                 <label

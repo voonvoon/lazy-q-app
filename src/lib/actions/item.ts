@@ -100,3 +100,73 @@ export async function updateItem(itemId: string, data: any) {
     return { success: false, error: "Failed to update item." };
   }
 }
+
+//for all items
+export async function getItemsByMerchant({
+  merchantId,
+  page = 1,
+  pageSize = 12,
+  categoryId,
+  search,
+}: {
+  merchantId: string;
+  page?: number;
+  pageSize?: number;
+  categoryId?: string;
+  search?: string;
+}) {
+  await checkPermission("manage", "Product");
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+  await dbConnect();
+
+  const filter: any = { merchant: merchantId };
+  if (categoryId) filter.category = categoryId;
+  if (search) filter.title = { $regex: search, $options: "i" };
+
+  const total = await Item.countDocuments(filter);
+  const items = await Item.find(filter)
+    .sort({ createdAt: -1 })
+    .skip((page - 1) * pageSize)
+    .limit(pageSize)
+    .lean();
+
+  // Serialize items for client
+  const serialized = items.map((item: any) => ({
+    _id: item._id.toString(),
+    title: item.title,
+    price: item.price,
+    category: item.category?.toString() || "",
+    image:
+      Array.isArray(item.image) && item.image[0]?.url ? item.image[0].url : "",
+    createdAt: item.createdAt?.toISOString?.() ?? "",
+    updatedAt: item.updatedAt?.toISOString?.() ?? "",
+  }));
+
+  return {
+    success: true,
+    items: serialized,
+    total,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
+  };
+}
+
+export async function deleteItem(itemId: string) {
+  await checkPermission("manage", "Product");
+  const session = await auth();
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+  await dbConnect();
+
+  try {
+    await Item.findByIdAndDelete(itemId);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Failed to delete item." };
+  }
+}
