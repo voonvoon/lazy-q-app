@@ -92,13 +92,6 @@ export default function AdminSidebar() {
           </NavLink>
 
           <NavLink
-            href="/dashboard/admin/create-item/686753f431c810003fb3cab7"
-            icon={FiShield}
-            disabled={!isMerchantSelected}
-          >
-            Test Edit Item
-          </NavLink>
-          <NavLink
             href="/dashboard/admin/settings"
             icon={FiSettings}
             disabled={!isMerchantSelected}
