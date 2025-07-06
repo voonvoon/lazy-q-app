@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useMerchant } from "@/contexts/MerchantContext";
-import { getItemsByMerchant, deleteItem } from "@/lib/actions/item";
+import { getItemsByMerchant, deleteItemAndCloudinaryImages } from "@/lib/actions/item";
 import { getCategoriesByMerchant } from "@/lib/actions/category";
 import Link from "next/link";
 import type { Item, Category } from "@/lib/type";
+import { RiDeleteBinLine } from "react-icons/ri";
+import { FiEdit } from "react-icons/fi";
 
 export default function AllItemsPage() {
   const { selectedMerchant } = useMerchant();
@@ -18,15 +20,17 @@ export default function AllItemsPage() {
   const [loading, setLoading] = useState(false);
 
   // Debounce search
-  const searchTimeout = useRef<NodeJS.Timeout | null>(null);
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
+  const searchTimeout = useRef<NodeJS.Timeout | null>(null); //<NodeJS.Timeout | null> is used to type the timeout reference
+  const [debouncedSearch, setDebouncedSearch] = useState("");//e,g "burger" or "fish"
+  // This will update debouncedSearch after 300ms of no changes in search input
   useEffect(() => {
+    //searchTimeout.current is current value stored in useRef e.g:2234.it holds the ID of timeout created by setTimeout.
     if (searchTimeout.current) clearTimeout(searchTimeout.current);
     searchTimeout.current = setTimeout(() => {
       setDebouncedSearch(search);
       setPage(1); // Reset to first page on new search
     }, 300);
+    // Cleanup function to clear timeout on unmount or when search changes
     return () => {
       if (searchTimeout.current) clearTimeout(searchTimeout.current);
     };
@@ -65,7 +69,9 @@ export default function AllItemsPage() {
   };
 
   // Pagination controls
+  // it - the page number by 1, but never goes below 1.
   const handlePrev = () => setPage((p) => Math.max(1, p - 1));
+  //(Math.min(totalPages, p + 1)=if p + 1 is more than totalPages, stay at totalPages
   const handleNext = () => setPage((p) => Math.min(totalPages, p + 1));
 
   return (
@@ -108,7 +114,7 @@ export default function AllItemsPage() {
                 <th className="p-2">Title</th>
                 <th className="p-2">Price</th>
                 <th className="p-2">Category</th>
-                <th className="p-2">Action</th>
+                <th className="p-2 text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -136,18 +142,20 @@ export default function AllItemsPage() {
                     <Link
                       href={`/dashboard/admin/create-item/${item._id}`}
                       className="text-blue-600 hover:underline"
+                      title="Edit"
                     >
-                      Edit
+                      <FiEdit />
                     </Link>
                     <button
                       className="text-red-600 hover:underline ml-1 cursor-pointer"
+                      title="Delete"
                       onClick={async () => {
                         if (
                           window.confirm(
-                            "Are you sure you want to delete this item? This action cannot be undone."
+                            "Are you sure you want to delete this item and images? This action cannot be undone."
                           )
                         ) {
-                          const res = await deleteItem(item._id);
+                          const res = await deleteItemAndCloudinaryImages(item._id);
                           if (res.success) {
                             setItems((prev) =>
                               prev.filter((i) => i._id !== item._id)
@@ -158,7 +166,7 @@ export default function AllItemsPage() {
                         }
                       }}
                     >
-                      Delete
+                      <RiDeleteBinLine />
                     </button>
                     </div>
                   </td>
