@@ -32,6 +32,7 @@ export function defineAbilityFor(user: any) {
     // Can manage products and orders for their merchants
     can("manage", "Product");
     can("manage", "Order");
+     can("manage", "Discount");
     can("read", "Analytics", { merchantOwner: user.id });
   }
 
