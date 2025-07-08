@@ -5,6 +5,7 @@ export interface IDiscount extends Document {
   type: "amount" | "percentage";
   value: number;
   expiryDate: Date;
+  useOnce: boolean; // NEW FIELD
   merchant: Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
@@ -16,6 +17,7 @@ const DiscountSchema = new Schema<IDiscount>(
     type: { type: String, enum: ["amount", "percentage"], required: true },
     value: { type: Number, required: true },
     expiryDate: { type: Date, required: true },
+    useOnce: { type: Boolean, default: false }, // NEW FIELD
     merchant: { type: Schema.Types.ObjectId, ref: "Merchant", required: true },
   },
   { timestamps: true }
