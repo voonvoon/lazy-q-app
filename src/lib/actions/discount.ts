@@ -11,14 +11,29 @@ function generateDiscountCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-// CREATE
-export async function createDiscount(data: {
+// Types
+export type DiscountType = "amount" | "percentage";
+
+export interface DiscountInput {
   code?: string;
-  type: "amount" | "percentage";
+  type: DiscountType;
   value: number;
   expiryDate: Date;
+  useOnce?: boolean;
   merchant: string;
-}) {
+}
+
+export interface DiscountUpdateInput {
+  merchant: string;
+  code?: string;
+  type?: DiscountType;
+  value?: number;
+  expiryDate?: Date;
+  useOnce?: boolean;
+}
+
+// CREATE
+export async function createDiscount(data: DiscountInput) {
   await checkPermission("manage", "Discount");
   const session = await auth();
   if (!session?.user?.id) {
@@ -39,6 +54,7 @@ export async function createDiscount(data: {
     const discount = await Discount.create({
       ...data,
       code,
+      useOnce: data.useOnce ?? false,
     });
     return {
       success: true,
@@ -49,6 +65,7 @@ export async function createDiscount(data: {
         expiryDate: discount.expiryDate?.toISOString?.() ?? "",
         createdAt: discount.createdAt?.toISOString?.() ?? "",
         updatedAt: discount.updatedAt?.toISOString?.() ?? "",
+        useOnce: discount.useOnce,
       },
     };
   } catch (error) {
@@ -75,6 +92,7 @@ export async function getDiscountsByMerchant(merchantId: string) {
       expiryDate: d.expiryDate?.toISOString?.() ?? "",
       createdAt: d.createdAt?.toISOString?.() ?? "",
       updatedAt: d.updatedAt?.toISOString?.() ?? "",
+      useOnce: d.useOnce ?? false,
     })),
   };
 }
@@ -88,7 +106,7 @@ export async function getDiscountById(id: string) {
   }
   await dbConnect();
 
-  const d:any = await Discount.findById(id).lean();
+  const d: any = await Discount.findById(id).lean();
   if (!d) return { success: false, error: "Discount not found." };
   return {
     success: true,
@@ -99,18 +117,13 @@ export async function getDiscountById(id: string) {
       expiryDate: d.expiryDate?.toISOString?.() ?? "",
       createdAt: d.createdAt?.toISOString?.() ?? "",
       updatedAt: d.updatedAt?.toISOString?.() ?? "",
+      useOnce: d.useOnce ?? false,
     },
   };
 }
 
 // UPDATE
-export async function updateDiscount(id: string, data: {
-  merchant: string;
-  code?: string;
-  type?: "amount" | "percentage";
-  value?: number;
-  expiryDate?: Date;
-}) {
+export async function updateDiscount(id: string, data: DiscountUpdateInput) {
   await checkPermission("manage", "Discount");
   const session = await auth();
   if (!session?.user?.id) {
@@ -127,7 +140,14 @@ export async function updateDiscount(id: string, data: {
   }
 
   try {
-    const updated:any = await Discount.findByIdAndUpdate(id, data, { new: true }).lean();
+    const updated: any = await Discount.findByIdAndUpdate(
+      id,
+      {
+        ...data,
+        useOnce: data.useOnce ?? false, //not rely on ...data to ensure useOnce defaults to false if not provided
+      },
+      { new: true }
+    ).lean();
     if (!updated) return { success: false, error: "Discount not found or update failed." };
     return {
       success: true,
@@ -138,6 +158,7 @@ export async function updateDiscount(id: string, data: {
         expiryDate: updated.expiryDate?.toISOString?.() ?? "",
         createdAt: updated.createdAt?.toISOString?.() ?? "",
         updatedAt: updated.updatedAt?.toISOString?.() ?? "",
+        useOnce: updated.useOnce ?? false,
       },
     };
   } catch (error) {
