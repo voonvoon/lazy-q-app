@@ -175,7 +175,7 @@ export default function CreateDiscountPage() {
                 type="button"
                 className="ml-2 text-xs text-blue-600 underline cursor-pointer"
                 onClick={handleAutoGenerate}
-                tabIndex={-1}
+                tabIndex={-1} //not reachable by keyboard tab
               >
                 Auto-generate
               </button>
@@ -185,7 +185,7 @@ export default function CreateDiscountPage() {
               {...register("code")}
               className="border rounded px-3 py-2 w-full text-black"
               placeholder="e.g. SAVE10"
-              autoComplete="off"
+              autoComplete="off" // Prevent browser from suggesting autofill
             />
             {errors.code && (
               <div className="text-red-600 text-sm mt-1">
@@ -256,7 +256,7 @@ export default function CreateDiscountPage() {
                 className="mr-2 cursor-pointer"
               />
               <span className="font-medium">
-                Allow only one use (single customer use)
+                Allow only one use (Auto delete after use)
               </span>
             </label>
           </div>
