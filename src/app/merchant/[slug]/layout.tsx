@@ -1,14 +1,39 @@
+import { ReactNode } from "react";
 import CategoryPanel from "@/components/CategoryPanel";
+import { getMerchantBySlug, getItemsByMerchantId } from "@/lib/actions/frontShop";
+import { ItemsProvider } from "@/contexts/ItemsContext";
 
-export default function MerchantLayout({ children }: { children: React.ReactNode }) {
+interface MerchantLayoutProps {
+  children: ReactNode;
+  params: { slug: string };
+}
+
+export default async function MerchantLayout({ children, params }: MerchantLayoutProps) {
+  // 1. Fetch merchant by slug
+  const merchant = await getMerchantBySlug(params.slug);
+
+  if (!merchant) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-600">
+        Merchant not found.
+      </div>
+    );
+  }
+
+  // 2. Fetch items by merchant id
+  const items = await getItemsByMerchantId(merchant._id);
+
+
   return (
-    <div className="flex min-h-screen bg-white">
-      {/* Sidebar: 30% */}
-      <aside className="w-1/3 max-w-xs bg-gray-100 p-4 border-r border-gray-200">
-        <CategoryPanel />
-      </aside>
-      {/* Main content: 70% */}
-      <main className="flex-1 p-4">{children}</main>
-    </div>
+    <ItemsProvider initialItems={items}>
+      <div className="flex min-h-screen bg-white">
+        {/* Sidebar: 30% */}
+        <aside className="w-1/3 max-w-xs bg-gray-100 p-4 border-r border-gray-200">
+          <CategoryPanel />
+        </aside>
+        {/* Main content: 70% */}
+        <main className="flex-1 p-4">{children}</main>
+      </div>
+    </ItemsProvider>
   );
 }

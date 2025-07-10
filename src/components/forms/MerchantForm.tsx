@@ -3,7 +3,7 @@
 
 import { createMerchant, updateMerchant } from "@/lib/actions/merchants";
 import { getAdminUsers } from "@/lib/actions/users";
-import { IMerchant } from "@/models/Merchants";
+import { IMerchant } from "@/models/Merchant";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";

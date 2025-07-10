@@ -3,7 +3,7 @@
 
 import { auth } from "@/auth";
 import dbConnect from "@/lib/mongodb";
-import Merchant from "@/models/Merchants";
+import Merchant from "@/models/Merchant";
 import { generateSlug, ensureUniqueSlug } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { checkPermission } from "@/lib/casl/permissions";

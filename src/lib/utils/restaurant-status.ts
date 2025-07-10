@@ -1,4 +1,4 @@
-import { IMerchant } from "@/models/Merchants";
+import { IMerchant } from "@/models/Merchant";
 
 // lib/utils/restaurant-status.ts
 export const isRestaurantOpen = (merchant: IMerchant) => {
