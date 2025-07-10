@@ -1,7 +1,7 @@
 // app/dashboard/super-admin/merchants/[id]/edit/page.tsx
 import MerchantForm from "@/components/forms/MerchantForm";
 import dbConnect from "@/lib/mongodb";
-import Merchant from "@/models/Merchants";
+import Merchant from "@/models/Merchant";
 import { notFound } from "next/navigation";
 
 interface EditMerchantPageProps {

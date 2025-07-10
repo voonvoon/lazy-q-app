@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import dbConnect from "@/lib/mongodb";
-import Merchant from "@/models/Merchants";
+import Merchant from "@/models/Merchant";
 import { generateSlug, ensureUniqueSlug } from "@/lib/utils";
 
 // CREATE merchant

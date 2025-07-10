@@ -1,5 +1,5 @@
 // lib/utils.ts
-import Merchant from '@/models/Merchants'; 
+import Merchant from '@/models/Merchant'; 
 import dbConnect from '@/lib/mongodb'; 
 
 export function generateSlug(name: string): string {
