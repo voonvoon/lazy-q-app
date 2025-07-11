@@ -37,3 +37,6 @@ export default async function MerchantLayout({ children, params }: MerchantLayou
     </ItemsProvider>
   );
 }
+
+
+//<img src={img.url.replace('/upload/', '/upload/w_200,h_200,c_fill,q_auto/')} alt="thumbnail" />

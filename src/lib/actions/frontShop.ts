@@ -29,7 +29,7 @@ export async function getItemsByMerchantId(merchantId: string) {
 
   const items = await Item.find({ merchant: merchantId })
     .populate("category", "name")
-    .populate("subCategories", "name")
+    .populate("subCategories", "name parentCategory")
     .populate("addOns", "name price")
     .lean();
 
@@ -56,6 +56,7 @@ export async function getItemsByMerchantId(merchantId: string) {
             ? {
                 _id: sub._id?.toString?.(),
                 name: sub.name,
+                parentCategory: sub.parentCategory?.toString?.(),
               }
             : null
         )
