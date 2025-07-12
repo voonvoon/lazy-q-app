@@ -1,12 +1,81 @@
-'use client';
-
+"use client";
+import { useRef } from "react";
 import { useItems } from "@/contexts/ItemsContext";
 import ItemCard from "@/components/cards/ItemCard";
+import React from "react";
 
 export default function MerchantPage() {
-  const { items } = useItems();
+  const { items, selectedCategory, selectedSubcategory } = useItems();
 
-  console.log("Items from context in MerchantPage-------------------------------------------------->", items);
+  // Group items by category and subcategory
+  //Record<K, V> = TS for an object with keys of type K and values of type V.
+  const categorized: Record<string, Record<string, typeof items>> = {};
+
+  items.forEach((item) => {
+    const cat = item.category?.name || "Others";
+    const subcat = item.subCategories?.length
+      ? item.subCategories[0]?.name || "Others"
+      : "Others";
+    if (!categorized[cat]) categorized[cat] = {};
+    if (!categorized[cat][subcat]) categorized[cat][subcat] = [];
+    categorized[cat][subcat].push(item);
+  });
+
+  //   {
+  //   "Drinks": {
+  //     "Juice": [item1, item2],
+  //     "Coffee": [item3]
+  //   },
+  //   "Main Course": {
+  //     "Others": [item4, item5]
+  //   }
+  // }
+
+  console.log(
+    "Categorized Items---------------------------------------------->>>",
+    categorized
+  );
+
+  const categoryOrder = [
+    "Breakfast",
+    "Lunch",
+    "Dinner",
+    "Appetizers",
+    "Salad",
+    "Soup",
+    "Main Course",
+    "Snacks",
+    "Drinks",
+    "Dessert",
+    "Other",
+  ];
+
+  // Create refs for each category
+  const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // Scroll to selected category when it changes
+  React.useEffect(() => {
+    if (selectedCategory && categoryRefs.current[selectedCategory]) {
+      categoryRefs.current[selectedCategory]?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [selectedCategory]);
+
+  const subcategoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  React.useEffect(() => {
+    if (selectedCategory && selectedSubcategory) {
+      const key = `${selectedCategory}-${selectedSubcategory}`;
+      if (subcategoryRefs.current[key]) {
+        subcategoryRefs.current[key]?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [selectedCategory, selectedSubcategory]);
 
   return (
     <div className="flex flex-col items-center h-full w-full">
@@ -14,20 +83,48 @@ export default function MerchantPage() {
       <p className="text-gray-600 mb-4">
         Please select a category to view items.
       </p>
-      <div className="flex flex-wrap gap-6 justify-center w-full ">
-        {items.length === 0 ? (
-          <div className="text-gray-500">No items found.</div>
-        ) : (
-          items.map((item) => (
-            <ItemCard
-              key={item._id}
-              title={item.title}
-              price={item.price}
-              description={item.description}
-              images={item.image[0]?.url ? [item.image[0]] : []}
-            />
-          ))
-        )}
+      <div className="w-full">
+        {/* Object.entries(categorized): turns obj into [category, subcategories] pair*/}
+        {categoryOrder
+          .filter((cat) => categorized[cat]) // Only show categories that exist
+          .map((cat) => (
+            <div
+              key={cat}
+              ref={(el) => {
+                categoryRefs.current[cat] = el;
+              }}
+              className="mb-8"
+            >
+              <h2 className="text-xl font-extrabold text-gray-700 mb-2 text-center border-2 border-gray-300 rounded-lg py-2 px-4 bg-gray-50 shadow-sm">
+                {cat}
+              </h2>
+              {Object.entries(categorized[cat]).map(([subcat, items]) => (
+                <div
+                  key={subcat}
+                  ref={(el) => {
+                    // Use a unique key for each subcat, e.g. `${cat}-${subcat}`
+                    subcategoryRefs.current[`${cat}-${subcat}`] = el;
+                  }}
+                  className="mb-4"
+                >
+                  <h3 className="text-lg italic text-gray-600 mb-2 text-center">
+                    {subcat}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center w-full">
+                    {items.map((item) => (
+                      <ItemCard
+                        key={item._id}
+                        title={item.title}
+                        price={item.price}
+                        description={item.description}
+                        images={item.image[0]?.url ? [item.image[0]] : []}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
       </div>
     </div>
   );
