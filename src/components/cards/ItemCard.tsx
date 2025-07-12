@@ -32,7 +32,8 @@ export default function ItemCard({
     >
       {images.length > 0 && (
         <Image
-          className="w-full h-40 object-cover object-center rounded-md border"
+          //className="w-full h-40 object-cover object-center rounded-md border"
+          className="w-full h-40 object-contain rounded-md"
           src={thumbnailUrl}
           alt={title}
           width={250}

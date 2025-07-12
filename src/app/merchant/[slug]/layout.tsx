@@ -28,7 +28,7 @@ export default async function MerchantLayout({ children, params }: MerchantLayou
     <ItemsProvider initialItems={items}>
       <div className="flex min-h-screen bg-white">
         {/* Sidebar: 30% */}
-        <aside className="w-1/3 max-w-xs bg-gray-100 p-4 border-r border-gray-200">
+        <aside className="w-1/3 max-w-xs bg-gray-100 p-4 border-r border-gray-200 overflow-y-auto h-screen sticky top-0">
           <CategoryPanel />
         </aside>
         {/* Main content: 70% */}
