@@ -1,11 +1,17 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { useItems } from "@/contexts/ItemsContext";
 import ItemCard from "@/components/cards/ItemCard";
 import React from "react";
 
 export default function MerchantPage() {
-  const { items, selectedCategory, selectedSubcategory } = useItems();
+  const {
+    items,
+    selectedCategory,
+    selectedSubcategory,
+    setScrollCategory,
+    setScrollSubcategory,
+  } = useItems();
 
   // Group items by category and subcategory
   //Record<K, V> = TS for an object with keys of type K and values of type V.
@@ -21,6 +27,7 @@ export default function MerchantPage() {
     categorized[cat][subcat].push(item);
   });
 
+  // Example structure of categorized:
   //   {
   //   "Drinks": {
   //     "Juice": [item1, item2],
@@ -77,6 +84,46 @@ export default function MerchantPage() {
     }
   }, [selectedCategory, selectedSubcategory]);
 
+  //Higlight in CategoryPanel when reaching a new category or subcategory
+  // Track which category/subcategory is in view
+
+  useEffect(() => {
+    const handleScroll = () => {
+      let foundCat = null;
+      let foundSubcat = null;
+
+      // Check all category sections
+      categoryOrder.forEach((cat) => {
+        const catEl = categoryRefs.current[cat];
+        if (catEl) {
+          const rect = catEl.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < window.innerHeight * 0.2) {
+            foundCat = cat;
+          }
+        }
+        // Check subcategories inside this category
+        Object.keys(categorized[cat] || {}).forEach((subcat) => {
+          const subcatEl = subcategoryRefs.current[`${cat}-${subcat}`];
+          if (subcatEl) {
+            const rect = subcatEl.getBoundingClientRect();
+            if (rect.top >= 0 && rect.top < window.innerHeight * 0.2) {
+              //foundCat = cat;
+              foundSubcat = subcat;
+            }
+          }
+        });``
+      });
+
+      if (foundCat && foundCat !== selectedCategory) //if not already highlighted
+        setScrollCategory(foundCat);
+      if (foundSubcat && foundSubcat !== selectedSubcategory)//if not already highlighted
+        setScrollSubcategory(foundSubcat);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <div className="flex flex-col items-center h-full w-full">
       <h1 className="text-2xl font-bold mb-4 text-black">Merchant Menu</h1>
@@ -98,6 +145,7 @@ export default function MerchantPage() {
               <h2 className="text-xl font-extrabold text-gray-700 mb-2 text-center border-2 border-gray-300 rounded-lg py-2 px-4 bg-gray-50 shadow-sm">
                 {cat}
               </h2>
+              {/* Object.entries(categorized[cat]) turns it into an array of pairs */}
               {Object.entries(categorized[cat]).map(([subcat, items]) => (
                 <div
                   key={subcat}
