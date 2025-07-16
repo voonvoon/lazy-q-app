@@ -9,6 +9,10 @@ interface ItemsContextType {
   setSelectedCategory: (category: string | null) => void;
   selectedSubcategory: string | null;
   setSelectedSubcategory: (subcategory: string | null) => void;
+  scrollCategory: string | null;
+  setScrollCategory: (category: string | null) => void;
+  scrollSubcategory: string | null;
+  setScrollSubcategory: (subcategory: string | null) => void;
 }
 
 const ItemsContext = createContext<ItemsContextType | undefined>(undefined);
@@ -25,9 +29,36 @@ export function ItemsProvider({
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null
   );
+  const [scrollCategory, setScrollCategory] = useState<string | null>(null);
+  const [scrollSubcategory, setScrollSubcategory] = useState<string | null>(
+    null
+  );
 
-  console.log("ItemsProvider initialized with items--------------------->", initialItems);
-  console.log("Items from context----------------------------------------------->"   , items);
+  console.log(
+    "selectedCategory --------------------------------------->",
+    selectedCategory
+  );
+  console.log(
+    "selectedSubcategory ------------------------------------>",
+    selectedSubcategory
+  );
+  console.log(
+    "scrollCategory --------------------------------------------->",
+    scrollCategory
+  );
+  console.log(
+    "scrollSubcategory --------------------------------------->",
+    scrollSubcategory
+  );
+
+  // console.log(
+  //   "ItemsProvider initialized with items--------------------->",
+  //   initialItems
+  // );
+  // console.log(
+  //   "Items from context----------------------------------------------->",
+  //   items
+  // );
 
   return (
     <ItemsContext.Provider
@@ -38,6 +69,10 @@ export function ItemsProvider({
         setSelectedCategory,
         selectedSubcategory,
         setSelectedSubcategory,
+        scrollCategory,
+        setScrollCategory,
+        scrollSubcategory,
+        setScrollSubcategory,
       }}
     >
       {children}
