@@ -31,17 +31,24 @@ export default function CategoryPanel() {
   // Extract unique categories from items
   //filter(Boolean) removes empty or undefined category names.
   //new Set(...) keeps only unique category names (no duplicates).
-  const categories = Array.from(
+  // const categories = Array.from(
+  //   new Set(items.map((item) => item.category?.name).filter(Boolean))
+  // );
+  const categoriesFromItems = Array.from(
     new Set(items.map((item) => item.category?.name).filter(Boolean))
   );
 
   // Sort categories by your desired order
-  const sortedCategories = categoryOrder.filter((cat) =>
-    categories.includes(cat)
-  );
-
-  // Extract unique subcategories for selected category
-  //flatmap is used to flatten the array of arrays into a single array.`
+  // const sortedCategories = categoryOrder.filter((cat) =>
+  //   categories.includes(cat)
+  // );
+  const sortedCategories = [
+    ...categoryOrder.filter((cat) => categoriesFromItems.includes(cat)),
+    ...categoriesFromItems.filter((cat) => !categoryOrder.includes(cat)),
+  ];
+  //Extract unique subcategories for selected category
+  //flatmap is used to flatten the array of arrays into a single array.
+  //prioritize scrollCategory if set .so your UI always reflect what the user is seeing or doing right now—scrolling wins over clicking for the highlight!
   const activeCategory = scrollCategory || selectedCategory;
 
   const subcategories = activeCategory
@@ -68,15 +75,14 @@ export default function CategoryPanel() {
                 activeCategory === cat ? "text-blue-600" : "text-gray-800 "
               }`}
               onClick={() => {
-                setSelectedCategory(null); // Clear first to reset state
-                setSelectedSubcategory(null); // Clear subcategory first
+                setSelectedCategory(null); //reset ensure no stale state,need fresh state even is the same state for code to work properly
+                setSelectedSubcategory(null); //Reset subcategory to ensure no stale state
                 setTimeout(() => {
-                  setSelectedCategory(cat); // Set again right after
+                  setSelectedCategory(cat); // Set again right after we clear stale state and find subcategories
                 }, 0);
-
                 setTimeout(() => {
-                  setScrollCategory(null);
-                }, 800);
+                  setScrollCategory(null); //clear to avoid conflict with selectedCategory
+                }, 500); //delay to let setSelectedCategory(cat) done first else have weird behavior
               }}
             >
               {cat}
@@ -92,11 +98,12 @@ export default function CategoryPanel() {
                           : "bg-transparent text-gray-700 hover:bg-gray-100"
                       }`}
                       onClick={() => {
-                        setSelectedCategory(cat); // Always set parent category
-                        setSelectedSubcategory(sub);
+                        setSelectedCategory(cat); // Always reset parent category avoid stale state lead to weird behavior
+                        setSelectedSubcategory(sub); //set subcategory
+
                         setTimeout(() => {
-                          setScrollSubcategory(sub);
-                        }, 800);
+                          setScrollSubcategory(sub); // sync scrollSubcategory with selectedSubcategory
+                        }, 300); //delay to let setSelectedSubcategory(sub) done first else have weird behavior
                       }}
                       style={{ outline: "none", border: "none" }}
                     >
