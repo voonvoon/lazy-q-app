@@ -38,11 +38,6 @@ export default function MerchantPage() {
   //   }
   // }
 
-  console.log(
-    "Categorized Items---------------------------------------------->>>",
-    categorized
-  );
-
   const categoryOrder = [
     "Breakfast",
     "Lunch",
@@ -55,6 +50,17 @@ export default function MerchantPage() {
     "Drinks",
     "Dessert",
     "Other",
+  ];
+
+  const categoriesFromItems = Array.from(
+    new Set(items.map((item) => item.category?.name).filter(Boolean))
+  );
+
+  const sortedCategories = [
+    ...categoryOrder.filter((cat) => categorized[cat]),
+    ...categoriesFromItems.filter(
+      (cat) => !categoryOrder.includes(cat) && categorized[cat]
+    ),
   ];
 
   // Create refs for each category
@@ -93,7 +99,7 @@ export default function MerchantPage() {
       let foundSubcat = null;
 
       // Check all category sections
-      categoryOrder.forEach((cat) => {
+      sortedCategories.forEach((cat) => {
         const catEl = categoryRefs.current[cat];
         if (catEl) {
           const rect = catEl.getBoundingClientRect();
@@ -107,16 +113,17 @@ export default function MerchantPage() {
           if (subcatEl) {
             const rect = subcatEl.getBoundingClientRect();
             if (rect.top >= 0 && rect.top < window.innerHeight * 0.2) {
-              //foundCat = cat;
               foundSubcat = subcat;
             }
           }
-        });``
+        });
       });
 
-      if (foundCat && foundCat !== selectedCategory) //if not already highlighted
+      if (foundCat && foundCat !== selectedCategory)
+        //if not already highlighted
         setScrollCategory(foundCat);
-      if (foundSubcat && foundSubcat !== selectedSubcategory)//if not already highlighted
+      if (foundSubcat && foundSubcat !== selectedSubcategory)
+        //if not already highlighted
         setScrollSubcategory(foundSubcat);
     };
 
@@ -125,15 +132,15 @@ export default function MerchantPage() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center h-full w-full">
+    <div className="flex flex-col items-center h-full w-full mb-48">
       <h1 className="text-2xl font-bold mb-4 text-black">Merchant Menu</h1>
       <p className="text-gray-600 mb-4">
         Please select a category to view items.
       </p>
       <div className="w-full">
         {/* Object.entries(categorized): turns obj into [category, subcategories] pair*/}
-        {categoryOrder
-          .filter((cat) => categorized[cat]) // Only show categories that exist
+        {sortedCategories
+          //.filter((cat) => categorized[cat]) // Only show categories that exist
           .map((cat) => (
             <div
               key={cat}

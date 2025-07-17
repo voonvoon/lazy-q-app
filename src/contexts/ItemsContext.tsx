@@ -55,10 +55,10 @@ export function ItemsProvider({
   //   "ItemsProvider initialized with items--------------------->",
   //   initialItems
   // );
-  // console.log(
-  //   "Items from context----------------------------------------------->",
-  //   items
-  // );
+  console.log(
+    "Items from context----------------------------------------------->",
+    items
+  );
 
   return (
     <ItemsContext.Provider
