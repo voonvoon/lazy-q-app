@@ -49,6 +49,8 @@ export interface IMerchant extends Document {
   // Plan
   plan: "free" | "basic" | "premium";
 
+  catOrder?: mongoose.Types.ObjectId[];
+
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -160,6 +162,12 @@ const merchantSchema = new Schema<IMerchant>(
       enum: ["free", "basic", "premium"],
       default: "free",
     },
+    catOrder: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
   },
   {
     timestamps: true,
