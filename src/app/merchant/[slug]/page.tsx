@@ -66,7 +66,7 @@ export default function MerchantPage() {
   // Create refs for each category
   const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // Scroll to selected category when it changes
+  // Scroll to selected category when it changes(Category)
   React.useEffect(() => {
     if (selectedCategory && categoryRefs.current[selectedCategory]) {
       categoryRefs.current[selectedCategory]?.scrollIntoView({
@@ -78,6 +78,7 @@ export default function MerchantPage() {
 
   const subcategoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+    // Scroll to selected category when it changes(Subcategory)
   React.useEffect(() => {
     if (selectedCategory && selectedSubcategory) {
       const key = `${selectedCategory}-${selectedSubcategory}`;

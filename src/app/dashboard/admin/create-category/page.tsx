@@ -13,6 +13,23 @@ import { z } from "zod"; //TypeScript-first schema validation library.
 import { zodResolver } from "@hookform/resolvers/zod"; //connects React Hook Form and Zod
 import { capitalizeFirst } from "@/lib/utils/capitalize";
 import toast from "react-hot-toast";
+import { MdDragIndicator } from "react-icons/md";
+import { FiEdit2 } from "react-icons/fi";
+//for drag and drop
+import {
+  DndContext,
+  closestCenter,
+  useSensor,
+  useSensors,
+  PointerSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  verticalListSortingStrategy,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const COMMON_CATEGORIES = [
   "Appetizers",
@@ -45,7 +62,8 @@ export default function CreateCategoryPage() {
   const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]); //to hold selected category from dropdown
   const [categories, setCategories] = useState<any[]>([]); //to hold fetched categories
   const [editCategory, setEditCategory] = useState<any>(null); //to hold category being edited
-const [refreshKey, setRefreshKey] = useState(0);
+  const [refreshKey, setRefreshKey] = useState(0);
+
   const {
     register, //Connects input field to React Hook Form so can track their values & validation.
     handleSubmit, //func use on your <form> to handle form submission & validation.
@@ -66,7 +84,7 @@ const [refreshKey, setRefreshKey] = useState(0);
     getCategoriesByMerchant(selectedMerchant._id).then((res) => {
       if (res.success) setCategories(res.categories);
     });
-  }, [selectedMerchant,refreshKey]);
+  }, [selectedMerchant, refreshKey]);
 
   if (!selectedMerchant) {
     if (typeof window !== "undefined") {
@@ -110,6 +128,7 @@ const [refreshKey, setRefreshKey] = useState(0);
 
   // Handle edit
   function handleEdit(cat: any) {
+    console.log("Editing category receive --------------------------->>:", cat);
     setEditCategory(cat);
     if (COMMON_CATEGORIES.includes(cat.name)) {
       setDropdown(cat.name);
@@ -140,9 +159,61 @@ const [refreshKey, setRefreshKey] = useState(0);
     }
   }
 
-  // console.log("errors------------------>>>", errors.name);
-  // console.log("name value-------------->>>>", watch("name"));
-  // console.log("dropdown value-------------->>>>", dropdown);
+  // drag and drop setup
+  function SortableCategory({ cat }: { cat: { _id: string; name: string } }) {
+    const { attributes, listeners, setNodeRef, transform, transition } =
+      useSortable({ id: cat._id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+     <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      {...attributes}
+      className={`flex items-center gap-3 w-full bg-white rounded-lg shadow-sm px-4 py-2 border ${
+        editCategory && editCategory._id === cat._id
+          ? "border-blue-600 bg-blue-50"
+          : "border-gray-200"
+      }`}
+    >
+      {/* Drag handle button with icon */}
+      <button
+        type="button"
+        {...listeners}
+        tabIndex={-1}
+        className="flex items-center gap-2 cursor-grab focus:outline-none bg-transparent border-none p-0"
+      >
+        <MdDragIndicator className="text-2xl text-gray-400" />
+      </button>
+      {/* Category name, always same width */}
+      <span className="flex-1 truncate font-medium text-gray-800">{cat.name}</span>
+      {/* Edit button, modern style */}
+      <button
+        type="button"
+        className="flex items-center gap-1 px-3 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 transition cursor-pointer"
+        onClick={() => handleEdit(cat)}
+      >
+        <FiEdit2 className="text-base" />
+        Edit
+      </button>
+    </div>
+    );
+  }
+
+  //drag and drop setup
+  const [items, setItems] = useState<string[]>([]);
+
+
+  useEffect(() => {
+    setItems(categories.map((cat) => cat._id));
+  }, [categories]);
 
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
@@ -252,8 +323,11 @@ const [refreshKey, setRefreshKey] = useState(0);
       <h2 className="text-lg font-semibold mb-2 text-black">
         Existing Categories
       </h2>
-      <div className="flex flex-wrap gap-2">
-        {categories.map((cat) => (
+      <div className="text-gray-800 text-sm mb-2">
+        Drag categories to reorder to your desired order. Click "Edit" to modify.
+      </div>
+      <div className="flex flex-col gap-2">
+        {/* {categories.map((cat) => (
           <button
             key={cat._id}
             type="button"
@@ -266,7 +340,42 @@ const [refreshKey, setRefreshKey] = useState(0);
           >
             {cat.name}
           </button>
-        ))}
+        ))} */}
+        <hr />
+        <DndContext
+          sensors={useSensors(useSensor(PointerSensor))}
+          collisionDetection={closestCenter}
+          onDragEnd={({ active, over }) => {
+            if (over && active.id !== over.id) {
+              const oldIndex = items.indexOf(String(active.id));
+              const newIndex = items.indexOf(String(over.id));
+              const newItems = arrayMove(items, oldIndex, newIndex);
+              setItems(newItems);
+              // Rearrange categories array to match new order
+              const newCategories = newItems.map((id) =>
+                categories.find((cat) => cat._id === id)
+              );
+              setCategories(newCategories);
+              // TODO: Save new order to DB after 1s (use setTimeout)
+            }
+          }}
+        >
+          <SortableContext items={items} strategy={verticalListSortingStrategy}>
+            <div className="flex flex-col gap-2">
+              {items.map((id) => {
+                const cat = categories.find((cat) => cat._id === id);
+                if (!cat) return null; // Ensure cat exists
+                return (
+                  <SortableCategory
+                    key={id}
+                    cat={cat}
+                    //handleEdit={handleEdit}
+                  />
+                );
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
         {categories.length === 0 && (
           <div className="text-gray-500">No categories found.</div>
         )}
