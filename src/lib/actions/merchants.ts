@@ -293,66 +293,69 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
 
 export async function getMerchantsByUserId() {
   try {
-
     await checkPermission("read", "Merchant");
-    
+
     const session = await auth();
-    
+
     if (!session?.user?.id) {
-      redirect('/login');
+      redirect("/login");
     }
 
     await dbConnect();
-    
-    console.log('🔍 Searching merchants for user ID:', session.user.id);
-    
+
+    console.log("🔍 Searching merchants for user ID:", session.user.id);
+
     // ✅ NO .populate() - just get merchant fields directly
-    const merchants = await Merchant.find({ 
-      owner: session.user.id 
+    const merchants = await Merchant.find({
+      owner: session.user.id,
     })
-    .select('_id name slug email isActive address phone createdAt') // ✅ Select only what you need
-    .sort({ createdAt: -1 })
-    .lean();
-    
-    console.log('🏪 Found merchants:', merchants.length);
-    
+      .select("_id name slug email isActive address phone catOrder createdAt") // ✅ Select only what you need
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log("🏪 Found merchants:", merchants.length);
+
     // ✅ Convert ObjectIds to strings
-    const serializedMerchants = merchants.map(merchant => ({
+    const serializedMerchants = merchants.map((merchant) => ({
       _id: String(merchant._id),
       name: merchant.name,
       slug: merchant.slug,
       email: merchant.email,
       isActive: merchant.isActive,
-        address: merchant.address ? {
-        street: merchant.address.street || '',
-        city: merchant.address.city || '',
-        state: merchant.address.state || '',
-        zipCode: merchant.address.zipCode || '',
-        country: merchant.address.country || ''
-      } : {
-        street: '',
-        city: '',
-        state: '',
-        zipCode: '',
-        country: ''
-      },
+      address: merchant.address
+        ? {
+            street: merchant.address.street || "",
+            city: merchant.address.city || "",
+            state: merchant.address.state || "",
+            zipCode: merchant.address.zipCode || "",
+            country: merchant.address.country || "",
+          }
+        : {
+            street: "",
+            city: "",
+            state: "",
+            zipCode: "",
+            country: "",
+          },
       phone: merchant.phone,
-      createdAt: merchant.createdAt
+      createdAt: merchant.createdAt,
+      catOrder: Array.isArray(merchant.catOrder)
+        ? merchant.catOrder.map((id) => id?.toString?.() ?? id)
+        : [],
     }));
-    
+
     return {
       success: true,
       merchants: serializedMerchants,
-      total: merchants.length
+      total: merchants.length,
     };
-    
   } catch (error) {
-    console.error('❌ Error fetching merchants:', error);
-    
+    console.error("❌ Error fetching merchants:", error);
+
     return {
       success: false,
-      error: 'Failed to fetch merchant data',
-      merchants: []
+      error: "Failed to fetch merchant data",
+      merchants: [],
     };
   }
 }
@@ -436,6 +439,58 @@ export async function toggleMerchantStatus(merchantId: string) {
         error instanceof Error
           ? error.message
           : "Failed to toggle merchant status",
+    };
+  }
+}
+
+//save category order for merchant
+// Save category order for a merchant
+export async function saveCatOrder(merchantId: string, catOrder: string[]) {
+  try {
+    // CASL Permission Check
+    await checkPermission("update", "Merchant");
+
+    const session = await auth();
+    await dbConnect();
+
+    // Find the merchant first to check existence
+    const merchant = await Merchant.findById(merchantId);
+    if (!merchant) {
+      return {
+        error: "Merchant not found",
+      };
+    }
+
+    // Only allow owner or adminto update category order
+    if (
+      session?.user.role !== "admin" &&
+      String(merchant.owner) !== String(session?.user.id)
+    ) {
+      return {
+        error:
+          "You do not have permission to update category order for this merchant",
+      };
+    }
+
+    // Update catOrder field
+    merchant.catOrder = catOrder;
+    await merchant.save();
+
+    // Revalidate cached data
+    revalidatePath(`/dashboard/${merchant.slug}/admin`);
+
+    return {
+      success: true,
+      message: "Category order saved successfully",
+      catOrder,
+    };
+  } catch (error) {
+    console.error("Error saving category order:", error);
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to save category order",
     };
   }
 }
