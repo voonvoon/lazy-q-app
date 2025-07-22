@@ -73,10 +73,6 @@ export default function CreateCategoryPage() {
   //drag and drop STEP2
   //Initialize items for drag-and-drop
   const [items, setItems] = useState<string[]>([]);
-  //  useEffect(() => {
-  //    setItems(categories.map((cat) => cat._id));
-  //  }, [categories]);
-
 
   useEffect(() => {
     if (
@@ -84,7 +80,7 @@ export default function CreateCategoryPage() {
       Array.isArray(selectedMerchant.catOrder) &&
       selectedMerchant.catOrder.length > 0
     ) {
-      // Order items by catOrder, add any missing category IDs at the end
+      // Order items by catOrder, add any missing category IDs at the end(for safety)
       const ordered = [
         ...selectedMerchant.catOrder.filter((id: string) =>
           categories.some((cat) => cat._id === id)
@@ -101,14 +97,14 @@ export default function CreateCategoryPage() {
 
   //drag and drop STEP2 END
 
-  console.log(
-    "items----------------------------------------------------->>",
-    items
-  );
-  console.log(
-    "categories----------------------------------------------------->>",
-    categories
-  );
+  // console.log(
+  //   "items----------------------------------------------------->>",
+  //   items
+  // );
+  // console.log(
+  //   "categories----------------------------------------------------->>",
+  //   categories
+  // );
 
   const {
     register, //Connects input field to React Hook Form so can track their values & validation.
@@ -263,7 +259,7 @@ export default function CreateCategoryPage() {
       } else {
         toast.error(result.error || "Failed to save category order.");
       }
-    }, 1500); // 1.5 seconds debounce
+    }, 500); // 1.5 seconds debounce
   }
 
   // Call this whenever items (order) changes
@@ -271,7 +267,7 @@ export default function CreateCategoryPage() {
     if (items.length > 0) {
       triggerAutoSaveCatOrder(items);
     }
-  }, [items, categories]); // Save on reorder or category change
+  }, [items]); // Save on reorder or category change
 
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">
@@ -396,12 +392,7 @@ export default function CreateCategoryPage() {
               const newIndex = items.indexOf(String(over.id));
               const newItems = arrayMove(items, oldIndex, newIndex);
               setItems(newItems);
-              // Rearrange categories array to match new order
-              const newCategories = newItems.map((id) =>
-                categories.find((cat) => cat._id === id)
-              );
-              //setCategories(newCategories);
-              // TODO: Save new order to DB after 1s (use setTimeout)
+              triggerAutoSaveCatOrder(newItems);
             }
           }}
         >

@@ -10,10 +10,25 @@ import Item from "@/models/Item";
 // Fetch merchant by slug (public, no auth)
 export async function getMerchantBySlug(slug: string) {
   await dbConnect();
-  const merchant: any = await Merchant.findOne({ slug }).lean();
+  
+  // Import Category model to avoid MissingSchemaError
+  await import("@/models/Category");
+  
+  const merchant: any = await Merchant.findOne({ slug })
+    .select("_id name slug catOrder") // Select the fields you need
+    .populate("catOrder", "name") // Populate catOrder with category names
+    .lean();
+    
   if (!merchant) return null;
+  
+  // Extract category names from populated catOrder
+  const categoryOrder = merchant.catOrder?.map((cat: any) => cat.name) || [];
+  
   return {
     _id: merchant._id.toString(),
+    name: merchant.name,
+    slug: merchant.slug,
+    catOrder: JSON.parse(JSON.stringify(categoryOrder)) // Serialized category names
   };
 }
 
@@ -72,3 +87,5 @@ export async function getItemsByMerchantId(merchantId: string) {
     updatedAt: item.updatedAt?.toISOString?.() ?? "",
   }));
 }
+
+
