@@ -2,20 +2,6 @@
 
 import { useItems } from "@/contexts/ItemsContext";
 
-const categoryOrder = [
-  "Breakfast",
-  "Lunch",
-  "Dinner",
-  "Appetizers",
-  "Salad",
-  "Soup",
-  "Main Course",
-  "Snacks",
-  "Drinks",
-  "Dessert",
-  "Other",
-];
-
 export default function CategoryPanel() {
   const {
     items,
@@ -26,7 +12,10 @@ export default function CategoryPanel() {
     setScrollCategory,
     scrollSubcategory,
     setScrollSubcategory,
+    merchantData,
   } = useItems();
+
+  const categoryOrder = merchantData?.catOrder || [];
 
   // Extract unique categories from items
   //filter(Boolean) removes empty or undefined category names.
@@ -43,13 +32,15 @@ export default function CategoryPanel() {
   //   categories.includes(cat)
   // );
   const sortedCategories = [
-    ...categoryOrder.filter((cat) => categoriesFromItems.includes(cat)),
+    ...categoryOrder.filter((cat: any) => categoriesFromItems.includes(cat)),
     ...categoriesFromItems.filter((cat) => !categoryOrder.includes(cat)),
   ];
   //Extract unique subcategories for selected category
   //flatmap is used to flatten the array of arrays into a single array.
   //prioritize scrollCategory if set .so your UI always reflect what the user is seeing or doing right now—scrolling wins over clicking for the highlight!
   const activeCategory = scrollCategory || selectedCategory;
+
+  console.log("activeCategory----------------------------->>", activeCategory);
 
   const subcategories = activeCategory
     ? Array.from(
@@ -75,14 +66,16 @@ export default function CategoryPanel() {
                 activeCategory === cat ? "text-blue-600" : "text-gray-800 "
               }`}
               onClick={() => {
-                setSelectedCategory(null); //reset ensure no stale state,need fresh state even is the same state for code to work properly
-                setSelectedSubcategory(null); //Reset subcategory to ensure no stale state
                 setTimeout(() => {
-                  setSelectedCategory(cat); // Set again right after we clear stale state and find subcategories
-                }, 0);
-                setTimeout(() => {
-                  setScrollCategory(null); //clear to avoid conflict with selectedCategory
-                }, 500); //delay to let setSelectedCategory(cat) done first else have weird behavior
+                  setSelectedCategory(null); //reset ensure no stale state,need fresh state even is the same state for code to work properly
+                  setSelectedSubcategory(null); //Reset subcategory to ensure no stale state
+                  setTimeout(() => {
+                    setSelectedCategory(cat); // Set again right after we clear stale state and find subcategories
+                  }, 0);
+                  setTimeout(() => {
+                    setScrollCategory(null); //clear to avoid conflict with selectedCategory
+                  }, 500); //delay to let setSelectedCategory(cat) done first else have weird behavior
+                }, 200); // 1 second delay before running the entire onClick logic
               }}
             >
               {cat}

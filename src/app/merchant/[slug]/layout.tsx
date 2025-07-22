@@ -5,12 +5,15 @@ import { ItemsProvider } from "@/contexts/ItemsContext";
 
 interface MerchantLayoutProps {
   children: ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default async function MerchantLayout({ children, params }: MerchantLayoutProps) {
-  // 1. Fetch merchant by slug
-  const merchant = await getMerchantBySlug(params.slug);
+  // 1. Await params first (Next.js 15 requirement)
+  const { slug } = await params;
+  
+  // 2. Fetch merchant by slug
+  const merchant = await getMerchantBySlug(slug);
 
   if (!merchant) {
     return (
@@ -25,7 +28,7 @@ export default async function MerchantLayout({ children, params }: MerchantLayou
 
 
   return (
-    <ItemsProvider initialItems={items}>
+    <ItemsProvider initialItems={items} merchant={merchant}>
       <div className="flex min-h-screen bg-white">
         {/* Sidebar: 30% */}
         <aside className="w-1/3 max-w-xs bg-gray-100 p-4 border-r border-gray-200 overflow-y-auto h-screen sticky top-0">

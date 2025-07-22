@@ -11,6 +11,7 @@ export default function MerchantPage() {
     selectedSubcategory,
     setScrollCategory,
     setScrollSubcategory,
+    merchantData
   } = useItems();
 
   // Group items by category and subcategory
@@ -38,26 +39,15 @@ export default function MerchantPage() {
   //   }
   // }
 
-  const categoryOrder = [
-    "Breakfast",
-    "Lunch",
-    "Dinner",
-    "Appetizers",
-    "Salad",
-    "Soup",
-    "Main Course",
-    "Snacks",
-    "Drinks",
-    "Dessert",
-    "Other",
-  ];
+
+  const categoryOrder = merchantData?.catOrder || []
 
   const categoriesFromItems = Array.from(
     new Set(items.map((item) => item.category?.name).filter(Boolean))
   );
 
   const sortedCategories = [
-    ...categoryOrder.filter((cat) => categorized[cat]),
+    ...categoryOrder.filter((cat:any) => categorized[cat]),
     ...categoriesFromItems.filter(
       (cat) => !categoryOrder.includes(cat) && categorized[cat]
     ),

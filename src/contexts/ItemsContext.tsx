@@ -13,6 +13,8 @@ interface ItemsContextType {
   setScrollCategory: (category: string | null) => void;
   scrollSubcategory: string | null;
   setScrollSubcategory: (subcategory: string | null) => void;
+  merchantData: any | null;
+  setMerchantData: (merchant: any | null) => void;
 }
 
 const ItemsContext = createContext<ItemsContextType | undefined>(undefined);
@@ -20,11 +22,14 @@ const ItemsContext = createContext<ItemsContextType | undefined>(undefined);
 export function ItemsProvider({
   children,
   initialItems = [],
+  merchant,
 }: {
   children: ReactNode;
   initialItems?: any[];
+  merchant?: any; 
 }) {
   const [items, setItems] = useState<any[]>(initialItems);
+  const [merchantData, setMerchantData] = useState(merchant || null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(
     null
@@ -34,22 +39,24 @@ export function ItemsProvider({
     null
   );
 
-  console.log(
-    "selectedCategory --------------------------------------->",
-    selectedCategory
-  );
-  console.log(
-    "selectedSubcategory ------------------------------------>",
-    selectedSubcategory
-  );
-  console.log(
-    "scrollCategory --------------------------------------------->",
-    scrollCategory
-  );
-  console.log(
-    "scrollSubcategory --------------------------------------->",
-    scrollSubcategory
-  );
+  console.log("Merchant Data in ItemsProvider:", merchantData);
+
+  // console.log(
+  //   "selectedCategory --------------------------------------->",
+  //   selectedCategory
+  // );
+  // console.log(
+  //   "selectedSubcategory ------------------------------------>",
+  //   selectedSubcategory
+  // );
+  // console.log(
+  //   "scrollCategory --------------------------------------------->",
+  //   scrollCategory
+  // );
+  // console.log(
+  //   "scrollSubcategory --------------------------------------->",
+  //   scrollSubcategory
+  // );
 
   // console.log(
   //   "ItemsProvider initialized with items--------------------->",
@@ -73,6 +80,8 @@ export function ItemsProvider({
         setScrollCategory,
         scrollSubcategory,
         setScrollSubcategory,
+        merchantData, 
+        setMerchantData
       }}
     >
       {children}
