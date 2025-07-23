@@ -41,22 +41,22 @@ export function ItemsProvider({
 
   console.log("Merchant Data in ItemsProvider:", merchantData);
 
-  // console.log(
-  //   "selectedCategory --------------------------------------->",
-  //   selectedCategory
-  // );
-  // console.log(
-  //   "selectedSubcategory ------------------------------------>",
-  //   selectedSubcategory
-  // );
-  // console.log(
-  //   "scrollCategory --------------------------------------------->",
-  //   scrollCategory
-  // );
-  // console.log(
-  //   "scrollSubcategory --------------------------------------->",
-  //   scrollSubcategory
-  // );
+  console.log(
+    "selectedCategory --------------------------------------->",
+    selectedCategory
+  );
+  console.log(
+    "selectedSubcategory ------------------------------------>",
+    selectedSubcategory
+  );
+  console.log(
+    "scrollCategory --------------------------------------------->",
+    scrollCategory
+  );
+  console.log(
+    "scrollSubcategory --------------------------------------->",
+    scrollSubcategory
+  );
 
   // console.log(
   //   "ItemsProvider initialized with items--------------------->",

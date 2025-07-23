@@ -1,6 +1,7 @@
 "use client";
 
 import { useItems } from "@/contexts/ItemsContext";
+import { useState, useEffect } from "react";
 
 export default function CategoryPanel() {
   const {
@@ -20,17 +21,11 @@ export default function CategoryPanel() {
   // Extract unique categories from items
   //filter(Boolean) removes empty or undefined category names.
   //new Set(...) keeps only unique category names (no duplicates).
-  // const categories = Array.from(
-  //   new Set(items.map((item) => item.category?.name).filter(Boolean))
-  // );
   const categoriesFromItems = Array.from(
     new Set(items.map((item) => item.category?.name).filter(Boolean))
   );
-
+  ``;
   // Sort categories by your desired order
-  // const sortedCategories = categoryOrder.filter((cat) =>
-  //   categories.includes(cat)
-  // );
   const sortedCategories = [
     ...categoryOrder.filter((cat: any) => categoriesFromItems.includes(cat)),
     ...categoriesFromItems.filter((cat) => !categoryOrder.includes(cat)),
@@ -38,11 +33,15 @@ export default function CategoryPanel() {
   //Extract unique subcategories for selected category
   //flatmap is used to flatten the array of arrays into a single array.
   //prioritize scrollCategory if set .so your UI always reflect what the user is seeing or doing right now—scrolling wins over clicking for the highlight!
+  // Add state for delayed subcategories to avoid flickering
+  const [delayedSubcategories, setDelayedSubcategories] = useState<string[]>(
+    []
+  );
+
   const activeCategory = scrollCategory || selectedCategory;
 
-  console.log("activeCategory----------------------------->>", activeCategory);
-
-  const subcategories = activeCategory
+  // Calculate subcategories immediately (but don't use directly in render)
+  const immediateSubcategories = activeCategory
     ? Array.from(
         new Set(
           items
@@ -55,6 +54,24 @@ export default function CategoryPanel() {
       )
     : [];
 
+  // Add useEffect to delay subcategories update
+  useEffect(() => {
+    // Clear subcategories immediately when activeCategory changes
+    setDelayedSubcategories([]);
+
+    // Set new subcategories after a short delay
+    // This prevents flickering when switching categories
+    // and allows the UI to stabilize before showing subcategories.
+    const timer = setTimeout(() => {
+      setDelayedSubcategories(immediateSubcategories);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [activeCategory, items]); // Re-run when activeCategory or items change
+
+  // Use delayed subcategories in render
+  const subcategories = delayedSubcategories;
+
   return (
     <div className="flex flex-col items-center min-h-full">
       <h2 className="text-lg font-bold mb-20 text-black">Menu Categories</h2>
@@ -66,16 +83,15 @@ export default function CategoryPanel() {
                 activeCategory === cat ? "text-blue-600" : "text-gray-800 "
               }`}
               onClick={() => {
+                setSelectedCategory(null); //reset ensure no stale state,need fresh state even is the same state for code to work properly
+                setSelectedSubcategory(null); //Reset subcategory to ensure no stale state
                 setTimeout(() => {
-                  setSelectedCategory(null); //reset ensure no stale state,need fresh state even is the same state for code to work properly
-                  setSelectedSubcategory(null); //Reset subcategory to ensure no stale state
-                  setTimeout(() => {
-                    setSelectedCategory(cat); // Set again right after we clear stale state and find subcategories
-                  }, 0);
-                  setTimeout(() => {
-                    setScrollCategory(null); //clear to avoid conflict with selectedCategory
-                  }, 500); //delay to let setSelectedCategory(cat) done first else have weird behavior
-                }, 200); // 1 second delay before running the entire onClick logic
+                  setSelectedCategory(cat); // Set again right after we clear stale state and find subcategories
+                }, 0);
+                setTimeout(() => {
+                  setScrollCategory(null);
+                  //clear to avoid conflict with selectedCategory
+                }, 700); //delay to let setSelectedCategory(cat) done first else have weird behavior
               }}
             >
               {cat}
@@ -96,7 +112,7 @@ export default function CategoryPanel() {
 
                         setTimeout(() => {
                           setScrollSubcategory(sub); // sync scrollSubcategory with selectedSubcategory
-                        }, 300); //delay to let setSelectedSubcategory(sub) done first else have weird behavior
+                        }, 500); //delay to let setSelectedSubcategory(sub) done first else have weird behavior
                       }}
                       style={{ outline: "none", border: "none" }}
                     >
