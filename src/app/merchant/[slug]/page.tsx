@@ -11,7 +11,7 @@ export default function MerchantPage() {
     selectedSubcategory,
     setScrollCategory,
     setScrollSubcategory,
-    merchantData
+    merchantData,
   } = useItems();
 
   // Group items by category and subcategory
@@ -39,15 +39,14 @@ export default function MerchantPage() {
   //   }
   // }
 
-
-  const categoryOrder = merchantData?.catOrder || []
+  const categoryOrder = merchantData?.catOrder || [];
 
   const categoriesFromItems = Array.from(
     new Set(items.map((item) => item.category?.name).filter(Boolean))
   );
 
   const sortedCategories = [
-    ...categoryOrder.filter((cat:any) => categorized[cat]),
+    ...categoryOrder.filter((cat: any) => categorized[cat]),
     ...categoriesFromItems.filter(
       (cat) => !categoryOrder.includes(cat) && categorized[cat]
     ),
@@ -68,7 +67,7 @@ export default function MerchantPage() {
 
   const subcategoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-    // Scroll to selected category when it changes(Subcategory)
+  // Scroll to selected category when it changes(Subcategory)
   React.useEffect(() => {
     if (selectedCategory && selectedSubcategory) {
       const key = `${selectedCategory}-${selectedSubcategory}`;
@@ -83,11 +82,11 @@ export default function MerchantPage() {
 
   //Higlight in CategoryPanel when reaching a new category or subcategory
   // Track which category/subcategory is in view
-
   useEffect(() => {
     const handleScroll = () => {
       let foundCat = null;
       let foundSubcat = null;
+      let foundCatFromSubcat = null; // Track category found via subcategory
 
       // Check all category sections
       sortedCategories.forEach((cat) => {
@@ -98,6 +97,7 @@ export default function MerchantPage() {
             foundCat = cat;
           }
         }
+
         // Check subcategories inside this category
         Object.keys(categorized[cat] || {}).forEach((subcat) => {
           const subcatEl = subcategoryRefs.current[`${cat}-${subcat}`];
@@ -105,29 +105,33 @@ export default function MerchantPage() {
             const rect = subcatEl.getBoundingClientRect();
             if (rect.top >= 0 && rect.top < window.innerHeight * 0.2) {
               foundSubcat = subcat;
+              foundCatFromSubcat = cat; // Remember which category this subcat belongs to
             }
           }
         });
       });
 
-      if (foundCat && foundCat !== selectedCategory)
-        //if not already highlighted
-        setScrollCategory(foundCat);
-      if (foundSubcat && foundSubcat !== selectedSubcategory)
-        //if not already highlighted
+      // Update category - prioritize direct category hit, fallback to subcategory's parent
+      const categoryToHighlight = foundCat || foundCatFromSubcat;
+      if (categoryToHighlight) {
+        setScrollCategory(categoryToHighlight);
+      }
+
+      // Update subcategory
+      if (foundSubcat) {
         setScrollSubcategory(foundSubcat);
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, []); 
 
   return (
-    <div className="flex flex-col items-center h-full w-full mb-48">
-      <h1 className="text-2xl font-bold mb-4 text-black">Merchant Menu</h1>
-      <p className="text-gray-600 mb-4">
-        Please select a category to view items.
-      </p>
+    <div className="flex flex-col items-center h-full w-full mb-96">
+      <h1 className="text-2xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg tracking-wide font-serif bg-gradient-to-r from-blue-100 via-white to-blue-100 rounded-xl py-2 px-4 shadow-xl">
+       Welcome to {merchantData?.name || "Merchant Menu"}
+      </h1>
       <div className="w-full">
         {/* Object.entries(categorized): turns obj into [category, subcategories] pair*/}
         {sortedCategories
