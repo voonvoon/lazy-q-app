@@ -129,7 +129,7 @@ export default function MerchantPage() {
 
   return (
     <div className="flex flex-col items-center h-full w-full mb-96">
-      <h1 className="text-2xl font-extrabold mb-6 text-center text-blue-600 drop-shadow-lg tracking-wide font-serif bg-gradient-to-r from-blue-100 via-white to-blue-100 rounded-xl py-2 px-4 shadow-xl">
+      <h1 className="text-2xl font-extrabold mb-6 text-center text-gray-600 drop-shadow-lg tracking-wide font-serif bg-gradient-to-r from-blue-100 via-white to-blue-100 rounded-xl py-2 px-4 shadow-xl">
        Welcome to {merchantData?.name || "Merchant Menu"}
       </h1>
       <div className="w-full">
