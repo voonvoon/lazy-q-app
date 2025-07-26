@@ -112,7 +112,7 @@ export default function CategoryPanel() {
 
                         setTimeout(() => {
                           setScrollSubcategory(sub); // sync scrollSubcategory with selectedSubcategory
-                        }, 600); //delay to let setSelectedSubcategory(sub) done first else have weird behavior(ADJUST THIS DELAY WHEN SUBCAT WEIRD BEHAVIOR)
+                        }, 700); //delay to let setSelectedSubcategory(sub) done first else have weird behavior(ADJUST THIS DELAY WHEN SUBCAT WEIRD BEHAVIOR)
                       }}
                       style={{ outline: "none", border: "none" }}
                     >

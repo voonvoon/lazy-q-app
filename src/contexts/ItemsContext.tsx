@@ -39,33 +39,33 @@ export function ItemsProvider({
     null
   );
 
-  console.log("Merchant Data in ItemsProvider:", merchantData);
+  //console.log("Merchant Data in ItemsProvider:", merchantData);
 
-  console.log(
-    "selectedCategory --------------------------------------->",
-    selectedCategory
-  );
-  console.log(
-    "selectedSubcategory ------------------------------------>",
-    selectedSubcategory
-  );
-  console.log(
-    "scrollCategory --------------------------------------------->",
-    scrollCategory
-  );
-  console.log(
-    "scrollSubcategory --------------------------------------->",
-    scrollSubcategory
-  );
+  // console.log(
+  //   "selectedCategory --------------------------------------->",
+  //   selectedCategory
+  // );
+  // console.log(
+  //   "selectedSubcategory ------------------------------------>",
+  //   selectedSubcategory
+  // );
+  // console.log(
+  //   "scrollCategory --------------------------------------------->",
+  //   scrollCategory
+  // );
+  // console.log(
+  //   "scrollSubcategory --------------------------------------->",
+  //   scrollSubcategory
+  // );
 
   // console.log(
   //   "ItemsProvider initialized with items--------------------->",
   //   initialItems
   // );
-  console.log(
-    "Items from context----------------------------------------------->",
-    items
-  );
+  // console.log(
+  //   "Items from context----------------------------------------------->",
+  //   items
+  // );
 
   return (
     <ItemsContext.Provider
