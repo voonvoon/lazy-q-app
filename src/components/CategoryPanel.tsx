@@ -74,7 +74,8 @@ export default function CategoryPanel() {
 
   return (
     <div className="flex flex-col items-center min-h-full">
-      <h2 className="text-lg font-bold mb-20 text-black">Menu</h2>
+      <h2 className="text-sm font-light mb-20 text-gray-600">{merchantData?.name || "Merchant Menu"} Menu</h2>
+
       <ul className="space-y-6 text-center">
         {sortedCategories.map((cat) => (
           <li key={cat}>
@@ -102,10 +103,10 @@ export default function CategoryPanel() {
                   <li key={sub} className="list-none">
                     <button
                       className={`px-3 py-1 rounded transition-colors duration-200 cursor-pointer font-light ${
-                        scrollSubcategory === sub
-                          ? "bg-blue-100 text-blue-700 shadow"
-                          : "bg-transparent text-gray-950 hover:bg-gray-100"
-                      }`}
+                      scrollSubcategory === sub
+                        ? "bg-blue-100 text-blue-700 shadow"
+                        : "bg-transparent text-gray-950 hover:bg-gray-100"
+                      } text-sm sm:text-base`}
                       onClick={() => {
                         setSelectedCategory(cat); // Always reset parent category avoid stale state lead to weird behavior
                         setSelectedSubcategory(sub); //set subcategory

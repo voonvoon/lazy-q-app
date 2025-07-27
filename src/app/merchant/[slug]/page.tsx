@@ -1,10 +1,21 @@
 "use client";
-import { useRef, useEffect } from "react";
+
+import { useRef, useEffect, useState } from "react";
 import { useItems } from "@/contexts/ItemsContext";
 import ItemCard from "@/components/cards/ItemCard";
 import React from "react";
+import ItemModal from "@/components/ItemModal";
 
 export default function MerchantPage() {
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+  const openModal = (item: any) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
   const {
     items,
     selectedCategory,
@@ -125,12 +136,12 @@ export default function MerchantPage() {
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []); 
+  }, []);
 
   return (
     <div className="flex flex-col items-center h-full w-full mb-96">
-      <h1 className="text-2xl font-extrabold mb-6 text-center text-gray-600 drop-shadow-lg tracking-wide font-serif bg-gradient-to-r from-blue-100 via-white to-blue-100 rounded-xl py-2 px-4 shadow-xl">
-       Welcome to {merchantData?.name || "Merchant Menu"}
+      <h1 className="text-2xl font-extrabold mb-10 text-center text-gray-600 drop-shadow-amber-100 tracking-wide font-serif bg-gradient-to-r from-blue-50 via-white to-blue-50 rounded-xl py-2 px-4 shadow-md">
+        Welcome to {merchantData?.name || "Merchant Menu"}
       </h1>
       <div className="w-full">
         {/* Object.entries(categorized): turns obj into [category, subcategories] pair*/}
@@ -144,7 +155,7 @@ export default function MerchantPage() {
               }}
               className="mb-8"
             >
-              <h2 className="text-xl font-extrabold text-gray-700 mb-2 text-center border-2 border-gray-300 rounded-lg py-2 px-4 bg-gray-50 shadow-sm">
+              <h2 className="text-xl font-extrabold text-gray-700 mb-4 text-center rounded-lg py-2 px-4 bg-gray-50 shadow-sm  drop-shadow-amber-100 tracking-wide font-serif bg-gradient-to-r from-blue-100 via-white to-blue-100">
                 {cat}
               </h2>
               {/* Object.entries(categorized[cat]) turns it into an array of pairs */}
@@ -157,12 +168,20 @@ export default function MerchantPage() {
                   }}
                   className="mb-4"
                 >
-                  <h3 className="text-lg italic text-gray-600 mb-2 text-center">
+                  <h3 className="text-lg italic text-gray-600 mb-8 text-center">
                     {subcat}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 justify-center w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4 justify-center  w-full">
                     {items.map((item) => (
                       <ItemCard
+                        onClick={() =>
+                          openModal({
+                            ...item,
+                            category: item.category?.name || "Others", // ✅ Extract string from object
+                            subcategory:
+                              item.subCategories?.[0]?.name || "Others", // ✅ Extract string from array
+                          })
+                        }
                         key={item._id}
                         title={item.title}
                         price={item.price}
@@ -176,6 +195,11 @@ export default function MerchantPage() {
             </div>
           ))}
       </div>
+      <ItemModal
+        item={selectedItem}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }
