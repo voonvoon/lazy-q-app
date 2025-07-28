@@ -11,6 +11,7 @@ import Footer from "@/components/shared/Footer";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
 import { ItemsProvider } from "@/contexts/ItemsContext";
+import { CartProvider } from "@/contexts/CartContext";
 
 // Wrap your children with SessionProvider
 
@@ -50,9 +51,13 @@ export default function RootLayout({
           <div className="flex flex-col min-h-screen bg-background">
             <Toaster />
             <Navbar />
-             <ItemsProvider>
-            <main className="flex-1">{children}</main>
-            </ItemsProvider>
+            <CartProvider>
+              {/* Wrap children with ItemsProvider if needed */}
+              {/* This is useful if you want to access items in the context */}
+              <ItemsProvider>
+                <main className="flex-1">{children}</main>
+              </ItemsProvider>
+            </CartProvider>
             <Footer />
           </div>
         </SessionProvider>
@@ -60,4 +65,3 @@ export default function RootLayout({
     </html>
   );
 }
-
