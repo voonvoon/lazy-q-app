@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import React from "react";
 import { MdCancel } from "react-icons/md";
+import { useCart } from "@/contexts/CartContext";
 
 interface ItemModalProps {
   item: {
@@ -19,9 +20,33 @@ interface ItemModalProps {
 }
 
 export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
+  const { addItem, isInCart, getItemQuantity } = useCart();
+
+  const handleAddToCart = () => {
+    if (!item) return;
+    addItem(
+      {
+        itemId: item._id,
+        title: item.title,
+        price: typeof item.price === "number" ? item.price : Number(item.price),
+        image: item.image?.[0]?.url,
+        category: item.category,
+      },
+      1
+    ); // Add 1 quantity
+  };
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  console.log("ItemModal item------------------------------------------>>>", item);
+  console.log(
+    "currentImageIndex----------------------------------->",
+    currentImageIndex
+  );
+
+  console.log(
+    "ItemModal item------------------------------------------>>>",
+    item
+  );
 
   // Reset image index when modal opens with new item
   useEffect(() => {
@@ -34,19 +59,27 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   const hasMultipleImages = images.length > 1;
 
   const nextImage = () => {
+    //If I'm looking at the LAST picture, go back to the FIRST picture. Otherwise, just go to the NEXT picture
     setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
   const prevImage = () => {
+    //If I'm looking at the FIRST picture, jump to the LAST picture. Otherwise, just go to the PREVIOUS picture!
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
   const getCurrentImageUrl = () => {
     if (images.length === 0) return "/food_placeholer.jpg";
 
-    return images[currentImageIndex].url.replace(
+    // ✅ Always use safe index avoid undefined errors
+    const safeIndex = Math.min(
+      Math.max(0, currentImageIndex),
+      images.length - 1
+    );
+
+    return images[safeIndex].url.replace(
       "/upload/",
-      "/upload/w_600,h_400,c_fill,q_auto/" // Higher quality for modal
+      "/upload/w_600,h_400,c_fill,q_auto/"
     );
   };
 
@@ -122,7 +155,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
                   </svg>
                 </button>
 
-                {/* Image Indicators */}
+                {/* Image Indicators '...' */}
                 <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
                   {images.map((_, index) => (
                     <button
@@ -185,7 +218,9 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
             >
               Close
             </button>
-            <button className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer">
+            <button 
+            onClick={handleAddToCart}
+            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer">
               Add to Order
             </button>
           </div>
