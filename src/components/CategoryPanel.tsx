@@ -74,7 +74,7 @@ export default function CategoryPanel() {
 
   return (
     <div className="flex flex-col items-center min-h-full">
-      <h2 className="text-sm font-light mb-20 text-gray-600"></h2>
+      <h2 className="text-sm font-light mb-20 text-gray-600">{merchantData?.name || "Merchant Menu"}</h2>
 
       <ul className="space-y-6 text-center">
         {sortedCategories.map((cat) => (

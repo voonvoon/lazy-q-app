@@ -12,6 +12,7 @@ interface ItemModalProps {
     description: string;
     category: string;
     subcategory: string;
+    addOns?: Array<{ name: string; price: number }>;
     image: Array<{ url: string }>;
     // Add any other properties your item has
   } | null;
@@ -22,6 +23,40 @@ interface ItemModalProps {
 export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   const { addItem, isInCart, getItemQuantity } = useCart();
 
+  const hasAddOns = item?.addOns && item?.addOns.length > 0;
+  console.log("hasAddOns----------------------------------->", hasAddOns);
+
+  // Toggle add-on selection
+  const toggleAddOn = (addOn: { _id: string; name: string; price: number }) => {
+    setSelectedAddOns((prev) => {
+      const isSelected = prev.find((selected) => selected._id === addOn._id);
+
+      if (isSelected) {
+        // Remove if already selected
+        return prev.filter((selected) => selected._id !== addOn._id);
+      } else {
+        // Add if not selected
+        return [...prev, addOn];
+      }
+    });
+  };
+
+  // Check if add-on is selected
+  const isAddOnSelected = (addOnId: string) => {
+    return selectedAddOns.some((selected) => selected._id === addOnId);
+  };
+
+  // Calculate total price including add-ons
+  const calculateTotalPrice = () => {
+    const basePrice =
+      typeof item?.price === "number" ? item.price : Number(item?.price);
+    const addOnsPrice = selectedAddOns.reduce(
+      (sum, addOn) => sum + addOn.price,
+      0
+    );
+    return basePrice + addOnsPrice;
+  };
+
   const handleAddToCart = () => {
     if (!item) return;
     addItem(
@@ -29,13 +64,14 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
         itemId: item._id,
         title: item.title,
         price: typeof item.price === "number" ? item.price : Number(item.price),
-        image: item.image?.[0]?.url,
         category: item.category,
       },
       1
     ); // Add 1 quantity
   };
-
+  const [selectedAddOns, setSelectedAddOns] = useState<
+    Array<{ _id: string; name: string; price: number }>
+  >([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   console.log(
@@ -51,6 +87,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   // Reset image index when modal opens with new item
   useEffect(() => {
     setCurrentImageIndex(0);
+    setSelectedAddOns([]); // Reset add-ons selection
   }, [item?._id]);
 
   if (!isOpen || !item) return null;
@@ -72,6 +109,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
     if (images.length === 0) return "/food_placeholer.jpg";
 
     // ✅ Always use safe index avoid undefined errors
+    //Too low? → Use the first card (0) | Too high? → Use the last card (length-1) | Just right? → Use exactly what you asked for
     const safeIndex = Math.min(
       Math.max(0, currentImageIndex),
       images.length - 1
@@ -181,6 +219,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
             <h2 className="text-2xl font-bold text-gray-800 flex-1 pr-4">
               {item.title}
             </h2>
+
             <div className="text-2xl font-bold text-blue-600 flex-shrink-0">
               RM{item.price}
             </div>
@@ -210,6 +249,77 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
             </div>
           )}
 
+          {/* Add-ons Section */}
+          {hasAddOns && (
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                Add-ons
+              </h3>
+              <div className="grid grid-cols-1 gap-2">
+                {item.addOns!.map((addOn: any) => (
+                  <button
+                    key={addOn._id}
+                    onClick={() => toggleAddOn(addOn)}
+                    className={`p-2 rounded-lg border-2 transition-all duration-200 text-left hover:shadow-md cursor-pointer ${
+                      isAddOnSelected(addOn._id)
+                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        : "border-gray-200 bg-white hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        {/* Checkbox indicator */}
+                        <div
+                          className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
+                            isAddOnSelected(addOn._id)
+                              ? "border-blue-500 bg-blue-500"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {isAddOnSelected(addOn._id) && (
+                            <svg
+                              className="w-3 h-3 text-white"
+                              fill="currentColor"
+                              viewBox="0 0 20 20"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          )}
+                        </div>
+
+                        <div>
+                          <span
+                            className={`font-medium ${
+                              isAddOnSelected(addOn._id)
+                                ? "text-blue-700"
+                                : "text-gray-800"
+                            }`}
+                          >
+                            {addOn.name}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`font-semibold ${
+                          isAddOnSelected(addOn._id)
+                            ? "text-blue-600"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        +RM{addOn.price.toFixed(2)}
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
@@ -218,10 +328,11 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
             >
               Close
             </button>
-            <button 
-            onClick={handleAddToCart}
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer">
-              Add to Order
+            <button
+              onClick={handleAddToCart}
+              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer"
+            >
+              Add to Order - RM{calculateTotalPrice().toFixed(2)}
             </button>
           </div>
         </div>
