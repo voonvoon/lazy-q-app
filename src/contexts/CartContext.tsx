@@ -6,7 +6,6 @@ interface CartItem {
   itemId: string;
   title: string;
   price: number;
-  image?: string; // First image URL
   quantity: number; // Supports decimals (0.5 portions)
   category: string;
   addedAt: Date; // For sorting/tracking
@@ -21,7 +20,7 @@ interface CartContextType {
   totalPrice: number;
   
   // Actions
-  addItem: (item: Omit<CartItem, 'quantity' | 'addedAt'>, quantity?: number) => void;
+  addItem: (item: Omit<CartItem, 'quantity' | 'addedAt'>, quantity?: number) => void;//Give me CartItem, but REMOVE the 'quantity' and 'addedAt' pieces
   removeItem: (itemId: string) => void;
   updateQuantity: (itemId: string, newQuantity: number) => void;
   clearCart: () => void;
