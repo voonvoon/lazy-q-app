@@ -3,6 +3,7 @@ import Image from "next/image";
 import React from "react";
 import { MdCancel } from "react-icons/md";
 import { useCart } from "@/contexts/CartContext";
+import QuantityController from "./QuantityController";
 
 interface ItemModalProps {
   item: {
@@ -12,7 +13,7 @@ interface ItemModalProps {
     description: string;
     category: string;
     subcategory: string;
-    addOns?: Array<{ name: string; price: number }>;
+    addOns?: Array<{ _id: string; name: string; price: number }>;
     image: Array<{ url: string }>;
     // Add any other properties your item has
   } | null;
@@ -23,8 +24,15 @@ interface ItemModalProps {
 export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   const { addItem, isInCart, getItemQuantity } = useCart();
 
+  const [selectedAddOns, setSelectedAddOns] = useState<
+    Array<{ _id: string; name: string; price: number }>
+  >([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [remarks, setRemarks] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
   const hasAddOns = item?.addOns && item?.addOns.length > 0;
-  console.log("hasAddOns----------------------------------->", hasAddOns);
+  const MAX_REMARKS_LENGTH = 150; // Character limit
 
   // Toggle add-on selection
   const toggleAddOn = (addOn: { _id: string; name: string; price: number }) => {
@@ -47,15 +55,16 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   };
 
   // Calculate total price including add-ons
-  const calculateTotalPrice = () => {
-    const basePrice =
-      typeof item?.price === "number" ? item.price : Number(item?.price);
-    const addOnsPrice = selectedAddOns.reduce(
-      (sum, addOn) => sum + addOn.price,
-      0
-    );
-    return basePrice + addOnsPrice;
-  };
+const calculateTotalPrice = () => {
+  const basePrice =
+    typeof item?.price === "number" ? item.price : Number(item?.price);
+  const addOnsPrice = selectedAddOns.reduce(
+    (sum, addOn) => sum + addOn.price,
+    0
+  );
+  // ✅ Multiply by quantity for total price
+  return (basePrice + addOnsPrice) * quantity;
+};
 
   const handleAddToCart = () => {
     if (!item) return;
@@ -65,19 +74,12 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
         title: item.title,
         price: typeof item.price === "number" ? item.price : Number(item.price),
         category: item.category,
+        addOns: selectedAddOns,
+        remarks: remarks.trim(),
       },
-      1
-    ); // Add 1 quantity
+      quantity // ✅ Use quantity state instead of hardcoded 1
+    );
   };
-  const [selectedAddOns, setSelectedAddOns] = useState<
-    Array<{ _id: string; name: string; price: number }>
-  >([]);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
-  console.log(
-    "currentImageIndex----------------------------------->",
-    currentImageIndex
-  );
 
   console.log(
     "ItemModal item------------------------------------------>>>",
@@ -88,6 +90,8 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   useEffect(() => {
     setCurrentImageIndex(0);
     setSelectedAddOns([]); // Reset add-ons selection
+    setRemarks("");
+    setQuantity(1); // Reset quantity to 1
   }, [item?._id]);
 
   if (!isOpen || !item) return null;
@@ -255,7 +259,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
                 Add-ons
               </h3>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {item.addOns!.map((addOn: any) => (
                   <button
                     key={addOn._id}
@@ -268,7 +272,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        {/* Checkbox indicator */}
+                        {/* Checkbox indicator box */}
                         <div
                           className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
                             isAddOnSelected(addOn._id)
@@ -276,6 +280,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
                               : "border-gray-300"
                           }`}
                         >
+                          {/* check Tick */}
                           {isAddOnSelected(addOn._id) && (
                             <svg
                               className="w-3 h-3 text-white"
@@ -297,7 +302,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
                               isAddOnSelected(addOn._id)
                                 ? "text-blue-700"
                                 : "text-gray-800"
-                            }`}
+                            } text-xs sm:text-base`}
                           >
                             {addOn.name}
                           </span>
@@ -309,7 +314,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
                           isAddOnSelected(addOn._id)
                             ? "text-blue-600"
                             : "text-gray-600"
-                        }`}
+                        } text-xs sm:text-base`}
                       >
                         +RM{addOn.price.toFixed(2)}
                       </span>
@@ -320,7 +325,85 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
             </div>
           )}
 
+          {/* Remarks Section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold text-gray-800">
+                Special Instructions
+              </h3>
+              <span
+                className={`text-sm ${
+                  remarks.length > MAX_REMARKS_LENGTH * 0.9
+                    ? "text-red-500"
+                    : "text-gray-500"
+                }`}
+              >
+                {remarks.length}/{MAX_REMARKS_LENGTH}
+              </span>
+            </div>
+
+            <textarea
+              value={remarks}
+              onChange={(e) => {
+                if (e.target.value.length <= MAX_REMARKS_LENGTH) {
+                  setRemarks(e.target.value);
+                }
+              }}
+              placeholder="e.g., No onions, extra spicy, well done..."
+              className={`w-full p-3 border-2 rounded-lg resize-none transition-colors duration-200 focus:outline-none text-gray-900 ${
+                remarks.length > MAX_REMARKS_LENGTH * 0.9
+                  ? "border-orange-300 focus:border-orange-500"
+                  : "border-gray-200 focus:border-blue-500"
+              }`}
+              rows={2}
+              maxLength={MAX_REMARKS_LENGTH}
+            />
+
+            {/* Helper text */}
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Help our kitchen prepare your order exactly how you like it
+            </p>
+
+            {/* Warning when near limit */}
+            {remarks.length > MAX_REMARKS_LENGTH * 0.8 && (
+              <div className="flex items-center mt-2 text-sm text-orange-600">
+                <svg
+                  className="w-4 h-4 mr-1"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                {MAX_REMARKS_LENGTH - remarks.length} characters remaining
+              </div>
+            )}
+          </div>
+
           {/* Action Buttons */}
+          <div className="flex items-center justify-between mb-2">
+            <div>
+            <span className="text-base text-gray-600 mr-2">Total:</span>
+            <span className="text-2xl font-bold text-blue-700">
+              RM{calculateTotalPrice().toFixed(2)}
+            </span>
+            </div>
+            {/* Quantity Controller */}
+
+            <div className="flex items-center gap-4">
+              <QuantityController
+                quantity={quantity}
+                onQuantityChange={setQuantity}
+                min={1}
+                max={50}
+                size="md"
+              />
+             
+            </div>
+          </div>
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button
               onClick={onClose}
@@ -330,9 +413,9 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
             </button>
             <button
               onClick={handleAddToCart}
-              className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer"
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
             >
-              Add to Order - RM{calculateTotalPrice().toFixed(2)}
+              {hasAddOns ? "Add to Order" : `Add ${quantity} to Order`}
             </button>
           </div>
         </div>
