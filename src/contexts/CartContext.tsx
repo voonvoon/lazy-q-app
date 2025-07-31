@@ -9,9 +9,11 @@ import React, {
 
 // ✅ Cart Item Structure (Option C: Hybrid)
 interface CartItem {
+  cartItemId: string; 
   itemId: string;
   title: string;
-  price: number;
+  price: string | number;
+  totalPrice: number; // Calculated as itemPrice * quantity
   quantity: number; // Supports decimals (0.5 portions)
   category: string;
   addOns?: Array<{ _id: string; name: string; price: number }>;
@@ -92,7 +94,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartItems]);
 
   const totalPrice = React.useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    return cartItems.reduce((sum, item) => sum + Number(item.price), 0);
   }, [cartItems]);
 
   // ✅ Action: Add Item
@@ -122,8 +124,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       //   };
       //   return [...prev, newItem];
       // }
+      const cartItemId = `cart_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
        const newItem: CartItem = {
           ...item,
+          cartItemId,
           quantity,
           addedAt: new Date(),
         };

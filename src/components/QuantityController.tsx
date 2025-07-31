@@ -11,7 +11,7 @@ interface QuantityControllerProps {
 
 export default function QuantityController({
   quantity,
-  onQuantityChange,
+  onQuantityChange, //is a setQuantity
   min = 0,
   max = 99,
   disabled = false,
@@ -81,7 +81,7 @@ export default function QuantityController({
       <button
         onClick={handleDecrease}
         disabled={disabled || quantity <= min}
-        className={`${currentSize.button} rounded-full border-2 border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 disabled:hover:bg-white disabled:hover:border-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-bold text-gray-700 disabled:text-gray-400 shadow-sm hover:shadow-md disabled:hover:shadow-sm`}
+        className={`${currentSize.button} rounded-full border-2 border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 disabled:hover:bg-white disabled:hover:border-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-bold text-gray-700 disabled:text-gray-400 shadow-sm hover:shadow-md disabled:hover:shadow-sm cursor-pointer`}
       >
         −
       </button>
@@ -95,14 +95,14 @@ export default function QuantityController({
         disabled={disabled}
         min={min}
         max={max}
-        className={`${currentSize.input} text-center border border-gray-300 rounded-lg font-semibold text-gray-800 bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 transition-all duration-200`}
+        className={`${currentSize.input} text-center border border-gray-300 rounded-lg font-semibold text-gray-800 bg-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 disabled:bg-gray-100 disabled:text-gray-500 transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
       />
 
       {/* Increase Button */}
       <button
         onClick={handleIncrease}
         disabled={disabled || quantity >= max}
-        className={`${currentSize.button} rounded-full border-2 border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 disabled:hover:bg-white disabled:hover:border-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-bold text-gray-700 disabled:text-gray-400 shadow-sm hover:shadow-md disabled:hover:shadow-sm`}
+        className={`${currentSize.button} rounded-full border-2 border-gray-300 bg-white hover:bg-gray-50 hover:border-gray-400 disabled:hover:bg-white disabled:hover:border-gray-300 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center font-bold text-gray-700 disabled:text-gray-400 shadow-sm hover:shadow-md disabled:hover:shadow-sm cursor-pointer`}
       >
         +
       </button>
@@ -110,13 +110,4 @@ export default function QuantityController({
   );
 }
 
-// Optional: Export a pre-configured version for restaurant use
-export function RestaurantQuantityController(props: Omit<QuantityControllerProps, 'min' | 'max'>) {
-  return (
-    <QuantityController
-      {...props}
-      min={1}
-      max={50}
-    />
-  );
-}
+
