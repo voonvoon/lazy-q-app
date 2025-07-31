@@ -10,6 +10,7 @@ interface ItemModalProps {
     _id: string;
     title: string;
     price: string | number;
+    totalPrice: number; // Calculated as itemPrice * quantity
     description: string;
     category: string;
     subcategory: string;
@@ -32,7 +33,7 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   const [quantity, setQuantity] = useState(1);
 
   const hasAddOns = item?.addOns && item?.addOns.length > 0;
-  const MAX_REMARKS_LENGTH = 150; // Character limit
+  const MAX_REMARKS_LENGTH = 60; // Character limit
 
   // Toggle add-on selection
   const toggleAddOn = (addOn: { _id: string; name: string; price: number }) => {
@@ -66,16 +67,29 @@ const calculateTotalPrice = () => {
   return (basePrice + addOnsPrice) * quantity;
 };
 
+
+const calculateTotalItemPrice = () => {
+  const basePrice =
+    typeof item?.price === "number" ? item.price : Number(item?.price);
+  const addOnsPrice = selectedAddOns.reduce(
+    (sum, addOn) => sum + addOn.price,
+    0
+  );
+  // ✅ Multiply by quantity for total price
+  return (basePrice + addOnsPrice) ;
+};
   const handleAddToCart = () => {
-    if (!item) return;
+    if (!item) return;    
     addItem(
       {
         itemId: item._id,
         title: item.title,
-        price: typeof item.price === "number" ? item.price : Number(item.price),
+        price: calculateTotalItemPrice(),
+        totalPrice: calculateTotalPrice(),
         category: item.category,
         addOns: selectedAddOns,
         remarks: remarks.trim(),
+        cartItemId: ""
       },
       quantity // ✅ Use quantity state instead of hardcoded 1
     );
@@ -259,7 +273,7 @@ const calculateTotalPrice = () => {
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
                 Add-ons
               </h3>
-              <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {item.addOns!.map((addOn: any) => (
                   <button
                     key={addOn._id}
