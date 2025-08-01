@@ -9,7 +9,7 @@ import React, {
 
 // ✅ Cart Item Structure (Option C: Hybrid)
 interface CartItem {
-  cartItemId: string; 
+  cartItemId: string;
   itemId: string;
   title: string;
   price: string | number;
@@ -24,6 +24,8 @@ interface CartItem {
 interface CartContextType {
   // State
   cartItems: CartItem[];
+  merchantData: any;
+  setMerchantData: (merchant: any) => void;
 
   // Computed values
   totalItems: number;
@@ -47,14 +49,16 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // ✅ Local Storage Key
 const CART_STORAGE_KEY = "lazy-q-cart";
+const MERCHANT_STORAGE_KEY = "lazy-q-merchant";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [merchantData, setMerchantData] = useState<any>(null);
 
   console.log(
-    "cartItems in CartProvider--------------------------------------->>",
-    cartItems
+    "merchantData in CartProvider--------------------------------------->>",
+    merchantData
   );
 
   // ✅ Load cart from localStorage on mount
@@ -69,6 +73,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
           addedAt: new Date(item.addedAt),
         }));
         setCartItems(cartWithDates);
+      }
+
+      // ✅ Load merchant data
+      const savedMerchant = localStorage.getItem(MERCHANT_STORAGE_KEY);
+      if (savedMerchant) {
+        const parsedMerchant = JSON.parse(savedMerchant);
+        setMerchantData(parsedMerchant);
       }
     } catch (error) {
       console.error("Error loading cart from localStorage:", error);
@@ -87,6 +98,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
     }
   }, [cartItems, isLoaded]);
+
+  // ✅ Save merchant data to localStorage when it changes
+  useEffect(() => {
+    if (isLoaded && merchantData) {
+      try {
+        localStorage.setItem(
+          MERCHANT_STORAGE_KEY,
+          JSON.stringify(merchantData)
+        );
+      } catch (error) {
+        console.error("Error saving merchant to localStorage:", error);
+      }
+    }
+  }, [merchantData, isLoaded]);
 
   // ✅ Computed Values (Memoized for performance)
   const totalItems = React.useMemo(() => {
@@ -124,14 +149,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       //   };
       //   return [...prev, newItem];
       // }
-      const cartItemId = `cart_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
-       const newItem: CartItem = {
-          ...item,
-          cartItemId,
-          quantity,
-          addedAt: new Date(),
-        };
-        return [...prev, newItem];
+      const cartItemId = `cart_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(2, 6)}`;
+      const newItem: CartItem = {
+        ...item,
+        cartItemId,
+        quantity,
+        addedAt: new Date(),
+      };
+      return [...prev, newItem];
     });
   };
 
@@ -173,6 +200,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const contextValue: CartContextType = {
     // State
     cartItems,
+    merchantData,
+    setMerchantData,
 
     // Computed
     totalItems,

@@ -56,30 +56,29 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
   };
 
   // Calculate total price including add-ons
-const calculateTotalPrice = () => {
-  const basePrice =
-    typeof item?.price === "number" ? item.price : Number(item?.price);
-  const addOnsPrice = selectedAddOns.reduce(
-    (sum, addOn) => sum + addOn.price,
-    0
-  );
-  // ✅ Multiply by quantity for total price
-  return (basePrice + addOnsPrice) * quantity;
-};
+  const calculateTotalPrice = () => {
+    const basePrice =
+      typeof item?.price === "number" ? item.price : Number(item?.price);
+    const addOnsPrice = selectedAddOns.reduce(
+      (sum, addOn) => sum + addOn.price,
+      0
+    );
+    // ✅ Multiply by quantity for total price
+    return (basePrice + addOnsPrice) * quantity;
+  };
 
-
-const calculateTotalItemPrice = () => {
-  const basePrice =
-    typeof item?.price === "number" ? item.price : Number(item?.price);
-  const addOnsPrice = selectedAddOns.reduce(
-    (sum, addOn) => sum + addOn.price,
-    0
-  );
-  // ✅ Multiply by quantity for total price
-  return (basePrice + addOnsPrice) ;
-};
+  const calculateTotalItemPrice = () => {
+    const basePrice =
+      typeof item?.price === "number" ? item.price : Number(item?.price);
+    const addOnsPrice = selectedAddOns.reduce(
+      (sum, addOn) => sum + addOn.price,
+      0
+    );
+    // ✅ Multiply by quantity for total price
+    return basePrice + addOnsPrice;
+  };
   const handleAddToCart = () => {
-    if (!item) return;    
+    if (!item) return;
     addItem(
       {
         itemId: item._id,
@@ -89,7 +88,7 @@ const calculateTotalItemPrice = () => {
         category: item.category,
         addOns: selectedAddOns,
         remarks: remarks.trim(),
-        cartItemId: ""
+        cartItemId: "",
       },
       quantity // ✅ Use quantity state instead of hardcoded 1
     );
@@ -273,7 +272,7 @@ const calculateTotalItemPrice = () => {
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
                 Add-ons
               </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {item.addOns!.map((addOn: any) => (
                   <button
                     key={addOn._id}
@@ -400,10 +399,10 @@ const calculateTotalItemPrice = () => {
           {/* Action Buttons */}
           <div className="flex items-center justify-between mb-2">
             <div>
-            <span className="text-base text-gray-600 mr-2">Total:</span>
-            <span className="text-2xl font-bold text-blue-700">
-              RM{calculateTotalPrice().toFixed(2)}
-            </span>
+              <span className="text-base text-gray-600 mr-2">Total:</span>
+              <span className="text-2xl font-bold text-blue-700">
+                RM{calculateTotalPrice().toFixed(2)}
+              </span>
             </div>
             {/* Quantity Controller */}
 
@@ -415,7 +414,6 @@ const calculateTotalItemPrice = () => {
                 max={50}
                 size="md"
               />
-             
             </div>
           </div>
           <div className="flex gap-3 pt-4 border-t border-gray-200">
