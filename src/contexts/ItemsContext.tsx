@@ -39,6 +39,8 @@ export function ItemsProvider({
     null
   );
 
+  console.log("merchantData in ------------------------------>", merchantData);
+
   //console.log("Merchant Data in ItemsProvider:", merchantData);
 
   // console.log(

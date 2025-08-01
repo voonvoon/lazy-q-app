@@ -3,12 +3,15 @@ import CategoryPanel from "@/components/CategoryPanel";
 import { getMerchantBySlug, getItemsByMerchantId } from "@/lib/actions/frontShop";
 import { ItemsProvider } from "@/contexts/ItemsContext";
 
+
+
 interface MerchantLayoutProps {
   children: ReactNode;
   params: Promise<{ slug: string }>;
 }
 
 export default async function MerchantLayout({ children, params }: MerchantLayoutProps) {
+
   // 1. Await params first (Next.js 15 requirement)
   const { slug } = await params;
   
@@ -22,6 +25,8 @@ export default async function MerchantLayout({ children, params }: MerchantLayou
       </div>
     );
   }
+
+
 
   // 2. Fetch items by merchant id
   const items = await getItemsByMerchantId(merchant._id);

@@ -5,11 +5,12 @@ import { useItems } from "@/contexts/ItemsContext";
 import ItemCard from "@/components/cards/ItemCard";
 import React from "react";
 import ItemModal from "@/components/ItemModal";
+import { useCart } from "@/contexts/CartContext";
 
 export default function MerchantPage() {
+  const { setMerchantData } = useCart();
   const [selectedItem, setSelectedItem] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
 
   const openModal = (item: any) => {
     setSelectedItem(item);
@@ -24,6 +25,16 @@ export default function MerchantPage() {
     setScrollSubcategory,
     merchantData,
   } = useItems();
+
+  //update merchant data in CartContext/ localStorage so that it can be used in Cart
+  useEffect(() => {
+    if (merchantData) {
+      setMerchantData({
+        _id: merchantData._id,
+        name: merchantData.name,
+      });
+    }
+  }, [merchantData, setMerchantData]);
 
   // Group items by category and subcategory
   //Record<K, V> = TS for an object with keys of type K and values of type V.
@@ -140,7 +151,7 @@ export default function MerchantPage() {
 
   return (
     <div className="flex flex-col items-center h-full w-full mb-96">
-        {/* <h1 className="text-2xl font-extrabold mb-10 text-center text-gray-600 drop-shadow-amber-100 tracking-wide font-serif bg-gradient-to-r from-blue-50 via-white to-blue-50 rounded-xl py-2 px-4 shadow-md">
+      {/* <h1 className="text-2xl font-extrabold mb-10 text-center text-gray-600 drop-shadow-amber-100 tracking-wide font-serif bg-gradient-to-r from-blue-50 via-white to-blue-50 rounded-xl py-2 px-4 shadow-md">
           Welcome to {merchantData?.name || "Merchant Menu"}
         </h1> */}
       <div className="w-full">
