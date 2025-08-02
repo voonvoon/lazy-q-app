@@ -16,7 +16,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
         {/* Restaurant Header */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-800 mb-1">
-            {merchantData?.name || "Restaurant"}
+            {merchantData?.name || "No Merchant Selected"}
           </h2>
 
         </div>

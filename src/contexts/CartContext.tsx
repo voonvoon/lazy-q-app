@@ -7,25 +7,39 @@ import React, {
   ReactNode,
 } from "react";
 
-// ✅ Cart Item Structure (Option C: Hybrid)
+// ✅ Cart Item Structure
 interface CartItem {
   cartItemId: string;
   itemId: string;
   title: string;
   price: string | number;
-  totalPrice: number; // Calculated as itemPrice * quantity
-  quantity: number; // Supports decimals (0.5 portions)
+  totalPrice: number;
+  quantity: number;
   category: string;
   addOns?: Array<{ _id: string; name: string; price: number }>;
-  remarks?: string; // Optional remarks for the item
-  addedAt: Date; // For sorting/tracking
+  remarks?: string;
+  addedAt: Date;
+}
+
+// ✅ Merchant Data Structure
+interface MerchantData {
+  _id: string;
+  name: string;
+}
+
+// ✅ Combined Cart Storage Structure
+interface CartStorage {
+  merchant: MerchantData | null;
+  cartItems: CartItem[];
+  timestamp: number; // ✅ When cart was last updated
+  expiresAt: number; // ✅ When cart expires
 }
 
 interface CartContextType {
   // State
   cartItems: CartItem[];
-  merchantData: any;
-  setMerchantData: (merchant: any) => void;
+  merchantData: MerchantData | null;
+  setMerchantData: (merchant: MerchantData | null) => void;
 
   // Computed values
   totalItems: number;
@@ -33,11 +47,11 @@ interface CartContextType {
 
   // Actions
   addItem: (
-    item: Omit<CartItem, "quantity" | "addedAt">,
+    item: Omit<CartItem, "quantity" | "addedAt" | "cartItemId">,
     quantity?: number
-  ) => void; //Give me CartItem, but REMOVE the 'quantity' and 'addedAt' pieces
-  removeItem: (itemId: string) => void;
-  updateQuantity: (itemId: string, newQuantity: number) => void;
+  ) => void;
+  removeItem: (cartItemId: string) => void;
+  updateQuantity: (cartItemId: string, newQuantity: number) => void;
   clearCart: () => void;
 
   // Utility
@@ -47,71 +61,81 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// ✅ Local Storage Key
+// ✅ Single Storage Key
 const CART_STORAGE_KEY = "lazy-q-cart";
-const MERCHANT_STORAGE_KEY = "lazy-q-merchant";
+const CART_EXPIRY_TIME = 1 * 60 * 1000; // 30 minutes in milliseconds
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [merchantData, setMerchantData] = useState<any>(null);
+  const [merchantData, setMerchantData] = useState<MerchantData | null>(null);
 
   console.log(
-    "merchantData in CartProvider--------------------------------------->>",
-    merchantData
+    "cartItems------------------------------------------------->",
+    cartItems
   );
 
-  // ✅ Load cart from localStorage on mount
+  // ✅ Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
     try {
-      const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart);
-        // Convert addedAt strings back to Date objects
-        const cartWithDates = parsedCart.map((item: any) => ({
-          ...item,
-          addedAt: new Date(item.addedAt),
-        }));
-        setCartItems(cartWithDates);
-      }
+      const savedCartData = localStorage.getItem(CART_STORAGE_KEY);
+      if (savedCartData) {
+        //localStorage → String → JSON.parse() → Object
+        const parsedData: CartStorage = JSON.parse(savedCartData);
 
-      // ✅ Load merchant data
-      const savedMerchant = localStorage.getItem(MERCHANT_STORAGE_KEY);
-      if (savedMerchant) {
-        const parsedMerchant = JSON.parse(savedMerchant);
-        setMerchantData(parsedMerchant);
+        // ✅ Check if cart has expired
+        const now = Date.now();
+        const isExpired = parsedData.expiresAt && now > parsedData.expiresAt;
+
+        if (isExpired) {
+          console.log("Cart expired, clearing localStorage");
+          localStorage.removeItem(CART_STORAGE_KEY);
+          setCartItems([]);
+          setMerchantData(null);
+          // Don't load expired data - start fresh
+        } else {
+          // Load cart items with date conversion
+          if (parsedData.cartItems && Array.isArray(parsedData.cartItems)) {
+            const cartWithDates = parsedData.cartItems.map((item: any) => ({
+              ...item,
+              addedAt: new Date(item.addedAt),
+            }));
+            setCartItems(cartWithDates);
+          }
+
+          // ✅ Load merchant data
+          if (parsedData.merchant) {
+            setMerchantData(parsedData.merchant);
+          }
+        }
       }
     } catch (error) {
       console.error("Error loading cart from localStorage:", error);
+      // Clear corrupted data
+      localStorage.removeItem(CART_STORAGE_KEY);
     } finally {
       setIsLoaded(true);
     }
   }, []);
 
-  // ✅ Save to localStorage on every cart change (your preference)
+  // ✅ Save BOTH cart items AND merchant data together
   useEffect(() => {
     if (isLoaded) {
       try {
-        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
+        const now = Date.now();
+        const cartData: CartStorage = {
+          merchant: merchantData,
+          cartItems: cartItems,
+          timestamp: now, // ✅ When saved
+          expiresAt: now + CART_EXPIRY_TIME, // ✅ When expires (30 min from now)
+        };
+        //Object → JSON.stringify() → String → localStorage
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
       } catch (error) {
         console.error("Error saving cart to localStorage:", error);
       }
     }
-  }, [cartItems, isLoaded]);
-
-  // ✅ Save merchant data to localStorage when it changes
-  useEffect(() => {
-    if (isLoaded && merchantData) {
-      try {
-        localStorage.setItem(
-          MERCHANT_STORAGE_KEY,
-          JSON.stringify(merchantData)
-        );
-      } catch (error) {
-        console.error("Error saving merchant to localStorage:", error);
-      }
-    }
-  }, [merchantData, isLoaded]);
+  }, [cartItems, merchantData, isLoaded]); // ✅ Triggers on EITHER change
 
   // ✅ Computed Values (Memoized for performance)
   const totalItems = React.useMemo(() => {
@@ -124,34 +148,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // ✅ Action: Add Item
   const addItem = (
-    item: Omit<CartItem, "quantity" | "addedAt">,
+    item: Omit<CartItem, "quantity" | "addedAt" | "cartItemId">,
     quantity: number = 1
   ) => {
     setCartItems((prev) => {
-      // const existingItemIndex = prev.findIndex(
-      //   (cartItem) => cartItem.itemId === item.itemId
-      // );
-
-      // if (existingItemIndex >= 0) {
-      //   // Item exists - update quantity
-      //   const updated = [...prev];
-      //   updated[existingItemIndex] = {
-      //     ...updated[existingItemIndex],
-      //     quantity: updated[existingItemIndex].quantity + quantity,
-      //   };
-      //   return updated;
-      // } else {
-      //   // New item - add to cart
-      //   const newItem: CartItem = {
-      //     ...item,
-      //     quantity,
-      //     addedAt: new Date(),
-      //   };
-      //   return [...prev, newItem];
-      // }
       const cartItemId = `cart_${Date.now()}_${Math.random()
         .toString(36)
         .substring(2, 6)}`;
+
       const newItem: CartItem = {
         ...item,
         cartItemId,
@@ -162,34 +166,40 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  // ✅ Action: Remove Item
-  const removeItem = (itemId: string) => {
-    setCartItems((prev) => prev.filter((item) => item.itemId !== itemId));
+  // ✅ Action: Remove Item (using cartItemId)
+  const removeItem = (cartItemId: string) => {
+    setCartItems((prev) =>
+      prev.filter((item) => item.cartItemId !== cartItemId)
+    );
   };
 
-  // ✅ Action: Update Quantity (supports decimals)
-  const updateQuantity = (itemId: string, newQuantity: number) => {
+  // ✅ Action: Update Quantity (using cartItemId)
+  const updateQuantity = (cartItemId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeItem(itemId);
+      removeItem(cartItemId);
       return;
     }
 
     setCartItems((prev) =>
       prev.map((item) =>
-        item.itemId === itemId ? { ...item, quantity: newQuantity } : item
+        item.cartItemId === cartItemId
+          ? { ...item, quantity: newQuantity }
+          : item
       )
     );
   };
 
-  // ✅ Action: Clear Cart
+  // ✅ Action: Clear Cart (keep merchant, clear items only)
   const clearCart = () => {
     setCartItems([]);
+    // Note: merchantData stays - user can continue ordering from same restaurant
   };
 
   // ✅ Utility: Get Item Quantity
   const getItemQuantity = (itemId: string): number => {
-    const item = cartItems.find((item) => item.itemId === itemId);
-    return item ? item.quantity : 0;
+    return cartItems.reduce((total, item) => {
+      return item.itemId === itemId ? total + item.quantity : total;
+    }, 0);
   };
 
   // ✅ Utility: Check if item is in cart
@@ -233,4 +243,4 @@ export function useCart() {
 }
 
 // ✅ Export types for use in other components
-export type { CartItem, CartContextType };
+export type { CartItem, CartContextType, MerchantData, CartStorage };
