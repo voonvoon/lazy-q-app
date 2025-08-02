@@ -88,7 +88,6 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
         category: item.category,
         addOns: selectedAddOns,
         remarks: remarks.trim(),
-        cartItemId: "",
       },
       quantity // ✅ Use quantity state instead of hardcoded 1
     );
