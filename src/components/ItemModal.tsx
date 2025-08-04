@@ -77,21 +77,25 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
     // ✅ Multiply by quantity for total price
     return basePrice + addOnsPrice;
   };
-  const handleAddToCart = () => {
-    if (!item) return;
-    addItem(
-      {
-        itemId: item._id,
-        title: item.title,
-        price: calculateTotalItemPrice(),
-        totalPrice: calculateTotalPrice(),
-        category: item.category,
-        addOns: selectedAddOns,
-        remarks: remarks.trim(),
-      },
-      quantity // ✅ Use quantity state instead of hardcoded 1
-    );
-  };
+const handleAddToCart = () => {
+  if (!item) return;
+  
+  addItem(
+    {
+      itemId: item._id,
+      title: item.title,
+      price: calculateTotalItemPrice(),
+      totalPrice: calculateTotalPrice(),
+      category: item.category,
+      addOns: selectedAddOns,
+      remarks: remarks.trim(),
+    },
+    quantity // ✅ Use quantity state instead of hardcoded 1
+  );
+  
+  // ✅ Close modal after adding to cart
+  onClose();
+};
 
   console.log(
     "ItemModal item------------------------------------------>>>",

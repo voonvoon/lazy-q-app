@@ -40,6 +40,7 @@ interface CartContextType {
   cartItems: CartItem[];
   merchantData: MerchantData | null;
   setMerchantData: (merchant: MerchantData | null) => void;
+  // setCartItems: (items: CartItem[]) => void;
 
   // Computed values
   totalItems: number;
@@ -70,10 +71,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [merchantData, setMerchantData] = useState<MerchantData | null>(null);
 
-  console.log(
-    "cartItems------------------------------------------------->",
-    cartItems
-  );
+  // console.log(
+  //   "cartItems------------------------------------------------->",
+  //   cartItems
+  // );
+
+  console.log("merchantData in CartContext------------------------------------>>>", merchantData);
 
   // ✅ Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
@@ -91,7 +94,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
           console.log("Cart expired, clearing localStorage");
           localStorage.removeItem(CART_STORAGE_KEY);
           setCartItems([]);
-          setMerchantData(null);
           // Don't load expired data - start fresh
         } else {
           // Load cart items with date conversion
@@ -120,22 +122,33 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // ✅ Save BOTH cart items AND merchant data together
   useEffect(() => {
-    if (isLoaded) {
-      try {
+  if (isLoaded) {
+    try {
+      // ✅ Check if we have actual cart content 
+      const hasCartItems = cartItems.length > 0;
+      const hasMerchant = merchantData !== null;
+      
+      if (hasCartItems && hasMerchant) {
+        // ✅ Save when we have both items and merchant
         const now = Date.now();
         const cartData: CartStorage = {
           merchant: merchantData,
           cartItems: cartItems,
-          timestamp: now, // ✅ When saved
-          expiresAt: now + CART_EXPIRY_TIME, // ✅ When expires (30 min from now)
+          timestamp: now,
+          expiresAt: now + CART_EXPIRY_TIME,
         };
-        //Object → JSON.stringify() → String → localStorage
         localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
-      } catch (error) {
-        console.error("Error saving cart to localStorage:", error);
+        console.log("💾 Cart saved:", cartItems.length, "items");
+      } else {
+        // ✅ Clean up localStorage when cart is empty
+        localStorage.removeItem(CART_STORAGE_KEY);
+        console.log("🗑️ Empty cart, localStorage cleared");
       }
+    } catch (error) {
+      console.error("Error saving cart to localStorage:", error);
     }
-  }, [cartItems, merchantData, isLoaded]); // ✅ Triggers on EITHER change
+  }
+}, [cartItems, merchantData, isLoaded]);
 
   // ✅ Computed Values (Memoized for performance)
   const totalItems = React.useMemo(() => {
@@ -212,6 +225,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     cartItems,
     merchantData,
     setMerchantData,
+    //setCartItems,
 
     // Computed
     totalItems,
