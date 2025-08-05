@@ -29,14 +29,7 @@ export default function MerchantPage() {
   
 
   //update merchant data in CartContext/ localStorage so that it can be used in Cart
-  // useEffect(() => {
-  //   if (merchantData) {
-  //     setMerchantData({
-  //       _id: merchantData._id,
-  //       name: merchantData.name,
-  //     });
-  //   }
-  // }, [merchantData, setMerchantData]);
+  // ✅ Clear cart data if switching merchants
   useEffect(() => {
   if (merchantData) {
     // ✅ Get current cart data to check for merchant switching
@@ -48,7 +41,7 @@ export default function MerchantPage() {
         
         // ✅ Check if switching to a different merchant
         if (parsedData.merchant && parsedData.merchant._id !== merchantData._id) {
-          console.log("🔄 Merchant switch detected:", parsedData.merchant.name, "→", merchantData.name);
+          //console.log("🔄 Merchant switch detected:", parsedData.merchant.name, "→", merchantData.name);
           
           // ✅ Clear all cart data when switching merchants
           localStorage.removeItem("lazy-q-cart");
