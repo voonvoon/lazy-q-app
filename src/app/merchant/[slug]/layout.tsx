@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import CategoryPanel from "@/components/CategoryPanel";
 import { getMerchantBySlug, getItemsByMerchantId } from "@/lib/actions/frontShop";
 import { ItemsProvider } from "@/contexts/ItemsContext";
+import CartFloatingBar from "@/components/CartFloatingBar";
 
 
 
@@ -41,7 +42,9 @@ export default async function MerchantLayout({ children, params }: MerchantLayou
         </aside>
         {/* Main content: 70% */}
         <main className="flex-1 p-4">{children}</main>
+       
       </div>
+       <CartFloatingBar />
     </ItemsProvider>
   );
 }

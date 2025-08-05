@@ -4,7 +4,7 @@ import React from "react";
 import { useCart } from "@/contexts/CartContext";
 
 export default function CheckoutPage() {
-  const { cartItems, totalPrice, totalItems } = useCart();
+  const { cartItems, totalPrice, totalItems, clearCart } = useCart();
   
   return (
     <main className="p-8 bg-white rounded shadow">
@@ -87,6 +87,19 @@ export default function CheckoutPage() {
                   RM{(totalPrice + totalPrice * 0.06 + 3.0).toFixed(2)}
                 </span>
               </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+              onClick={clearCart}
+              className="py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded transition cursor-pointer"
+              >
+              Clear Cart
+              </button>
+              <button
+              className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded transition cursor-pointer"
+              >
+              Checkout
+              </button>
             </div>
           </div>
         </div>
