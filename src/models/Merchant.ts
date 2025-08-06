@@ -25,6 +25,10 @@ export interface IMerchant extends Document {
 
   // Business Settings
   isActive: boolean;
+  tax: number;
+  allowedDelivery: boolean;
+  deliveryFee: number;
+  freeDeliveryThreshold: number;
   businessHours: {
     day: string; // "monday", "tuesday", etc.
     open: string; // "09:00"
@@ -108,6 +112,30 @@ const merchantSchema = new Schema<IMerchant>(
     isActive: {
       type: Boolean,
       default: true,
+    },
+
+    tax: {
+      type: Number,
+      default: 6,
+      min: 0,
+      max: 100,
+    },
+
+    allowedDelivery: {
+      type: Boolean,
+      default: true,
+    },
+
+    deliveryFee: {
+      type: Number,
+      default: 5.0,
+      min: 0,
+    },
+
+    freeDeliveryThreshold: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
 
     businessHours: [

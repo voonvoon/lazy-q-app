@@ -1,12 +1,13 @@
 // lib/casl/abilities.ts
 import {
-  createMongoAbility,//Make CASL speak MongoDB language
+  createMongoAbility, //Make CASL speak MongoDB language
   AbilityBuilder,
 } from "@casl/ability";
 
 export type Actions = "manage" | "create" | "read" | "update" | "delete";
 export type Subjects =
   | "Merchant"
+  | "MerchantSettings"
   | "Product"
   | "Order"
   | "User"
@@ -30,9 +31,10 @@ export function defineAbilityFor(user: any) {
     can("delete", "Merchant", { owner: user.id });
 
     // Can manage products and orders for their merchants
+    can("manage", "MerchantSettings");
     can("manage", "Product");
     can("manage", "Order");
-     can("manage", "Discount");
+    can("manage", "Discount");
     can("read", "Analytics", { merchantOwner: user.id });
   }
 
@@ -47,5 +49,5 @@ export function defineAbilityFor(user: any) {
   }
 
   // build() compiles all rules into final ability:
-  return build();// ← Creates the complete ability object
+  return build(); // ← Creates the complete ability object
 }
