@@ -291,6 +291,75 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
   }
 }
 
+// export async function getMerchantsByUserId() {
+//   try {
+//     await checkPermission("read", "Merchant");
+
+//     const session = await auth();
+
+//     if (!session?.user?.id) {
+//       redirect("/login");
+//     }
+
+//     await dbConnect();
+
+//     console.log("🔍 Searching merchants for user ID:", session.user.id);
+
+//     // ✅ NO .populate() - just get merchant fields directly
+//     const merchants = await Merchant.find({
+//       owner: session.user.id,
+//     })
+//       .select("_id name slug email isActive address phone catOrder createdAt") // ✅ Select only what you need
+//       .sort({ createdAt: -1 })
+//       .lean();
+
+//     console.log("🏪 Found merchants:", merchants.length);
+
+//     // ✅ Convert ObjectIds to strings
+//     const serializedMerchants = merchants.map((merchant) => ({
+//       _id: String(merchant._id),
+//       name: merchant.name,
+//       slug: merchant.slug,
+//       email: merchant.email,
+//       isActive: merchant.isActive,
+//       address: merchant.address
+//         ? {
+//             street: merchant.address.street || "",
+//             city: merchant.address.city || "",
+//             state: merchant.address.state || "",
+//             zipCode: merchant.address.zipCode || "",
+//             country: merchant.address.country || "",
+//           }
+//         : {
+//             street: "",
+//             city: "",
+//             state: "",
+//             zipCode: "",
+//             country: "",
+//           },
+//       phone: merchant.phone,
+//       createdAt: merchant.createdAt,
+//       catOrder: Array.isArray(merchant.catOrder)
+//         ? merchant.catOrder.map((id) => id?.toString?.() ?? id)
+//         : [],
+//     }));
+
+//     return {
+//       success: true,
+//       merchants: serializedMerchants,
+//       total: merchants.length,
+//     };
+//   } catch (error) {
+//     console.error("❌ Error fetching merchants:", error);
+
+//     return {
+//       success: false,
+//       error: "Failed to fetch merchant data",
+//       merchants: [],
+//     };
+//   }
+// }
+
 export async function getMerchantsByUserId() {
   try {
     await checkPermission("read", "Merchant");
@@ -305,17 +374,17 @@ export async function getMerchantsByUserId() {
 
     console.log("🔍 Searching merchants for user ID:", session.user.id);
 
-    // ✅ NO .populate() - just get merchant fields directly
+    // ✅ Added merchant settings fields to select
     const merchants = await Merchant.find({
       owner: session.user.id,
     })
-      .select("_id name slug email isActive address phone catOrder createdAt") // ✅ Select only what you need
+      .select("_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold createdAt")
       .sort({ createdAt: -1 })
       .lean();
 
     console.log("🏪 Found merchants:", merchants.length);
 
-    // ✅ Convert ObjectIds to strings
+    // ✅ Convert ObjectIds to strings and include new settings fields
     const serializedMerchants = merchants.map((merchant) => ({
       _id: String(merchant._id),
       name: merchant.name,
@@ -338,6 +407,13 @@ export async function getMerchantsByUserId() {
             country: "",
           },
       phone: merchant.phone,
+      
+      // ✅ Business settings fields
+      tax: merchant.tax || 6,                                    // Default 6% if not set
+      allowedDelivery: merchant.allowedDelivery ?? true,         // Default true if not set
+      deliveryFee: merchant.deliveryFee || 5.0,                  // Default 5.00 if not set
+      freeDeliveryThreshold: merchant.freeDeliveryThreshold || 0, // Default 0 if not set
+      
       createdAt: merchant.createdAt,
       catOrder: Array.isArray(merchant.catOrder)
         ? merchant.catOrder.map((id) => id?.toString?.() ?? id)
@@ -359,6 +435,10 @@ export async function getMerchantsByUserId() {
     };
   }
 }
+
+
+
+
 
 // Delete merchant action
 export async function deleteMerchant(merchantId: string) {
