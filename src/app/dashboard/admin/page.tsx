@@ -7,6 +7,7 @@ import { useMerchant } from "@/contexts/MerchantContext";
 import MerchantSwitcher from "@/components/admin/MerchantSwitcher";
 import MerchantSelector from "@/components/admin/MerchantSelector";
 import { getMerchantsByUserId } from "@/lib/actions/merchants";
+import AdminSkeleton from "@/components/skeleton/AdminSkeleton";
 
 export default function AdminPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
@@ -57,11 +58,7 @@ export default function AdminPage() {
 
   // Show loading
   if (isLoading || isLoadingData) {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-semibold text-black">Loading...</h1>
-      </div>
-    );
+    return <AdminSkeleton />;
   }
 
   if (error) {
