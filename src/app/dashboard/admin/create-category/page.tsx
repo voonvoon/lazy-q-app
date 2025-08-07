@@ -33,6 +33,7 @@ import {
 } from "@dnd-kit/sortable"; //for sortable/reorderable lists.
 import { CSS } from "@dnd-kit/utilities";
 
+
 const COMMON_CATEGORIES = [
   "Appetizers",
   "Main Course",
@@ -60,7 +61,7 @@ const categorySchema = z.object({
 type CategoryForm = z.infer<typeof categorySchema>;
 
 export default function CreateCategoryPage() {
-  const { selectedMerchant } = useMerchant(); //to get the selected merchant from context
+  const { selectedMerchant, isLoading } = useMerchant(); //to get the selected merchant from context
   const [dropdown, setDropdown] = useState(COMMON_CATEGORIES[0]); //to hold selected category from dropdown
   const [categories, setCategories] = useState<any[]>([]); //to hold fetched categories
   const [editCategory, setEditCategory] = useState<any>(null); //to hold category being edited
@@ -268,6 +269,7 @@ export default function CreateCategoryPage() {
       triggerAutoSaveCatOrder(items);
     }
   }, [items]); // Save on reorder or category change
+
 
   return (
     <div className="max-w-xl mx-auto mt-16 p-6 bg-white rounded shadow">

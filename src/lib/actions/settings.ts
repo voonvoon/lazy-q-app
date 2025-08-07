@@ -39,8 +39,9 @@ export async function updateMerchantSettings(
     }
 
     // Extract and validate form data
-    const tax = Number(formData.get("tax"));
-    const allowedDelivery = formData.get("allowedDelivery") === "true";
+    const tax = Number(formData.get("tax")); // Convert to number
+    //tricky: formData returns strings, so we need to convert to boolean
+    const allowedDelivery = formData.get("allowedDelivery") === "true"; //more explicitly: formData.get("allowedDelivery") === "true" ? true : false;
     const deliveryFee = Number(formData.get("deliveryFee"));
     const freeDeliveryThreshold = Number(formData.get("freeDeliveryThreshold"));
 
@@ -74,7 +75,7 @@ export async function updateMerchantSettings(
     }
 
     // Revalidate relevant paths
-    revalidatePath(`/admin/merchants/${merchantId}/settings`);
+    revalidatePath("/dashboard/admin/settings");
 
     return {
       success: true,
@@ -95,46 +96,3 @@ export async function updateMerchantSettings(
   }
 }
 
-// ✅ Get Merchant Settings
-// export async function getMerchantSettings(merchantId: string) {
-//   try {
-//     await dbConnect();
-
-//     // Get current user session
-//     const session = await auth();
-//     if (!session?.user) {
-//       redirect("/login");
-//     }
-
-//     const user = session.user;
-
-//     // Find merchant
-//     const merchant = await Merchant.findById(merchantId);
-//     if (!merchant) {
-//       throw new Error("Merchant not found");
-//     }
-
-//     // Check CASL permissions
-//     await checkPermission("manage", "MerchantSettings", {
-//       owner: merchant.owner.toString(),
-//     });
-
-//     return {
-//       success: true,
-//       data: {
-//         _id: merchant._id,
-//         name: merchant.name,
-//         tax: merchant.tax,
-//         allowedDelivery: merchant.allowedDelivery,
-//         deliveryFee: merchant.deliveryFee,
-//         freeDeliveryThreshold: merchant.freeDeliveryThreshold,
-//       },
-//     };
-//   } catch (error: any) {
-//     console.error("Error fetching merchant settings:", error);
-//     return {
-//       success: false,
-//       message: error.message || "Failed to fetch merchant settings",
-//     };
-//   }
-// }
