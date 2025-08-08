@@ -58,6 +58,10 @@ export default function MerchantPage() {
     setMerchantData({
       _id: merchantData._id,
       name: merchantData.name,
+      tax: merchantData.tax,
+      allowedDelivery: merchantData.allowedDelivery,
+      deliveryFee: merchantData.deliveryFee,
+      freeDeliveryThreshold: merchantData.freeDeliveryThreshold,
     });
   }
 }, [merchantData, setMerchantData]);

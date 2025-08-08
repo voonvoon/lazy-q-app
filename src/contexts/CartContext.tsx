@@ -25,6 +25,10 @@ interface CartItem {
 interface MerchantData {
   _id: string;
   name: string;
+  tax?: number; // Optional tax percentage
+  allowedDelivery?: boolean; // Whether delivery is allowed
+  deliveryFee?: number; // Delivery fee amount
+  freeDeliveryThreshold?: number; // Minimum order amount for free delivery
 }
 
 // ✅ Combined Cart Storage Structure
@@ -127,6 +131,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
           const now = Date.now();
           const cartData: CartStorage = {
             merchant: merchantData,
+          //   merchant: {
+          //   _id: merchantData._id,
+          //   name: merchantData.name
+          // },
             cartItems: cartItems,
             timestamp: now,
             expiresAt: now + CART_EXPIRY_TIME,
