@@ -8,6 +8,30 @@ import Merchant from "@/models/Merchant";
 import Item from "@/models/Item";
 
 // Fetch merchant by slug (public, no auth)
+// export async function getMerchantBySlug(slug: string) {
+//   await dbConnect();
+  
+//   // Import Category model to avoid MissingSchemaError
+//   await import("@/models/Category");
+  
+//   const merchant: any = await Merchant.findOne({ slug })
+//     .select("_id name slug catOrder") // Select the fields you need
+//     .populate("catOrder", "name") // Populate catOrder with category names
+//     .lean();
+    
+//   if (!merchant) return null;
+  
+//   // Extract category names from populated catOrder
+//   const categoryOrder = merchant.catOrder?.map((cat: any) => cat.name) || [];
+  
+//   return {
+//     _id: merchant._id.toString(),
+//     name: merchant.name,
+//     slug: merchant.slug,
+//     catOrder: JSON.parse(JSON.stringify(categoryOrder)) // Serialized category names
+//   };
+// }
+
 export async function getMerchantBySlug(slug: string) {
   await dbConnect();
   
@@ -15,7 +39,7 @@ export async function getMerchantBySlug(slug: string) {
   await import("@/models/Category");
   
   const merchant: any = await Merchant.findOne({ slug })
-    .select("_id name slug catOrder") // Select the fields you need
+    .select("_id name slug catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold") // ✅ Added settings fields
     .populate("catOrder", "name") // Populate catOrder with category names
     .lean();
     
@@ -28,7 +52,13 @@ export async function getMerchantBySlug(slug: string) {
     _id: merchant._id.toString(),
     name: merchant.name,
     slug: merchant.slug,
-    catOrder: JSON.parse(JSON.stringify(categoryOrder)) // Serialized category names
+    catOrder: JSON.parse(JSON.stringify(categoryOrder)), // Serialized category names
+    
+    // ✅ Business settings for public front shop
+    tax: merchant.tax ?? 6,                                    // Default 6% SST
+    allowedDelivery: merchant.allowedDelivery ?? true,         // Default delivery enabled
+    deliveryFee: merchant.deliveryFee ?? 5.0,                  // Default RM5.00
+    freeDeliveryThreshold: merchant.freeDeliveryThreshold ?? 0 // Default no free delivery
   };
 }
 
