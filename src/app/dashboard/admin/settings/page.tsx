@@ -23,6 +23,9 @@ const merchantSettingsSchema = z.object({
   freeDeliveryThreshold: z
     .number()
     .min(0, "Free delivery threshold must be 0 or greater"),
+  allowPreorder: z.boolean().optional(),
+  firstOrderTime: z.string().optional(),
+  lastOrderTime: z.string().optional(),
 });
 
 type MerchantSettingsForm = z.infer<typeof merchantSettingsSchema>;
@@ -47,11 +50,15 @@ export default function AdminSettingsPage() {
       allowedDelivery: true,
       deliveryFee: 5.0,
       freeDeliveryThreshold: 0,
+      allowPreorder: false,
+      firstOrderTime: "10:00",
+      lastOrderTime: "21:00",
     },
   });
 
   // ✅ Watch allowedDelivery for conditional rendering
   const watchAllowedDelivery = watch("allowedDelivery");
+  const watchAllowPreorder = watch("allowPreorder");
 
   // ✅ Auto-load current user's merchant settings
   useEffect(() => {
@@ -64,6 +71,9 @@ export default function AdminSettingsPage() {
         "freeDeliveryThreshold",
         selectedMerchant.freeDeliveryThreshold || 0
       );
+      setValue("allowPreorder", selectedMerchant.allowPreorder ?? false);
+      setValue("firstOrderTime", selectedMerchant.firstOrderTime || "10:00");
+      setValue("lastOrderTime", selectedMerchant.lastOrderTime || "21:00");
       setSettingsLoaded(true);
     }
   }, [selectedMerchant, merchantLoading, setValue, settingsLoaded]);
@@ -81,12 +91,18 @@ export default function AdminSettingsPage() {
       // Create FormData for server action
       const formData = new FormData();
       formData.append("tax", data.tax.toString());
-      formData.append("allowedDelivery", data.allowedDelivery.toString());
+      formData.append(
+        "allowedDelivery",
+        data.allowedDelivery ? "true" : "false"
+      );
       formData.append("deliveryFee", data.deliveryFee.toString());
       formData.append(
         "freeDeliveryThreshold",
         data.freeDeliveryThreshold.toString()
       );
+      formData.append("allowPreorder", data.allowPreorder ? "true" : "false");
+      formData.append("firstOrderTime", data.firstOrderTime || "");
+      formData.append("lastOrderTime", data.lastOrderTime || "");
 
       // Call server action
       const result = await updateMerchantSettings(
@@ -116,6 +132,9 @@ export default function AdminSettingsPage() {
         allowedDelivery: true,
         deliveryFee: 5.0,
         freeDeliveryThreshold: 0,
+        allowPreorder: false,
+        firstOrderTime: "10:00", 
+        lastOrderTime: "21:00", 
       });
       toast.success("Settings reset to defaults, please review and save.");
     }
@@ -295,6 +314,62 @@ export default function AdminSettingsPage() {
                 </>
               )}
             </div>
+          </div>
+
+          {/* Pre-order Settings */}
+          <div className="bg-gray-50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Pre-order Configuration
+            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Allow Pre-order
+                </label>
+                <p className="text-xs text-gray-500 mt-1">
+                  Let customers schedule orders for later
+                </p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  {...register("allowPreorder")}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
+            {/* Show time fields only if allowPreorder is true */}
+            {watchAllowPreorder && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    First Order Time
+                  </label>
+                  <input
+                    type="time"
+                    {...register("firstOrderTime")}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Earliest time customers can pre-order (e.g. 10:00)
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Last Order Time
+                  </label>
+                  <input
+                    type="time"
+                    {...register("lastOrderTime")}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    Latest time customers can pre-order (e.g. 21:30)
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ✅ Submit Button */}

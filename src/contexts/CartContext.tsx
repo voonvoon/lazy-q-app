@@ -29,6 +29,9 @@ interface MerchantData {
   allowedDelivery?: boolean; // Whether delivery is allowed
   deliveryFee?: number; // Delivery fee amount
   freeDeliveryThreshold?: number; // Minimum order amount for free delivery
+  allowPreorder?: boolean; // Whether pre-ordering is allowed
+  firstOrderTime?: string; // First order time in HH:mm format
+  lastOrderTime?: string; // Last order time in HH:mm format
 }
 
 // ✅ Combined Cart Storage Structure

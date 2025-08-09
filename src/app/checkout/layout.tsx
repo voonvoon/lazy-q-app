@@ -1,6 +1,16 @@
 "use client";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
+
+// Helper to get now + 30 minutes in "HH:mm" format
+//setMinutes, getMinutes, and getHours are all built-in methods of JavaScript’s Date object.
+function getDefaultFirstOrderTime() {
+  const now = new Date();// e.g. 2025-08-09T14:15:00 -->"14:15:00"
+  now.setMinutes(now.getMinutes() + 30); //Add 30 minutes to the current time ->14:45
+  const hours = now.getHours().toString().padStart(2, "0");// "14"
+  const minutes = now.getMinutes().toString().padStart(2, "0");// "45"
+  return `${hours}:${minutes}`;//Return as "HH:mm" string
+}
 
 interface CheckoutLayoutProps {
   children: ReactNode;
@@ -9,10 +19,24 @@ interface CheckoutLayoutProps {
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   const { merchantData } = useCart();
 
-  console.log(
-    "merchantData in CheckoutLayout------------------------------------------>",
-    merchantData
-  );
+  // Use now + 30min as min and default for time picker
+  const minTime = getDefaultFirstOrderTime();
+  const maxTime = merchantData?.lastOrderTime || "21:00";
+
+  const [selectedTime, setSelectedTime] = useState(minTime);
+  const [timeError, setTimeError] = useState("");
+
+  // Handler to validate time selection
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (value < minTime || value > maxTime) {
+      setTimeError(`Please select a time between ${minTime} and ${maxTime}.`);
+      setSelectedTime(minTime);
+    } else {
+      setSelectedTime(value);
+      setTimeError("");
+    }
+  };
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-white">
@@ -25,8 +49,41 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
           </h2>
         </div>
 
+        {/* pre-order pick up time */}
+        <div className="mb-6">
+          {merchantData?.allowPreorder ? (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Select Pickup/Delivery Time
+              </label>
+              <input
+                type="time"
+                min={minTime}
+                max={maxTime}
+                value={selectedTime}
+                onChange={handleTimeChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+              />
+              {!timeError ? (
+                <p className="mt-1 text-xs text-gray-500">
+                  You can pre-order between {minTime} and {maxTime}
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-red-600">{timeError}</p>
+              )}
+            </div>
+          ) : (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800 font-medium">
+                Orders will be prepared as soon as possible (ASAP).
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* ✅ Free Delivery Threshold Message - Using ternary operator */}
-        {merchantData?.freeDeliveryThreshold &&
+        {merchantData?.allowedDelivery &&
+        merchantData?.freeDeliveryThreshold &&
         merchantData.freeDeliveryThreshold > 0 ? (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-700 font-medium">
@@ -62,14 +119,14 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-800">
-                      🚚 Delivery
+                      🏃 Self Pick-up
                     </span>
-                    <span className="text-sm font-semibold text-blue-600">
-                      RM{(merchantData?.deliveryFee ?? 5.0).toFixed(2)}
+                    <span className="text-sm font-semibold text-green-600">
+                      Free
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Delivered to your doorstep
+                    Pick up from restaurant
                   </p>
                 </div>
               </label>
@@ -84,14 +141,14 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-gray-800">
-                      🏃 Self Pick-up
+                      🚚 Delivery
                     </span>
-                    <span className="text-sm font-semibold text-green-600">
-                      Free
+                    <span className="text-sm font-semibold text-blue-600">
+                      RM{(merchantData?.deliveryFee ?? 5.0).toFixed(2)}
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Pick up from restaurant
+                    Delivered to your doorstep
                   </p>
                 </div>
               </label>

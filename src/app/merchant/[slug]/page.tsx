@@ -5,7 +5,7 @@ import { useItems } from "@/contexts/ItemsContext";
 import ItemCard from "@/components/cards/ItemCard";
 import React from "react";
 import ItemModal from "@/components/ItemModal";
-import { useCart  } from "@/contexts/CartContext";
+import { useCart } from "@/contexts/CartContext";
 
 export default function MerchantPage() {
   const { setMerchantData } = useCart();
@@ -26,46 +26,49 @@ export default function MerchantPage() {
     merchantData,
   } = useItems();
 
-  
-
   //update merchant data in CartContext/ localStorage so that it can be used in Cart
   // ✅ Clear cart data if switching merchants
   useEffect(() => {
-  if (merchantData) {
-    // ✅ Get current cart data to check for merchant switching
-    const savedCartData = localStorage.getItem("lazy-q-cart");
-    
-    if (savedCartData) {
-      try {
-        const parsedData = JSON.parse(savedCartData);
-        
-        // ✅ Check if switching to a different merchant
-        if (parsedData.merchant && parsedData.merchant._id !== merchantData._id) {
-          //console.log("🔄 Merchant switch detected:", parsedData.merchant.name, "→", merchantData.name);
-          
-          // ✅ Clear all cart data when switching merchants
-          localStorage.removeItem("lazy-q-cart");
-          console.log("🗑️ Cart cleared for merchant switch");
-        }
-      } catch (error) {
-        console.error("Error parsing cart data:", error);
-        // Clear corrupted data
-        localStorage.removeItem("lazy-q-cart");
-      }
-    }
-    
-    // ✅ Set new merchant data
-    setMerchantData({
-      _id: merchantData._id,
-      name: merchantData.name,
-      tax: merchantData.tax,
-      allowedDelivery: merchantData.allowedDelivery,
-      deliveryFee: merchantData.deliveryFee,
-      freeDeliveryThreshold: merchantData.freeDeliveryThreshold,
-    });
-  }
-}, [merchantData, setMerchantData]);
+    if (merchantData) {
+      // ✅ Get current cart data to check for merchant switching
+      const savedCartData = localStorage.getItem("lazy-q-cart");
 
+      if (savedCartData) {
+        try {
+          const parsedData = JSON.parse(savedCartData);
+
+          // ✅ Check if switching to a different merchant
+          if (
+            parsedData.merchant &&
+            parsedData.merchant._id !== merchantData._id
+          ) {
+            //console.log("🔄 Merchant switch detected:", parsedData.merchant.name, "→", merchantData.name);
+
+            // ✅ Clear all cart data when switching merchants
+            localStorage.removeItem("lazy-q-cart");
+            console.log("🗑️ Cart cleared for merchant switch");
+          }
+        } catch (error) {
+          console.error("Error parsing cart data:", error);
+          // Clear corrupted data
+          localStorage.removeItem("lazy-q-cart");
+        }
+      }
+
+      // ✅ Set new merchant data
+      setMerchantData({
+        _id: merchantData._id,
+        name: merchantData.name,
+        tax: merchantData.tax,
+        allowedDelivery: merchantData.allowedDelivery,
+        deliveryFee: merchantData.deliveryFee,
+        freeDeliveryThreshold: merchantData.freeDeliveryThreshold,
+        allowPreorder: merchantData.allowPreorder, // ✅ new
+        firstOrderTime: merchantData.firstOrderTime, // ✅ new
+        lastOrderTime: merchantData.lastOrderTime,
+      });
+    }
+  }, [merchantData, setMerchantData]);
 
   // Group items by category and subcategory
   //Record<K, V> = TS for an object with keys of type K and values of type V.

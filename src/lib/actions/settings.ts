@@ -39,24 +39,27 @@ export async function updateMerchantSettings(
     }
 
     // Extract and validate form data
-    const tax = Number(formData.get("tax")); // Convert to number
-    //tricky: formData returns strings, so we need to convert to boolean
-    const allowedDelivery = formData.get("allowedDelivery") === "true"; //more explicitly: formData.get("allowedDelivery") === "true" ? true : false;
+    const tax = Number(formData.get("tax"));
+    const allowedDelivery = formData.get("allowedDelivery") === "true";
     const deliveryFee = Number(formData.get("deliveryFee"));
     const freeDeliveryThreshold = Number(formData.get("freeDeliveryThreshold"));
+
+    // ✅ New fields
+    const allowPreorder = formData.get("allowPreorder") === "true";
+    const firstOrderTime = formData.get("firstOrderTime") || "";
+    const lastOrderTime = formData.get("lastOrderTime") || "";
 
     // Validate data
     if (isNaN(tax) || tax < 0 || tax > 100) {
       throw new Error("Tax must be between 0 and 100");
     }
-
     if (isNaN(deliveryFee) || deliveryFee < 0) {
       throw new Error("Delivery fee must be 0 or greater");
     }
-
     if (isNaN(freeDeliveryThreshold) || freeDeliveryThreshold < 0) {
       throw new Error("Free delivery threshold must be 0 or greater");
     }
+    // Optionally, validate time format (HH:mm) for firstOrderTime/lastOrderTime
 
     // Update merchant settings
     const updatedMerchant = await Merchant.findByIdAndUpdate(
@@ -66,8 +69,11 @@ export async function updateMerchantSettings(
         allowedDelivery,
         deliveryFee,
         freeDeliveryThreshold,
+        allowPreorder,      
+        firstOrderTime,     
+        lastOrderTime,      
       },
-      { new: true, runValidators: true } // Ensure data follows the rules I set in schema!
+      { new: true, runValidators: true }
     );
 
     if (!updatedMerchant) {
@@ -85,6 +91,9 @@ export async function updateMerchantSettings(
         allowedDelivery: updatedMerchant.allowedDelivery,
         deliveryFee: updatedMerchant.deliveryFee,
         freeDeliveryThreshold: updatedMerchant.freeDeliveryThreshold,
+        allowPreorder: updatedMerchant.allowPreorder,        
+        firstOrderTime: updatedMerchant.firstOrderTime,       
+        lastOrderTime: updatedMerchant.lastOrderTime,         
       },
     };
   } catch (error: any) {
