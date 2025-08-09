@@ -35,6 +35,10 @@ export interface IMerchant extends Document {
     close: string; // "22:00"
     isClosed: boolean;
   }[];
+  //pre-order
+  allowPreorder?: boolean; // ✅ Allow pre-order
+  firstOrderTime?: string; // ✅ Earliest order time, e.g. "10:00"
+  lastOrderTime?: string; // ✅ Latest order time, e.g. "21:30"
 
   // Payment & Integration Settings
   paymentConfig: {
@@ -136,6 +140,19 @@ const merchantSchema = new Schema<IMerchant>(
       type: Number,
       default: 0,
       min: 0,
+    },
+
+    allowPreorder: {
+      type: Boolean,
+      default: false,
+    },
+    firstOrderTime: {
+      type: String, // e.g., "10:00"
+      default: "",
+    },
+    lastOrderTime: {
+      type: String, // e.g., "21:30"
+      default: "",
     },
 
     businessHours: [

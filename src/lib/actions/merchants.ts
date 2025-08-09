@@ -360,6 +360,7 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
 //   }
 // }
 
+
 export async function getMerchantsByUserId() {
   try {
     await checkPermission("read", "Merchant");
@@ -374,17 +375,17 @@ export async function getMerchantsByUserId() {
 
     console.log("🔍 Searching merchants for user ID:", session.user.id);
 
-    // ✅ Added merchant settings fields to select
+    // ✅ Add new fields to select
     const merchants = await Merchant.find({
       owner: session.user.id,
     })
-      .select("_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold createdAt")
+      .select("_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime createdAt")
       .sort({ createdAt: -1 })
       .lean();
 
     console.log("🏪 Found merchants:", merchants.length);
 
-    // ✅ Convert ObjectIds to strings and include new settings fields
+    // ✅ Include new fields in returned object
     const serializedMerchants = merchants.map((merchant) => ({
       _id: String(merchant._id),
       name: merchant.name,
@@ -407,13 +408,18 @@ export async function getMerchantsByUserId() {
             country: "",
           },
       phone: merchant.phone,
-      
+
       // ✅ Business settings fields
-      tax: merchant.tax || 6,                                    // Default 6% if not set
-      allowedDelivery: merchant.allowedDelivery ?? true,         // Default true if not set
-      deliveryFee: merchant.deliveryFee || 5.0,                  // Default 5.00 if not set
-      freeDeliveryThreshold: merchant.freeDeliveryThreshold || 0, // Default 0 if not set
-      
+      tax: merchant.tax || 6,
+      allowedDelivery: merchant.allowedDelivery ?? true,
+      deliveryFee: merchant.deliveryFee || 5.0,
+      freeDeliveryThreshold: merchant.freeDeliveryThreshold || 0,
+
+      // ✅ Newly added fields
+      allowPreorder: merchant.allowPreorder ?? false,
+      firstOrderTime: merchant.firstOrderTime || "",
+      lastOrderTime: merchant.lastOrderTime || "",
+
       createdAt: merchant.createdAt,
       catOrder: Array.isArray(merchant.catOrder)
         ? merchant.catOrder.map((id) => id?.toString?.() ?? id)
