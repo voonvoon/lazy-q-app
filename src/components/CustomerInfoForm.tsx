@@ -2,6 +2,8 @@
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useCart } from "@/contexts/CartContext";
+import React, { useEffect } from "react";
 
 // 1. Base type for all fields
 type CustomerInfoBase = {
@@ -13,6 +15,8 @@ type CustomerInfoBase = {
   postcode?: string;
 };
 
+
+
 // 2. Reusable input component
 function FormInput({
   name,
@@ -23,7 +27,7 @@ function FormInput({
   as = "input",
   placeholder = "",
 }: {
-  name: keyof CustomerInfoBase;
+  name: keyof CustomerInfoBase; //Only allows a key from your CustomerInfoBase
   type?: string;
   register: ReturnType<typeof useForm<CustomerInfoBase>>["register"];
   error?: { message?: string };
@@ -63,6 +67,8 @@ export default function CustomerInfoForm({
 }: {
   delivery?: boolean;
 } = {}) {
+  const { setCustomerInfo, customerInfo } = useCart();
+
   // 4. Dynamic Zod schema based on delivery prop
   const schema = delivery
     ? z.object({
@@ -92,19 +98,24 @@ export default function CustomerInfoForm({
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
+    watch,
   } = useForm<CustomerInfo>({
     resolver: zodResolver(schema),
+    defaultValues: customerInfo, // Optional: prefill from context if available
+    mode: "onChange",
   });
 
-  const onSubmit = (data: CustomerInfo) => {
-    // You can handle the data here (e.g., save to context or send to backend)
-    console.log("Customer Info:", data);
-  };
+  // Watch all fields and update context on change
+useEffect(() => {
+  const subscription = watch((value) => {
+    setCustomerInfo(value as CustomerInfoBase);
+  });
+  return () => subscription.unsubscribe();
+}, [watch, setCustomerInfo]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-md mx-auto">
+    <form className="max-w-md mx-auto">
       <FormInput
         name="name"
         register={register}
@@ -131,7 +142,7 @@ export default function CustomerInfoForm({
             register={register}
             error={errors.address}
             className="py-3 h-20"
-            as="textarea" // <-- make it resizable
+            as="textarea"
             placeholder="Address"
           />
           <div className="flex gap-2">
@@ -154,12 +165,6 @@ export default function CustomerInfoForm({
           </div>
         </>
       )}
-      <button
-        type="submit"
-        className="w-full py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-      >
-        Submit
-      </button>
     </form>
   );
 }
