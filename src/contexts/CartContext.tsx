@@ -40,6 +40,8 @@ interface CartStorage {
   cartItems: CartItem[];
   timestamp: number; // When cart was last updated
   expiresAt: number; // When cart expires
+  delivery: boolean; // Whether delivery is selected
+  customerInfo: CustomerInfo;
 }
 
 interface CartContextType {
@@ -48,6 +50,10 @@ interface CartContextType {
   merchantData: MerchantData | null;
   setMerchantData: (merchant: MerchantData | null) => void;
   // setCartItems: (items: CartItem[]) => void;
+  setDelivery: (delivery: boolean) => void;
+  delivery: boolean;
+  setCustomerInfo: (info: CustomerInfo) => void;
+  customerInfo: CustomerInfo;
 
   // Computed values
   totalItems: number;
@@ -67,6 +73,15 @@ interface CartContextType {
   isInCart: (itemId: string) => boolean;
 }
 
+interface CustomerInfo {
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  state?: string;
+  postcode?: string;
+}
+
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // ✅ Single Storage Key
@@ -77,6 +92,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [merchantData, setMerchantData] = useState<MerchantData | null>(null);
+  const [delivery, setDelivery] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    state: "",
+    postcode: "",
+  });
+
+  console.log("customerInfo------------------------------------->", customerInfo)
 
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
@@ -103,6 +129,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
               addedAt: new Date(item.addedAt), //convert string to Date object
             }));
             setCartItems(cartWithDates);
+            setDelivery(parsedData.delivery);
+            setCustomerInfo(parsedData.customerInfo);
           }
 
           //Load merchant data cuz after refresh context state is lost
@@ -127,18 +155,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // Check if we have actual cart content
         const hasCartItems = cartItems.length > 0;
         const hasMerchant = merchantData !== null;
-        
+
         // Save to localStorage only if we have items and merchant
         if (hasCartItems && hasMerchant) {
           //Save when we have both items and merchant
           const now = Date.now();
           const cartData: CartStorage = {
             merchant: merchantData,
-          //   merchant: {
-          //   _id: merchantData._id,
-          //   name: merchantData.name
-          // },
+            //   merchant: {
+            //   _id: merchantData._id,
+            //   name: merchantData.name
+            // },
             cartItems: cartItems,
+            delivery: delivery,
+            customerInfo: customerInfo,
             timestamp: now,
             expiresAt: now + CART_EXPIRY_TIME,
           };
@@ -146,13 +176,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
         } else {
           // ✅ Clean up localStorage when cart is empty
           localStorage.removeItem(CART_STORAGE_KEY);
-
         }
       } catch (error) {
         console.error("Error saving cart to localStorage:", error);
       }
     }
-  }, [cartItems, merchantData, isLoaded]);
+  }, [cartItems, merchantData, isLoaded, delivery, customerInfo]);
 
   // ✅ Computed Values (Memoized for performance)
   const totalItems = React.useMemo(() => {
@@ -160,7 +189,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cartItems]);
 
   const totalPrice = React.useMemo(() => {
-    return cartItems.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+    return cartItems.reduce(
+      (sum, item) => sum + Number(item.price) * item.quantity,
+      0
+    );
   }, [cartItems]);
 
   // ✅ Action: Add Item
@@ -231,6 +263,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     merchantData,
     setMerchantData,
     //setCartItems,
+    delivery,
+    setDelivery,
+    setCustomerInfo,
+    customerInfo,
 
     // Computed
     totalItems,

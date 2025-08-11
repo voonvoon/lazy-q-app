@@ -1,4 +1,5 @@
 "use client";
+
 import { ReactNode, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import CustomerInfoForm from "@/components/CustomerInfoForm";
@@ -25,15 +26,15 @@ interface CheckoutLayoutProps {
 }
 
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
-  const { merchantData } = useCart();
+  const { merchantData, setDelivery, delivery } = useCart();
 
-  const [isDelivery, setIsDelivery] = useState(false);
 
   // Handler for radio change
   const handleDeliveryOptionChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setIsDelivery(e.target.value === "delivery"); // is true when delivery radio btn is selected
+    //setIsDelivery(e.target.value === "delivery"); // is true when delivery radio btn is selected
+    setDelivery(e.target.value === "delivery"); // Pass to CartContext
   };
 
   // Use now + 30min as min and default for time picker
@@ -136,7 +137,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                 name="deliveryOption"
                 value="pickup"
                 className="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500"
-                checked={!isDelivery}
+                checked={!delivery}
                 onChange={handleDeliveryOptionChange}
               />
               <div className="flex-1">
@@ -161,7 +162,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                   name="deliveryOption"
                   value="delivery"
                   className="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500"
-                  checked={isDelivery}
+                  checked={delivery}
                   onChange={handleDeliveryOptionChange}
                 />
                 <div className="flex-1">
@@ -179,9 +180,11 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                 </div>
               </label>
             )}
-
+            <span className="block text-sm font-light text-gray-800 ml-1 mt-2">
+              Fill in details
+            </span>
             {/* Pass delivery state to the form */}
-            <CustomerInfoForm delivery={isDelivery} />
+            <CustomerInfoForm delivery={delivery} />
           </div>
         </div>
       </aside>
