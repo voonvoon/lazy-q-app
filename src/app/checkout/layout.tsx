@@ -28,7 +28,6 @@ interface CheckoutLayoutProps {
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   const { merchantData, setDelivery, delivery } = useCart();
 
-
   // Handler for radio change
   const handleDeliveryOptionChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -131,19 +130,28 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
             Self pick-up/Delivery Options
           </h4>
           <div className="space-y-3">
-            <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+            <label
+              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors
+    ${
+      !delivery
+        ? "border-blue-500 bg-blue-50 shadow"
+        : "border-gray-200 hover:bg-gray-50"
+    }
+  `}
+            >
               <input
                 type="radio"
                 name="deliveryOption"
                 value="pickup"
-                className="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500"
+                className=" appearance-none  text-blue-600 focus:ring-blue-500"
                 checked={!delivery}
                 onChange={handleDeliveryOptionChange}
               />
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <span className="flex text-sm font-medium text-gray-800">
-                    <LiaRunningSolid className="mr-1" size={20}/>Self Pick-up
+                    <LiaRunningSolid className="mr-1" size={20} />
+                    Self Pick-up
                   </span>
                   <span className="text-sm font-semibold text-green-600">
                     Free
@@ -156,19 +164,28 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
             </label>
 
             {merchantData?.allowedDelivery && (
-              <label className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+              <label
+                className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors
+    ${
+      delivery
+        ? "border-blue-500 bg-blue-50 shadow"
+        : "border-gray-200 hover:bg-gray-50"
+    }
+  `}
+              >
                 <input
                   type="radio"
                   name="deliveryOption"
                   value="delivery"
-                  className="mr-3 w-4 h-4 text-blue-600 focus:ring-blue-500"
+                  className="appearance-none  text-blue-600 focus:ring-blue-500"
                   checked={delivery}
                   onChange={handleDeliveryOptionChange}
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center text-sm font-medium text-gray-800">
-                      <MdOutlineDeliveryDining className="mr-1" size={20}/> Delivery
+                      <MdOutlineDeliveryDining className="mr-1" size={20} />{" "}
+                      Delivery
                     </span>
                     <span className="text-sm font-semibold text-blue-600">
                       RM{(merchantData?.deliveryFee ?? 5.0).toFixed(2)}
