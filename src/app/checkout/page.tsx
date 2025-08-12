@@ -90,6 +90,12 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button
+                onClick={() => window.history.back()}
+                className="py-2 px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded transition cursor-pointer"
+              >
+                Add Order
+              </button>
+              <button
               onClick={clearCart}
               className="py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded transition cursor-pointer"
               >

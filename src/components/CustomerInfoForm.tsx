@@ -15,8 +15,6 @@ type CustomerInfoBase = {
   postcode?: string;
 };
 
-
-
 // 2. Reusable input component
 function FormInput({
   name,
@@ -36,11 +34,11 @@ function FormInput({
   placeholder?: string;
 }) {
   return (
-    <div className="mb-4">
+    <div className="mb-2">
       {as === "textarea" ? (
         <textarea
           {...register(name)}
-          className={`w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y ${className}`}
+          className={`text-sm w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y ${className} scrollbar-thin`}
           autoComplete="off"
           rows={3}
           placeholder={placeholder}
@@ -49,7 +47,7 @@ function FormInput({
         <input
           {...register(name)}
           type={type}
-          className={`w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+          className={`text-sm w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
           autoComplete="off"
           placeholder={placeholder}
         />
@@ -100,19 +98,35 @@ export default function CustomerInfoForm({
     register,
     formState: { errors },
     watch,
+    reset,
   } = useForm<CustomerInfo>({
     resolver: zodResolver(schema),
     defaultValues: customerInfo, // Optional: prefill from context if available
     mode: "onChange",
   });
 
+  //tis useEffect --> even user refresh page form field persist.
+  //cuz react-hook-form’s defaultValues are only set on the first render.
+  //refresh->context (customerInfo) is loaded from localStorage after the form already mounted, so form fields stay empty.
+  //But navigate between pages (without a full reload), the context is already in memory, so the form gets the values.
+  useEffect(() => {
+    // Only reset if values are different else looping error
+    //watch() gets the current values in the form fields.
+    //when refresh watch() is {} but customerInfo is not, so reset the form so it gets the values
+    if (JSON.stringify(watch()) !== JSON.stringify(customerInfo)) {
+      reset(customerInfo);
+    }
+  }, [customerInfo]);
+
   // Watch all fields and update context on change
-useEffect(() => {
-  const subscription = watch((value) => {
-    setCustomerInfo(value as CustomerInfoBase);
-  });
-  return () => subscription.unsubscribe();
-}, [watch, setCustomerInfo]);
+  // subscription : listener for form changes.
+  // .unsubscribe() stops listening when no longer needed.
+  useEffect(() => {
+    const subscription = watch((value) => {
+      setCustomerInfo(value as CustomerInfoBase);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, setCustomerInfo]);
 
   return (
     <form className="max-w-md mx-auto">
@@ -145,7 +159,7 @@ useEffect(() => {
             as="textarea"
             placeholder="Address"
           />
-          <div className="flex gap-2">
+          <div className="flex gap-1">
             <div className="flex-1">
               <FormInput
                 name="state"
@@ -163,6 +177,9 @@ useEffect(() => {
               />
             </div>
           </div>
+          <p className="text-xs text-gray-600 mt-2">
+            **All your information is protected and kept confidential.
+          </p>
         </>
       )}
     </form>

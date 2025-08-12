@@ -13,7 +13,7 @@ export default function CartFloatingBar() {
   }
 
   return (
-    <div className="fixed bottom-10 left-0 right-0 z-30">
+      <div className="fixed bottom-10 left-0 right-0 z-30 transition-all duration-500 ease-out animate-fade-in-up">
       <div className="max-w-3xl mx-auto px-4 py-3">
         <Link href="/checkout" className="block">
           <div className="flex items-center justify-between bg-gradient-to-r from-blue-500 to-blue-400 hover:from-blue-400 hover:to-blue-600 text-white rounded-2xl px-4 py-3 transition-all duration-500 ease-in-out hover:shadow-2xl hover:scale-105">
