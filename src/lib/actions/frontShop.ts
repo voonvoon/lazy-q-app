@@ -152,3 +152,61 @@ export async function getItemsByMerchantId(merchantId: string) {
     updatedAt: item.updatedAt?.toISOString?.() ?? "",
   }));
 }
+
+
+
+export async function getItemByIdForEdit(itemId: string) {
+  await dbConnect();
+
+  // Register models to avoid MissingSchemaError
+  await import("@/models/Category");
+  await import("@/models/SubCategory");
+  await import("@/models/AddOn");
+
+  const item:any = await Item.findById(itemId)
+    .populate("category", "name")
+    .populate("subCategories", "name parentCategory")
+    .populate("addOns", "name price")
+    .lean();
+
+  if (!item) return null;
+
+  return {
+    _id: item._id.toString(),
+    merchant: item.merchant.toString(),
+    title: item.title,
+    slug: item.slug,
+    image: item.image ?? [],
+    price:
+      typeof item.price === "object" && item.price.toString
+        ? item.price.toString()
+        : item.price,
+    description: item.description ?? "",
+    category: item.category
+      ? {
+          _id: item.category._id?.toString?.(),
+          name: item.category.name,
+        }
+      : null,
+    subCategories: Array.isArray(item.subCategories)
+      ? item.subCategories.map((sub: any) =>
+          sub
+            ? {
+                _id: sub._id?.toString?.(),
+                name: sub.name,
+                parentCategory: sub.parentCategory?.toString?.(),
+              }
+            : null
+        )
+      : [],
+    addOns: Array.isArray(item.addOns)
+      ? item.addOns.map((ad: any) =>
+          ad
+            ? { _id: ad._id?.toString?.(), name: ad.name, price: ad.price }
+            : null
+        )
+      : [],
+    createdAt: item.createdAt?.toISOString?.() ?? "",
+    updatedAt: item.updatedAt?.toISOString?.() ?? "",
+  };
+}

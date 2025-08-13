@@ -1,11 +1,38 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { getItemByIdForEdit } from "@/lib/actions/frontShop";
+import ItemModal from "@/components/ItemModal";
 
 export default function CheckoutPage() {
-  const { cartItems, totalPrice, totalItems, clearCart } = useCart();
-  
+  const { cartItems, totalPrice, totalItems, clearCart, merchantData } =
+    useCart();
+
+  // State for modal and selected item
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
+  console.log("selectedItem--------------------->", selectedItem);
+  console.log("modalOpen--------------------->", modalOpen);  
+
+  // Handler for Edit button
+  const handleEdit = async (itemId: string) => {
+    try {
+      const item: any = await getItemByIdForEdit(itemId);
+      setSelectedItem(item);
+      setModalOpen(true);
+    } catch (err) {
+      console.error("Failed to fetch item for edit:", err);
+    }
+  };
+
+  // Handler to close modal
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedItem(null);
+  };
+
   return (
     <main className="p-8 bg-white rounded shadow">
       <h1 className="text-3xl font-bold text-black mb-4">Checkout</h1>
@@ -47,6 +74,14 @@ export default function CheckoutPage() {
                         "{item.remarks}"
                       </p>
                     )}
+
+                    {/* --- Edit Button --- */}
+                    <button
+                      className="mt-2 py-1 px-3 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded transition cursor-pointer"
+                      onClick={() => handleEdit(item.itemId)}
+                    >
+                      Edit
+                    </button>
                   </div>
 
                   <div className="text-right ml-3">
@@ -73,12 +108,14 @@ export default function CheckoutPage() {
               <span>RM{totalPrice.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
-              <span>Tax (6%):</span>
-              <span>RM{(totalPrice * 0.06).toFixed(2)}</span>
+              <span>SST ({merchantData?.tax ?? 6}%):</span>
+              <span>
+                RM{(totalPrice * ((merchantData?.tax ?? 6) / 100)).toFixed(2)}
+              </span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Delivery Fee:</span>
-              <span>RM3.00</span>
+              <span>RM{merchantData?.deliveryFee?.toFixed(2) ?? "Free"}</span>
             </div>
             <div className="border-t border-gray-300 pt-2 mt-2">
               <div className="flex justify-between text-lg font-bold text-gray-800">
@@ -96,20 +133,25 @@ export default function CheckoutPage() {
                 Add Order
               </button>
               <button
-              onClick={clearCart}
-              className="py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded transition cursor-pointer"
+                onClick={clearCart}
+                className="py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded transition cursor-pointer"
               >
-              Clear Cart
+                Clear Cart
               </button>
-              <button
-              className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded transition cursor-pointer"
-              >
-              Checkout
+              <button className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded transition cursor-pointer">
+                Checkout
               </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* ItemModal */}
+      <ItemModal
+        item={selectedItem}
+        isOpen={modalOpen}
+        onClose={handleCloseModal}
+      />
     </main>
   );
 }

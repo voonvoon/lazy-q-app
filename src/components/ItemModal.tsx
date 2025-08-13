@@ -89,6 +89,7 @@ const handleAddToCart = () => {
       category: item.category,
       addOns: selectedAddOns,
       remarks: remarks.trim(),
+      image: item.image?.[0]?.url || "",
     },
     quantity // ✅ Use quantity state instead of hardcoded 1
   );
@@ -97,10 +98,6 @@ const handleAddToCart = () => {
   onClose();
 };
 
-  console.log(
-    "ItemModal item------------------------------------------>>>",
-    item
-  );
 
   // Reset image index when modal opens with new item
   useEffect(() => {
@@ -246,7 +243,7 @@ const handleAddToCart = () => {
           </div>
 
           {/* Category Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
+          {/* <div className="flex flex-wrap gap-2 mb-4">
             <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
               {item.category}
             </span>
@@ -255,7 +252,7 @@ const handleAddToCart = () => {
                 {item.subcategory}
               </span>
             )}
-          </div>
+          </div> */}
 
           {/* Description */}
           {item.description && (

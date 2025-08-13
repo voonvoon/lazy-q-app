@@ -19,6 +19,7 @@ interface CartItem {
   addOns?: Array<{ _id: string; name: string; price: number }>;
   remarks?: string;
   addedAt: Date;
+  image?: string; // Optional image URL
 }
 
 // ✅ Merchant Data Structure
@@ -102,8 +103,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     postcode: "",
   });
 
-  console.log("customerInfo cartContext------------------------------------->", customerInfo)
-
+  
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
     try {

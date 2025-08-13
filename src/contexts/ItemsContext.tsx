@@ -41,7 +41,6 @@ export function ItemsProvider({
 
 
 
-  console.log("Merchant Data in ItemsProvider:", merchantData);
 
   // console.log(
   //   "selectedCategory --------------------------------------->",
