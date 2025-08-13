@@ -51,13 +51,14 @@ export default function RootLayout({
           <div className="flex flex-col min-h-screen bg-background">
             <Toaster />
             <Navbar />
-            <CartProvider>
-              {/* Wrap children with ItemsProvider if needed */}
-              {/* This is useful if you want to access items in the context */}
-              <ItemsProvider>
+            <ItemsProvider>
+              <CartProvider>
+                {/* Wrap children with ItemsProvider if needed */}
+                {/* This is useful if you want to access items in the context */}
+
                 <main className="flex-1">{children}</main>
-              </ItemsProvider>
-            </CartProvider>
+              </CartProvider>
+            </ItemsProvider>
             <Footer />
           </div>
         </SessionProvider>
