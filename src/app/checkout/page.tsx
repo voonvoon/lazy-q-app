@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { getItemByIdForEdit } from "@/lib/actions/frontShop";
 import ItemModal from "@/components/ItemModal";
+import { FaSpinner } from "react-icons/fa";
 
 export default function CheckoutPage() {
   const { cartItems, totalPrice, totalItems, clearCart, merchantData } =
@@ -12,18 +13,29 @@ export default function CheckoutPage() {
   // State for modal and selected item
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
+  const [existingItemForEdit, setExistingItemForEdit] = useState(null);
 
   console.log("selectedItem--------------------->", selectedItem);
-  console.log("modalOpen--------------------->", modalOpen);  
+  console.log("modalOpen--------------------->", modalOpen);
 
   // Handler for Edit button
-  const handleEdit = async (itemId: string) => {
+  const handleEdit = async (itemId: string, cartItemId: string) => {
+    setLoadingEdit(itemId);
     try {
       const item: any = await getItemByIdForEdit(itemId);
+      const existing: any = cartItems.find(
+        (ci) => ci.cartItemId === cartItemId
+      );
+
+      console.log("existing item for edit------------------------------------->", existing);
       setSelectedItem(item);
+      setExistingItemForEdit(existing);
       setModalOpen(true);
     } catch (err) {
       console.error("Failed to fetch item for edit:", err);
+    } finally {
+      setLoadingEdit(null); // stop loading
     }
   };
 
@@ -77,10 +89,15 @@ export default function CheckoutPage() {
 
                     {/* --- Edit Button --- */}
                     <button
-                      className="mt-2 py-1 px-3 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded transition cursor-pointer"
-                      onClick={() => handleEdit(item.itemId)}
+                      className="mt-2 py-1 px-3 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded transition cursor-pointer flex items-center gap-2"
+                      onClick={() => handleEdit(item.itemId, item.cartItemId)}
+                      disabled={loadingEdit === item.itemId}
                     >
-                      Edit
+                      {loadingEdit === item.itemId ? (
+                        <FaSpinner className="animate-spin" />
+                      ) : (
+                        "Edit"
+                      )}
                     </button>
                   </div>
 
@@ -149,8 +166,10 @@ export default function CheckoutPage() {
       {/* ItemModal */}
       <ItemModal
         item={selectedItem}
+        existingItem={existingItemForEdit}
         isOpen={modalOpen}
         onClose={handleCloseModal}
+        
       />
     </main>
   );
