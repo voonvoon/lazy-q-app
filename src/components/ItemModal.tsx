@@ -18,11 +18,17 @@ interface ItemModalProps {
     image: Array<{ url: string }>;
     // Add any other properties your item has
   } | null;
+  existingItem?: any;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
+export default function ItemModal({
+  item,
+  existingItem,
+  isOpen,
+  onClose,
+}: ItemModalProps) {
   const { addItem, isInCart, getItemQuantity } = useCart();
 
   const [selectedAddOns, setSelectedAddOns] = useState<
@@ -34,6 +40,31 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
 
   const hasAddOns = item?.addOns && item?.addOns.length > 0;
   const MAX_REMARKS_LENGTH = 60; // Character limit
+
+  console.log(
+    "existingItem in itemModel ----------------------------------------->",
+    existingItem
+  );
+  console.log(
+    "Remarks----------------------------------------------------->",
+    remarks
+  );
+  console.log(
+    "Quantity----------------------------------------------------->",
+    quantity
+  );
+  console.log(
+    "Selected Add-Ons----------------------------------------------------->",
+    selectedAddOns
+  );
+
+  // Prefill form fields when modal opens or item/existingItem changes
+  useEffect(() => {
+    if (!isOpen) return;
+    setQuantity(existingItem?.quantity ?? 1);
+    setSelectedAddOns(existingItem?.addOns ?? []);
+    setRemarks(existingItem?.remarks ?? "");
+  }, [isOpen, item, existingItem]);
 
   // Toggle add-on selection
   const toggleAddOn = (addOn: { _id: string; name: string; price: number }) => {
@@ -77,35 +108,36 @@ export default function ItemModal({ item, isOpen, onClose }: ItemModalProps) {
     // ✅ Multiply by quantity for total price
     return basePrice + addOnsPrice;
   };
-const handleAddToCart = () => {
-  if (!item) return;
-  
-  addItem(
-    {
-      itemId: item._id,
-      title: item.title,
-      price: calculateTotalItemPrice(),
-      totalPrice: calculateTotalPrice(),
-      category: item.category,
-      addOns: selectedAddOns,
-      remarks: remarks.trim(),
-      image: item.image?.[0]?.url || "",
-    },
-    quantity // ✅ Use quantity state instead of hardcoded 1
-  );
-  
-  // ✅ Close modal after adding to cart
-  onClose();
-};
+  const handleAddToCart = () => {
+    if (!item) return;
 
+    addItem(
+      {
+        itemId: item._id,
+        title: item.title,
+        price: calculateTotalItemPrice(),
+        totalPrice: calculateTotalPrice(),
+        category: item.category,
+        addOns: selectedAddOns,
+        remarks: remarks.trim(),
+        image: item.image?.[0]?.url || "",
+      },
+      quantity // ✅ Use quantity state instead of hardcoded 1
+    );
+
+    // ✅ Close modal after adding to cart
+    onClose();
+  };
 
   // Reset image index when modal opens with new item
   useEffect(() => {
-    setCurrentImageIndex(0);
-    setSelectedAddOns([]); // Reset add-ons selection
-    setRemarks("");
-    setQuantity(1); // Reset quantity to 1
-  }, [item?._id]);
+    if (!existingItem) {
+      setCurrentImageIndex(0);
+      setSelectedAddOns([]);
+      setRemarks("");
+      setQuantity(1);
+    }
+  }, [item?._id, existingItem]);
 
   if (!isOpen || !item) return null;
 
@@ -147,7 +179,7 @@ const handleAddToCart = () => {
       />
 
       {/* Modal Content */}
-       <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100 scrollbar-thin "> 
+      <div className="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100 scrollbar-thin ">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -243,7 +275,7 @@ const handleAddToCart = () => {
           </div>
 
           {/* Category Tags */}
-          {/* <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-2 mb-4">
             <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
               {item.category}
             </span>
@@ -252,7 +284,7 @@ const handleAddToCart = () => {
                 {item.subcategory}
               </span>
             )}
-          </div> */}
+          </div>
 
           {/* Description */}
           {item.description && (

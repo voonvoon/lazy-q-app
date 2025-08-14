@@ -155,6 +155,7 @@ export async function getItemsByMerchantId(merchantId: string) {
 
 
 
+//to get item details to fill up the item modal only
 export async function getItemByIdForEdit(itemId: string) {
   await dbConnect();
 
@@ -182,23 +183,23 @@ export async function getItemByIdForEdit(itemId: string) {
         ? item.price.toString()
         : item.price,
     description: item.description ?? "",
-    category: item.category
-      ? {
-          _id: item.category._id?.toString?.(),
-          name: item.category.name,
-        }
-      : null,
-    subCategories: Array.isArray(item.subCategories)
-      ? item.subCategories.map((sub: any) =>
-          sub
-            ? {
-                _id: sub._id?.toString?.(),
-                name: sub.name,
-                parentCategory: sub.parentCategory?.toString?.(),
-              }
-            : null
-        )
-      : [],
+    // category: item.category
+    //   ? {
+    //       _id: item.category._id?.toString?.(),
+    //       name: item.category.name,
+    //     }
+    //   : null,
+    // subCategories: Array.isArray(item.subCategories)
+    //   ? item.subCategories.map((sub: any) =>
+    //       sub
+    //         ? {
+    //             _id: sub._id?.toString?.(),
+    //             name: sub.name,
+    //             parentCategory: sub.parentCategory?.toString?.(),
+    //           }
+    //         : null
+    //     )
+    //   : [],
     addOns: Array.isArray(item.addOns)
       ? item.addOns.map((ad: any) =>
           ad
@@ -206,6 +207,8 @@ export async function getItemByIdForEdit(itemId: string) {
             : null
         )
       : [],
+    category: item.category.name, //to show category label on item model only
+    subcategory: item.subCategories[0]?.name ?? null,//to show subcategory label on item model only
     createdAt: item.createdAt?.toISOString?.() ?? "",
     updatedAt: item.updatedAt?.toISOString?.() ?? "",
   };
