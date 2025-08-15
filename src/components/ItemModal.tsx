@@ -4,6 +4,7 @@ import React from "react";
 import { MdCancel } from "react-icons/md";
 import { useCart } from "@/contexts/CartContext";
 import QuantityController from "./QuantityController";
+import { toast } from "react-hot-toast";
 
 interface ItemModalProps {
   item: {
@@ -29,7 +30,7 @@ export default function ItemModal({
   isOpen,
   onClose,
 }: ItemModalProps) {
-  const { addItem, isInCart, getItemQuantity } = useCart();
+  const { addItem, cartItems, setCartItems } = useCart();
 
   const [selectedAddOns, setSelectedAddOns] = useState<
     Array<{ _id: string; name: string; price: number }>
@@ -108,6 +109,7 @@ export default function ItemModal({
     // ✅ Multiply by quantity for total price
     return basePrice + addOnsPrice;
   };
+  
   const handleAddToCart = () => {
     if (!item) return;
 
@@ -128,6 +130,24 @@ export default function ItemModal({
     // ✅ Close modal after adding to cart
     onClose();
   };
+
+  // Update order handler
+ const handleUpdateOrder = () => {
+  // Get the current cart items from context
+  const updatedCartItems = cartItems.map((ci) =>
+    ci.cartItemId === existingItem.cartItemId
+      ? {
+          ...ci,
+          quantity,
+          addOns: selectedAddOns,
+          remarks,
+        }
+      : ci
+  );
+  setCartItems(updatedCartItems);
+  toast.success("Order updated!");
+  onClose();
+};
 
   // Reset image index when modal opens with new item
   useEffect(() => {
@@ -455,12 +475,22 @@ export default function ItemModal({
             >
               Close
             </button>
-            <button
+             {existingItem ? (
+          <button
+            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
+            onClick={handleUpdateOrder}
+          >
+            Update
+          </button>
+        ) : (
+         <button
               onClick={handleAddToCart}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
             >
-              {hasAddOns ? "Add to Order" : `Add ${quantity} to Order`}
+              Add {quantity} to Order
             </button>
+        )}
+            
           </div>
         </div>
       </div>

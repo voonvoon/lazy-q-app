@@ -5,10 +5,17 @@ import { useCart } from "@/contexts/CartContext";
 import { getItemByIdForEdit } from "@/lib/actions/frontShop";
 import ItemModal from "@/components/ItemModal";
 import { FaSpinner } from "react-icons/fa";
+import { FaTrash } from "react-icons/fa";
 
 export default function CheckoutPage() {
-  const { cartItems, totalPrice, totalItems, clearCart, merchantData } =
-    useCart();
+  const {
+    cartItems,
+    setCartItems,
+    totalPrice,
+    totalItems,
+    clearCart,
+    merchantData,
+  } = useCart();
 
   // State for modal and selected item
   const [modalOpen, setModalOpen] = useState(false);
@@ -28,7 +35,10 @@ export default function CheckoutPage() {
         (ci) => ci.cartItemId === cartItemId
       );
 
-      console.log("existing item for edit------------------------------------->", existing);
+      console.log(
+        "existing item for edit------------------------------------->",
+        existing
+      );
       setSelectedItem(item);
       setExistingItemForEdit(existing);
       setModalOpen(true);
@@ -88,17 +98,39 @@ export default function CheckoutPage() {
                     )}
 
                     {/* --- Edit Button --- */}
-                    <button
-                      className="mt-2 py-1 px-3 bg-yellow-400 hover:bg-yellow-500 text-black text-xs rounded transition cursor-pointer flex items-center gap-2"
-                      onClick={() => handleEdit(item.itemId, item.cartItemId)}
-                      disabled={loadingEdit === item.itemId}
-                    >
-                      {loadingEdit === item.itemId ? (
-                        <FaSpinner className="animate-spin" />
-                      ) : (
-                        "Edit"
-                      )}
-                    </button>
+                    <div className="flex items-center mt-2">
+                      <button
+                        className="py-1 px-3 bg-yellow-200 hover:bg-yellow-300 text-black text-xs rounded transition cursor-pointer flex items-center gap-2"
+                        onClick={() => handleEdit(item.itemId, item.cartItemId)}
+                        disabled={loadingEdit === item.itemId}
+                      >
+                        {loadingEdit === item.itemId ? (
+                          <FaSpinner className="animate-spin" />
+                        ) : (
+                          "Edit"
+                        )}
+                      </button>
+                        <button
+                        className="ml-2 p-2 hover:bg-blue-50 text-blue-400 hover:text-blue-600 rounded-full transition cursor-pointer"
+                        title="Remove"
+                        style={{ background: "none" }}
+                        onClick={() => {
+                          if (
+                          window.confirm(
+                            "Are you sure you want to remove this item from your cart?"
+                          )
+                          ) {
+                          setCartItems(
+                            cartItems.filter(
+                            (ci) => ci.cartItemId !== item.cartItemId
+                            )
+                          );
+                          }
+                        }}
+                        >
+                        <FaTrash />
+                        </button>
+                    </div>
                   </div>
 
                   <div className="text-right ml-3">
@@ -169,7 +201,6 @@ export default function CheckoutPage() {
         existingItem={existingItemForEdit}
         isOpen={modalOpen}
         onClose={handleCloseModal}
-        
       />
     </main>
   );
