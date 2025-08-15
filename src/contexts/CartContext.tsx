@@ -50,7 +50,7 @@ interface CartContextType {
   cartItems: CartItem[];
   merchantData: MerchantData | null;
   setMerchantData: (merchant: MerchantData | null) => void;
-  // setCartItems: (items: CartItem[]) => void;
+  setCartItems: (items: CartItem[]) => void;
   setDelivery: (delivery: boolean) => void;
   delivery: boolean;
   setCustomerInfo: (info: CustomerInfo) => void;
@@ -262,7 +262,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     cartItems,
     merchantData,
     setMerchantData,
-    //setCartItems,
+    setCartItems,
     delivery,
     setDelivery,
     setCustomerInfo,
