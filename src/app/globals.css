@@ -30,7 +30,8 @@ body {
 }
 
 .scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
+  width: 2px; /* Thinner for Chrome/Safari/Edge */
+  height: 2px; /* For horizontal scrollbars */
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {

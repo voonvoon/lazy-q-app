@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "@/contexts/CartContext";
 import { getItemByIdForEdit } from "@/lib/actions/frontShop";
 import ItemModal from "@/components/ItemModal";
 import { FaSpinner } from "react-icons/fa";
 import { FaTrash } from "react-icons/fa";
+import { MdShoppingCartCheckout } from "react-icons/md";
+import { IoAddCircleOutline } from "react-icons/io5";
+import { MdOutlineCleaningServices } from "react-icons/md";
 
 export default function CheckoutPage() {
   const {
@@ -13,18 +16,22 @@ export default function CheckoutPage() {
     setCartItems,
     totalPrice,
     totalItems,
+    totalTax,
+    totalWithTaxAndDelivery,
     clearCart,
     merchantData,
   } = useCart();
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   // State for modal and selected item
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
-  const [existingItemForEdit, setExistingItemForEdit] = useState(null);
-
-  console.log("selectedItem--------------------->", selectedItem);
-  console.log("modalOpen--------------------->", modalOpen);
+  const [existingItemForEdit, setExistingItemForEdit] = useState(undefined); // State for existing item being edited
 
   // Handler for Edit button
   const handleEdit = async (itemId: string, cartItemId: string) => {
@@ -35,10 +42,6 @@ export default function CheckoutPage() {
         (ci) => ci.cartItemId === cartItemId
       );
 
-      console.log(
-        "existing item for edit------------------------------------->",
-        existing
-      );
       setSelectedItem(item);
       setExistingItemForEdit(existing);
       setModalOpen(true);
@@ -53,24 +56,25 @@ export default function CheckoutPage() {
   const handleCloseModal = () => {
     setModalOpen(false);
     setSelectedItem(null);
+    setExistingItemForEdit(undefined);
   };
 
   return (
     <main className="p-8 bg-white rounded shadow">
       <h1 className="text-3xl font-bold text-black mb-4">Checkout</h1>
-      <p className="text-black">Welcome to the checkout page.</p>
+
       {/* Order Summary */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-3">
+        <h3 className="text-lg font-semibold text-gray-600 mb-3">
           Your Order ({totalItems} {totalItems === 1 ? "item" : "items"})
         </h3>
 
         {cartItems.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {cartItems.map((item) => (
               <div
                 key={item.cartItemId}
-                className="bg-white p-3 rounded-lg shadow-sm"
+                className="bg-white p-1 rounded-lg shadow-sm"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -110,38 +114,55 @@ export default function CheckoutPage() {
                           "Edit"
                         )}
                       </button>
-                        <button
+                      <button
                         className="ml-2 p-2 hover:bg-blue-50 text-blue-400 hover:text-blue-600 rounded-full transition cursor-pointer"
                         title="Remove"
                         style={{ background: "none" }}
                         onClick={() => {
                           if (
-                          window.confirm(
-                            "Are you sure you want to remove this item from your cart?"
-                          )
-                          ) {
-                          setCartItems(
-                            cartItems.filter(
-                            (ci) => ci.cartItemId !== item.cartItemId
+                            window.confirm(
+                              "Are you sure you want to remove this item from your cart?"
                             )
-                          );
+                          ) {
+                            setCartItems(
+                              cartItems.filter(
+                                (ci) => ci.cartItemId !== item.cartItemId
+                              )
+                            );
                           }
                         }}
-                        >
+                      >
                         <FaTrash />
-                        </button>
+                      </button>
                     </div>
                   </div>
 
                   <div className="text-right ml-3">
                     <p className="font-semibold text-gray-800">
-                      RM
-                      {(Number(item.price) * Number(item.quantity)).toFixed(2)}
+                      RM{Number(item.totalPrice).toFixed(2)}
                     </p>
                   </div>
                 </div>
               </div>
             ))}
+            <div className="flex justify-end items-center gap-2 mt-2 mr-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Are you sure you want to clear all items from your cart?"
+                    )
+                  ) {
+                    clearCart();
+                  }
+                }}
+                className="flex items-center gap-1 text-blue-600 hover:underline bg-transparent border-none p-0 m-0 font-medium cursor-pointer"
+                style={{ boxShadow: "none" }}
+              >
+                Clear All <MdOutlineCleaningServices />
+              </button>
+            </div>
           </div>
         ) : (
           <p className="text-gray-500 text-center py-8">Your cart is empty</p>
@@ -158,9 +179,7 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-between text-gray-600">
               <span>SST ({merchantData?.tax ?? 6}%):</span>
-              <span>
-                RM{(totalPrice * ((merchantData?.tax ?? 6) / 100)).toFixed(2)}
-              </span>
+              <span>RM{totalTax.toFixed(2) ?? "0.00"}</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Delivery Fee:</span>
@@ -170,25 +189,27 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-lg font-bold text-gray-800">
                 <span>Total:</span>
                 <span>
-                  RM{(totalPrice + totalPrice * 0.06 + 3.0).toFixed(2)}
+                  RM
+                  {totalWithTaxAndDelivery.toFixed(2)}
                 </span>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => window.history.back()}
-                className="py-2 px-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded transition cursor-pointer"
+                className="py-2 px-4 border-2 border-blue-600 text-blue-600 font-semibold rounded shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white"
               >
-                Add Order
+                <span className="flex items-center">
+                  Add Orders
+                  <IoAddCircleOutline className="ml-2 text-2xl align-middle" />
+                </span>
               </button>
-              <button
-                onClick={clearCart}
-                className="py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded transition cursor-pointer"
-              >
-                Clear Cart
-              </button>
-              <button className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded transition cursor-pointer">
-                Checkout
+
+              <button className="py-2 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-lg">
+                <span className="flex items-center gap-2">
+                  Checkout and pay
+                  <MdShoppingCartCheckout className="text-2xl" />
+                </span>
               </button>
             </div>
           </div>
