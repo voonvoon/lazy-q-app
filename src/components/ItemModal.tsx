@@ -5,6 +5,7 @@ import { MdCancel } from "react-icons/md";
 import { useCart } from "@/contexts/CartContext";
 import QuantityController from "./QuantityController";
 import { toast } from "react-hot-toast";
+import type { CartItem } from "@/contexts/CartContext";
 
 interface ItemModalProps {
   item: {
@@ -19,7 +20,7 @@ interface ItemModalProps {
     image: Array<{ url: string }>;
     // Add any other properties your item has
   } | null;
-  existingItem?: any;
+  existingItem?: CartItem;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -42,24 +43,8 @@ export default function ItemModal({
   const hasAddOns = item?.addOns && item?.addOns.length > 0;
   const MAX_REMARKS_LENGTH = 60; // Character limit
 
-  console.log(
-    "existingItem in itemModel ----------------------------------------->",
-    existingItem
-  );
-  console.log(
-    "Remarks----------------------------------------------------->",
-    remarks
-  );
-  console.log(
-    "Quantity----------------------------------------------------->",
-    quantity
-  );
-  console.log(
-    "Selected Add-Ons----------------------------------------------------->",
-    selectedAddOns
-  );
-
-  // Prefill form fields when modal opens or item/existingItem changes
+  // if existingItem(mean edit mode) is present
+  //prefill form fields when modal opens or item/existingItem changes
   useEffect(() => {
     if (!isOpen) return;
     setQuantity(existingItem?.quantity ?? 1);
@@ -82,7 +67,7 @@ export default function ItemModal({
     });
   };
 
-  // Check if add-on is selected
+  // Check if add-on is selected for highlight selected purpose
   const isAddOnSelected = (addOnId: string) => {
     return selectedAddOns.some((selected) => selected._id === addOnId);
   };
@@ -109,7 +94,7 @@ export default function ItemModal({
     // ✅ Multiply by quantity for total price
     return basePrice + addOnsPrice;
   };
-  
+
   const handleAddToCart = () => {
     if (!item) return;
 
@@ -132,24 +117,26 @@ export default function ItemModal({
   };
 
   // Update order handler
- const handleUpdateOrder = () => {
-  // Get the current cart items from context
-  const updatedCartItems = cartItems.map((ci) =>
-    ci.cartItemId === existingItem.cartItemId
-      ? {
-          ...ci,
-          quantity,
-          addOns: selectedAddOns,
-          remarks,
-        }
-      : ci
-  );
-  setCartItems(updatedCartItems);
-  toast.success("Order updated!");
-  onClose();
-};
+  const handleUpdateOrder = () => {
+    // Get the current cart items from context
+    const updatedCartItems = cartItems.map((ci) =>
+      ci.cartItemId === existingItem?.cartItemId
+        ? {
+            ...ci,
+            quantity,
+            addOns: selectedAddOns,
+            remarks,
+            price: calculateTotalItemPrice(),
+            totalPrice: calculateTotalPrice(),
+          }
+        : ci
+    );
+    setCartItems(updatedCartItems);
+    toast.success("Order updated!");
+    onClose();
+  };
 
-  // Reset image index when modal opens with new item
+  // Reset image index when modal opens with new item else have bug
   useEffect(() => {
     if (!existingItem) {
       setCurrentImageIndex(0);
@@ -284,7 +271,7 @@ export default function ItemModal({
         {/* Content Section */}
         <div className="p-6">
           {/* Title and Price */}
-          <div className="flex justify-between items-start mb-4">
+          <div className="flex justify-between items-start mb-2">
             <h2 className="text-2xl font-bold text-gray-800 flex-1 pr-4">
               {item.title}
             </h2>
@@ -295,20 +282,20 @@ export default function ItemModal({
           </div>
 
           {/* Category Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+          <div className="flex flex-wrap gap-1 mb-1">
+            <span className="py-1 text-blue-700 text-sm font-medium underline underline-offset-4">
               {item.category}
             </span>
             {item.subcategory && (
-              <span className="px-3 py-1 bg-gray-100 text-gray-700 text-sm font-medium rounded-full">
-                {item.subcategory}
+              <span className="px-1 py-1 text-gray-700 text-sm font-light">
+               --{'>'} {item.subcategory}
               </span>
             )}
           </div>
 
           {/* Description */}
           {item.description && (
-            <div className="mb-6">
+            <div className="mb-3">
               <h3 className="text-lg font-semibold text-gray-800 mb-2">
                 Description
               </h3>
@@ -320,7 +307,7 @@ export default function ItemModal({
 
           {/* Add-ons Section */}
           {hasAddOns && (
-            <div className="mb-6">
+            <div className="mb-3">
               <h3 className="text-lg font-semibold text-gray-800 mb-3">
                 Add-ons
               </h3>
@@ -391,7 +378,7 @@ export default function ItemModal({
           )}
 
           {/* Remarks Section */}
-          <div className="mb-6">
+          <div className="mb-3">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-gray-800">
                 Special Instructions
@@ -475,22 +462,21 @@ export default function ItemModal({
             >
               Close
             </button>
-             {existingItem ? (
-          <button
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
-            onClick={handleUpdateOrder}
-          >
-            Update
-          </button>
-        ) : (
-         <button
-              onClick={handleAddToCart}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
-            >
-              Add {quantity} to Order
-            </button>
-        )}
-            
+            {existingItem ? (
+              <button
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
+                onClick={handleUpdateOrder}
+              >
+                Update
+              </button>
+            ) : (
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 font-medium cursor-pointer text-xs sm:text-base"
+              >
+                Add {quantity} to Order
+              </button>
+            )}
           </div>
         </div>
       </div>

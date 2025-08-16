@@ -43,6 +43,7 @@ interface CartStorage {
   expiresAt: number; // When cart expires
   delivery: boolean; // Whether delivery is selected
   customerInfo: CustomerInfo;
+  totalPrice: number;
 }
 
 interface CartContextType {
@@ -59,6 +60,8 @@ interface CartContextType {
   // Computed values
   totalItems: number;
   totalPrice: number;
+  totalTax: number; // Total tax amount
+  totalWithTaxAndDelivery: number; // Total price including tax and delivery fee
 
   // Actions
   addItem: (
@@ -103,7 +106,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     postcode: "",
   });
 
-  
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
     try {
@@ -171,6 +173,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             customerInfo: customerInfo,
             timestamp: now,
             expiresAt: now + CART_EXPIRY_TIME,
+            totalPrice,
           };
           localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
         } else {
@@ -194,6 +197,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
       0
     );
   }, [cartItems]);
+
+  const totalTax = React.useMemo(() => {
+    const taxRate = merchantData?.tax ?? 6; // Default to 6% if not set
+    return Number((totalPrice * (taxRate / 100)).toFixed(2));
+  }, [totalPrice, merchantData]);
+
+
+const totalWithTaxAndDelivery = React.useMemo(() => {
+  const deliveryFee = merchantData?.deliveryFee ?? 0;
+  return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
+}, [totalPrice, totalTax, merchantData]);
 
   // ✅ Action: Add Item
   const addItem = (
@@ -271,6 +285,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     // Computed
     totalItems,
     totalPrice,
+    totalTax,
+    totalWithTaxAndDelivery,
 
     // Actions
     addItem,
