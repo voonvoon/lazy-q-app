@@ -74,26 +74,11 @@ export default function CheckoutPage() {
         {merchantData?.allowedDelivery &&
         merchantData?.freeDeliveryThreshold &&
         merchantData.freeDeliveryThreshold > 0 ? (
-          <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-4 rounded-lg shadow-lg flex items-start gap-2">
-            <div>
-              <p className="text-base font-bold text-blue-800 flex items-center gap-1">
-                <span className="bg-white animate-bounce text-blue-700 px-6 py-2 rounded-full text-xs font-semibold border border-blue-200">
-                  FREE DELIVERY
-                </span>
-                on orders above{" "}
-                <span className="text-blue-700">
-                  RM{merchantData.freeDeliveryThreshold.toFixed(2)}
-                </span>
-                ...
-                <span className=" mt-1">
-                  <CiDeliveryTruck color="#2563eb" size={24} />
-                </span>
-              </p>
-              <p className="text-sm text-gray-700 mt-1">
-                Add more items to qualify for free delivery!
-              </p>
+            <div className="flex items-center justify-center bg-pink-50 animate-bounce text-pink-500 px-4 py-2 rounded-full text-sm font-semibold border border-pink-200 shadow-sm tracking-wide w-auto max-w-fit mx-auto sm:text-sm">
+            Free Delivery For Order More than RM
+            {merchantData.freeDeliveryThreshold.toFixed(2)}!
+            <CiDeliveryTruck color="#db2777" size={28} className="ml-2" />
             </div>
-          </div>
         ) : (
           ""
         )}
