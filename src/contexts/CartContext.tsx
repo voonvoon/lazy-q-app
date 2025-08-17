@@ -62,7 +62,7 @@ interface CartContextType {
   totalPrice: number;
   totalTax: number; // Total tax amount
   totalWithTaxAndDelivery: number; // Total price including tax and delivery fee
-
+  getDeliveryFee: () => number | "free"; // Function to get delivery fee or "free" if eligible
   // Actions
   addItem: (
     item: Omit<CartItem, "quantity" | "addedAt" | "cartItemId">,
@@ -203,11 +203,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return Number((totalPrice * (taxRate / 100)).toFixed(2));
   }, [totalPrice, merchantData]);
 
+  // const totalWithTaxAndDelivery = React.useMemo(() => {
+  //   const deliveryFee = merchantData?.deliveryFee ?? 0;
+  //   return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
+  // }, [totalPrice, totalTax, merchantData]);
+  const getDeliveryFee = () => {
+    if (!merchantData || !delivery) return 0; 
+    const deliveryFee = merchantData.deliveryFee ?? 0;
+    const freeDeliveryThreshold =
+      merchantData.freeDeliveryThreshold ?? Infinity;
+    return totalPrice >= freeDeliveryThreshold ? "free" : deliveryFee;
+  };
 
-const totalWithTaxAndDelivery = React.useMemo(() => {
-  const deliveryFee = merchantData?.deliveryFee ?? 0;
-  return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
-}, [totalPrice, totalTax, merchantData]);
+  // 2. Computed value for total with tax and delivery
+  const totalWithTaxAndDelivery = React.useMemo(() => {
+    const delivery = getDeliveryFee();
+    const deliveryFee = delivery === "free" ? 0 : Number(delivery);
+    return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
+  }, [totalPrice, totalTax, merchantData, delivery]);
 
   // ✅ Action: Add Item
   const addItem = (
@@ -286,6 +299,7 @@ const totalWithTaxAndDelivery = React.useMemo(() => {
     totalItems,
     totalPrice,
     totalTax,
+    getDeliveryFee,
     totalWithTaxAndDelivery,
 
     // Actions

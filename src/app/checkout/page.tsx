@@ -9,6 +9,7 @@ import { FaTrash } from "react-icons/fa";
 import { MdShoppingCartCheckout } from "react-icons/md";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { MdOutlineCleaningServices } from "react-icons/md";
+import { CiDeliveryTruck } from "react-icons/ci";
 
 export default function CheckoutPage() {
   const {
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
     totalItems,
     totalTax,
     totalWithTaxAndDelivery,
+    getDeliveryFee,
     clearCart,
     merchantData,
   } = useCart();
@@ -60,7 +62,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <main className="p-8 bg-white rounded shadow">
+    <main className="p-4 bg-white rounded shadow">
       <h1 className="text-3xl font-bold text-black mb-4">Checkout</h1>
 
       {/* Order Summary */}
@@ -68,6 +70,33 @@ export default function CheckoutPage() {
         <h3 className="text-lg font-semibold text-gray-600 mb-3">
           Your Order ({totalItems} {totalItems === 1 ? "item" : "items"})
         </h3>
+        {/* ✅ Free Delivery Threshold Messager */}
+        {merchantData?.allowedDelivery &&
+        merchantData?.freeDeliveryThreshold &&
+        merchantData.freeDeliveryThreshold > 0 ? (
+          <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 via-blue-100 to-blue-50 border-l-4 rounded-lg shadow-lg flex items-start gap-2">
+            <div>
+              <p className="text-base font-bold text-blue-800 flex items-center gap-1">
+                <span className="bg-white animate-bounce text-blue-700 px-6 py-2 rounded-full text-xs font-semibold border border-blue-200">
+                  FREE DELIVERY
+                </span>
+                on orders above{" "}
+                <span className="text-blue-700">
+                  RM{merchantData.freeDeliveryThreshold.toFixed(2)}
+                </span>
+                ...
+                <span className=" mt-1">
+                  <CiDeliveryTruck color="#2563eb" size={24} />
+                </span>
+              </p>
+              <p className="text-sm text-gray-700 mt-1">
+                Add more items to qualify for free delivery!
+              </p>
+            </div>
+          </div>
+        ) : (
+          ""
+        )}
 
         {cartItems.length > 0 ? (
           <div className="space-y-2">
@@ -157,7 +186,7 @@ export default function CheckoutPage() {
                     clearCart();
                   }
                 }}
-                className="flex items-center gap-1 text-blue-600 hover:underline bg-transparent border-none p-0 m-0 font-medium cursor-pointer"
+                className="flex items-center gap-1 text-blue-600 hover:underline bg-transparent border-none p-0 m-0  cursor-pointer"
                 style={{ boxShadow: "none" }}
               >
                 Clear All <MdOutlineCleaningServices />
@@ -183,7 +212,11 @@ export default function CheckoutPage() {
             </div>
             <div className="flex justify-between text-gray-600">
               <span>Delivery Fee:</span>
-              <span>RM{merchantData?.deliveryFee?.toFixed(2) ?? "Free"}</span>
+              <span>
+                {getDeliveryFee() === "free"
+                  ? "Free"
+                  : `RM${Number(getDeliveryFee()).toFixed(2)}`}
+              </span>
             </div>
             <div className="border-t border-gray-300 pt-2 mt-2">
               <div className="flex justify-between text-lg font-bold text-gray-800">
@@ -197,18 +230,18 @@ export default function CheckoutPage() {
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => window.history.back()}
-                className="py-2 px-4 border-2 border-blue-600 text-blue-600 font-semibold rounded shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white"
+                className="py-3 px-3 border-2 border-blue-600 text-blue-600 font-semibold rounded shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
               >
-                <span className="flex items-center">
-                  Add Orders
-                  <IoAddCircleOutline className="ml-2 text-2xl align-middle" />
+                <span className="flex items-center gap-2 justify-center w-full">
+                  Add More
+                  <IoAddCircleOutline size={20} />
                 </span>
               </button>
 
-              <button className="py-2 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-lg">
-                <span className="flex items-center gap-2">
-                  Checkout and pay
-                  <MdShoppingCartCheckout className="text-2xl" />
+              <button className="py-3 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
+                <span className="flex items-center gap-2 justify-center w-full">
+                  Checkout
+                  <MdShoppingCartCheckout size={20} />
                 </span>
               </button>
             </div>

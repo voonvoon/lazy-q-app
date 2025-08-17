@@ -104,22 +104,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
           )}
         </div>
 
-        {/* ✅ Free Delivery Threshold Message - Using ternary operator */}
-        {merchantData?.allowedDelivery &&
-        merchantData?.freeDeliveryThreshold &&
-        merchantData.freeDeliveryThreshold > 0 ? (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700 font-medium">
-              💡 FREE delivery on orders above RM
-              {merchantData.freeDeliveryThreshold.toFixed(2)}!
-            </p>
-            <p className="text-xs text-blue-600 mt-1">
-              Add more items to qualify for free delivery
-            </p>
-          </div>
-        ) : (
-          ""
-        )}
+      
 
         {/* Delivery Options */}
         {/* Conditional Delivery Options */}
