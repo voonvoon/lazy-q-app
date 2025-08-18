@@ -7,6 +7,8 @@ import React, {
   ReactNode,
 } from "react";
 
+import type { DiscountInput } from "@/lib/actions/discount";
+
 // ✅ Cart Item Structure
 interface CartItem {
   cartItemId: string;
@@ -56,6 +58,8 @@ interface CartContextType {
   delivery: boolean;
   setCustomerInfo: (info: CustomerInfo) => void;
   customerInfo: CustomerInfo;
+  discount: DiscountInput | null;
+  setDiscount: (discount: DiscountInput | null) => void;
 
   // Computed values
   totalItems: number;
@@ -105,6 +109,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     state: "",
     postcode: "",
   });
+
+  const [discount, setDiscount] = useState<DiscountInput | null>(null);
+
+  console.log("discount in context--------------------------------------->", discount);
 
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
@@ -208,7 +216,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   //   return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
   // }, [totalPrice, totalTax, merchantData]);
   const getDeliveryFee = () => {
-    if (!merchantData || !delivery) return 0; 
+    if (!merchantData || !delivery) return 0;
     const deliveryFee = merchantData.deliveryFee ?? 0;
     const freeDeliveryThreshold =
       merchantData.freeDeliveryThreshold ?? Infinity;
@@ -294,6 +302,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setDelivery,
     setCustomerInfo,
     customerInfo,
+    discount,
+    setDiscount,
 
     // Computed
     totalItems,

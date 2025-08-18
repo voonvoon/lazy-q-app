@@ -9,7 +9,8 @@ import { FaTrash } from "react-icons/fa";
 import { MdShoppingCartCheckout } from "react-icons/md";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { MdOutlineCleaningServices } from "react-icons/md";
-import { CiDeliveryTruck } from "react-icons/ci";
+import { MdOutlineDeliveryDining } from "react-icons/md";
+import DiscountCodeInput from "@/components/DiscountCodeInput";
 
 export default function CheckoutPage() {
   const {
@@ -63,25 +64,25 @@ export default function CheckoutPage() {
 
   return (
     <main className="p-4 bg-white rounded shadow">
-      <h1 className="text-3xl font-bold text-black mb-4">Checkout</h1>
+      <h1 className="text-3xl font-bold text-black mb-5">Checkout</h1>
+      {/* ✅ Free Delivery Threshold Messager */}
+      {merchantData?.allowedDelivery &&
+      merchantData?.freeDeliveryThreshold &&
+      merchantData.freeDeliveryThreshold > 0 ? (
+        <div className="flex items-center justify-center bg-blue-50 animate-bounce text-gray-500 px-3 py-2 rounded-full border-1 border-blue-600 shadow-sm tracking-wide w-auto max-w-fit mx-auto text-xs sm:text-sm font-normal sm:font-semibold">
+          Free Delivery For Order More than RM
+          {merchantData.freeDeliveryThreshold.toFixed(2)}! ..
+          <MdOutlineDeliveryDining color="gray" size={24} className="ml-2" />
+        </div>
+      ) : (
+        ""
+      )}
 
       {/* Order Summary */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-600 mb-3">
+        <h3 className="text-lg font-semibold text-gray-600 mb-5">
           Your Order ({totalItems} {totalItems === 1 ? "item" : "items"})
         </h3>
-        {/* ✅ Free Delivery Threshold Messager */}
-        {merchantData?.allowedDelivery &&
-        merchantData?.freeDeliveryThreshold &&
-        merchantData.freeDeliveryThreshold > 0 ? (
-            <div className="flex items-center justify-center bg-pink-50 animate-bounce text-pink-500 px-4 py-2 rounded-full text-sm font-semibold border border-pink-200 shadow-sm tracking-wide w-auto max-w-fit mx-auto sm:text-sm">
-            Free Delivery For Order More than RM
-            {merchantData.freeDeliveryThreshold.toFixed(2)}!
-            <CiDeliveryTruck color="#db2777" size={28} className="ml-2" />
-            </div>
-        ) : (
-          ""
-        )}
 
         {cartItems.length > 0 ? (
           <div className="space-y-2">
@@ -183,6 +184,10 @@ export default function CheckoutPage() {
         )}
       </div>
 
+      {/* Discount section aligned right */}
+      <div className="flex justify-end mb-4">
+        <DiscountCodeInput merchantId={merchantData?._id ?? ""} />
+      </div>
       {/* Price Summary */}
       {cartItems.length > 0 && (
         <div className="border-t border-gray-300 pt-4">
@@ -190,6 +195,10 @@ export default function CheckoutPage() {
             <div className="flex justify-between text-gray-600">
               <span>Subtotal:</span>
               <span>RM{totalPrice.toFixed(2)}</span>
+            </div>
+             <div className="flex justify-between text-gray-600">
+              <span>Discount:</span>
+              <span>RM0.00</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>SST ({merchantData?.tax ?? 6}%):</span>
@@ -215,7 +224,7 @@ export default function CheckoutPage() {
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => window.history.back()}
-                className="py-3 px-3 border-2 border-blue-600 text-blue-600 font-semibold rounded shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
+                className="py-3 px-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
               >
                 <span className="flex items-center gap-2 justify-center w-full">
                   Add More
@@ -223,9 +232,9 @@ export default function CheckoutPage() {
                 </span>
               </button>
 
-              <button className="py-3 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
+              <button className="py-3 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
                 <span className="flex items-center gap-2 justify-center w-full">
-                  Checkout
+                  Order Now
                   <MdShoppingCartCheckout size={20} />
                 </span>
               </button>
