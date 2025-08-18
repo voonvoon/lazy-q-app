@@ -162,3 +162,42 @@ export async function deleteDiscount(id: string) {
     return { success: false, error: "Failed to delete discount." };
   }
 }
+
+// VERIFY DISCOUNT CODE
+export async function verifyDiscountCode(merchantId: string, code: string) {
+  await dbConnect();
+
+  // Find discount by merchant and code (case-insensitive)
+  const discount: any = await Discount.findOne({
+    merchant: merchantId,
+    code: code.trim().toUpperCase(),
+  }).lean();
+
+  if (!discount) {
+    return { success: false, error: "Invalid discount code." };
+  }
+
+  // Check expiry
+  if (discount.expiryDate && new Date(discount.expiryDate) < new Date()) {
+    return { success: false, error: "This discount code has expired." };
+  }
+
+  // Check useOnce (assumes you have a 'used' field or similar)
+  // if (discount.useOnce && discount.used) {
+  //   return { success: false, error: "This discount code is invalid" };
+  // }
+
+  // If valid, return the discount object (sanitize as needed)
+  return {
+    success: true,
+    discount: {
+      _id: discount._id.toString(),
+      code: discount.code,
+      type: discount.type,
+      value: discount.value,
+      expiryDate: discount.expiryDate,
+      useOnce: discount.useOnce ?? false,
+      merchant: discount.merchant.toString(),
+    },
+  };
+}
