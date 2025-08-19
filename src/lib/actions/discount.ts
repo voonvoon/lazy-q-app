@@ -182,10 +182,6 @@ export async function verifyDiscountCode(merchantId: string, code: string) {
     return { success: false, error: "This discount code has expired." };
   }
 
-  // Check useOnce (assumes you have a 'used' field or similar)
-  // if (discount.useOnce && discount.used) {
-  //   return { success: false, error: "This discount code is invalid" };
-  // }
 
   // If valid, return the discount object (sanitize as needed)
   return {

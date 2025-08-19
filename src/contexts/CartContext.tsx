@@ -46,6 +46,7 @@ interface CartStorage {
   delivery: boolean; // Whether delivery is selected
   customerInfo: CustomerInfo;
   totalPrice: number;
+  discount?: DiscountInput | null;
 }
 
 interface CartContextType {
@@ -67,6 +68,7 @@ interface CartContextType {
   totalTax: number; // Total tax amount
   totalWithTaxAndDelivery: number; // Total price including tax and delivery fee
   getDeliveryFee: () => number | "free"; // Function to get delivery fee or "free" if eligible
+  totalDiscount: () => number; // Total discount amount
   // Actions
   addItem: (
     item: Omit<CartItem, "quantity" | "addedAt" | "cartItemId">,
@@ -112,7 +114,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const [discount, setDiscount] = useState<DiscountInput | null>(null);
 
-  console.log("discount in context--------------------------------------->", discount);
+  console.log(
+    "discount in context--------------------------------------->",
+    discount
+  );
 
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
@@ -141,6 +146,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
             setCartItems(cartWithDates);
             setDelivery(parsedData.delivery);
             setCustomerInfo(parsedData.customerInfo);
+            if (parsedData.discount) {
+              setDiscount(parsedData.discount);
+            }
           }
 
           //Load merchant data cuz after refresh context state is lost
@@ -182,6 +190,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             timestamp: now,
             expiresAt: now + CART_EXPIRY_TIME,
             totalPrice,
+            discount,
           };
           localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
         } else {
@@ -192,7 +201,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Error saving cart to localStorage:", error);
       }
     }
-  }, [cartItems, merchantData, isLoaded, delivery, customerInfo]);
+  }, [cartItems, merchantData, isLoaded, delivery, customerInfo, discount]);
 
   // ✅ Computed Values (Memoized for performance)
   const totalItems = React.useMemo(() => {
@@ -206,15 +215,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   }, [cartItems]);
 
-  const totalTax = React.useMemo(() => {
-    const taxRate = merchantData?.tax ?? 6; // Default to 6% if not set
-    return Number((totalPrice * (taxRate / 100)).toFixed(2));
-  }, [totalPrice, merchantData]);
-
-  // const totalWithTaxAndDelivery = React.useMemo(() => {
-  //   const deliveryFee = merchantData?.deliveryFee ?? 0;
-  //   return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
-  // }, [totalPrice, totalTax, merchantData]);
   const getDeliveryFee = () => {
     if (!merchantData || !delivery) return 0;
     const deliveryFee = merchantData.deliveryFee ?? 0;
@@ -223,12 +223,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return totalPrice >= freeDeliveryThreshold ? "free" : deliveryFee;
   };
 
-  // 2. Computed value for total with tax and delivery
+  const totalDiscount = React.useMemo(() => {
+    if (!discount) return 0;
+    if (discount.type === "amount") {
+      return Number(discount.value);
+    }
+    if (discount.type === "percentage") {
+      return Number((totalPrice * (discount.value / 100)).toFixed(2));
+    }
+    return 0;
+  }, [discount, totalPrice]);
+
+  const totalTax = React.useMemo(() => {
+    const taxRate = merchantData?.tax ?? 6; // Default to 6% if not set
+    const discountedSubtotal = Math.max(totalPrice - totalDiscount, 0); // Prevent negative
+    return Number((discountedSubtotal * (taxRate / 100)).toFixed(2));
+  }, [totalPrice, totalDiscount, merchantData]);
+
   const totalWithTaxAndDelivery = React.useMemo(() => {
     const delivery = getDeliveryFee();
     const deliveryFee = delivery === "free" ? 0 : Number(delivery);
-    return Number((totalPrice + totalTax + deliveryFee).toFixed(2));
-  }, [totalPrice, totalTax, merchantData, delivery]);
+    const discountAmount = totalDiscount; // Use the value directly
+    const total = totalPrice + totalTax + deliveryFee - discountAmount;
+    return Number(total > 0 ? total.toFixed(2) : "0.00"); // Prevent negative totals
+  }, [totalPrice, totalTax, merchantData, delivery, totalDiscount]);
 
   // ✅ Action: Add Item
   const addItem = (
@@ -311,6 +329,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     totalTax,
     getDeliveryFee,
     totalWithTaxAndDelivery,
+    totalDiscount: () => totalDiscount, // If you want to keep this as a function, you can leave it, but totalDiscount itself is a number now
 
     // Actions
     addItem,

@@ -23,6 +23,7 @@ export default function CheckoutPage() {
     getDeliveryFee,
     clearCart,
     merchantData,
+    totalDiscount
   } = useCart();
 
   // Scroll to top on mount
@@ -69,9 +70,9 @@ export default function CheckoutPage() {
       {merchantData?.allowedDelivery &&
       merchantData?.freeDeliveryThreshold &&
       merchantData.freeDeliveryThreshold > 0 ? (
-        <div className="flex items-center justify-center bg-blue-50 animate-bounce text-gray-500 px-3 py-2 rounded-full border-1 border-blue-600 shadow-sm tracking-wide w-auto max-w-fit mx-auto text-xs sm:text-sm font-normal sm:font-semibold">
+        <div className="flex items-center justify-center bg-blue-50 animate-bounce text-gray-600 px-2 py-2 rounded-md border-1 border-blue-400 shadow-sm tracking-wide w-auto max-w-fit mx-auto text-xs sm:text-sm font-normal sm:font-semibold">
           Free Delivery For Order More than RM
-          {merchantData.freeDeliveryThreshold.toFixed(2)}! ..
+          {merchantData.freeDeliveryThreshold.toFixed(2)}!
           <MdOutlineDeliveryDining color="gray" size={24} className="ml-2" />
         </div>
       ) : (
@@ -198,7 +199,7 @@ export default function CheckoutPage() {
             </div>
              <div className="flex justify-between text-gray-600">
               <span>Discount:</span>
-              <span>RM0.00</span>
+                <span>-RM{totalDiscount().toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>SST ({merchantData?.tax ?? 6}%):</span>
@@ -224,7 +225,7 @@ export default function CheckoutPage() {
             <div className="flex justify-end gap-2 mt-4">
               <button
                 onClick={() => window.history.back()}
-                className="py-3 px-3 border-2 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
+                className="py-2 px-3 border-1 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
               >
                 <span className="flex items-center gap-2 justify-center w-full">
                   Add More
@@ -232,7 +233,7 @@ export default function CheckoutPage() {
                 </span>
               </button>
 
-              <button className="py-3 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
+              <button className="py-2 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
                 <span className="flex items-center gap-2 justify-center w-full">
                   Order Now
                   <MdShoppingCartCheckout size={20} />
