@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { verifyDiscountCode } from "@/lib/actions/discount"; // adjust import as needed
 import { useCart } from "@/contexts/CartContext";
+import { FaSpinner } from "react-icons/fa";
 
 export default function DiscountCodeInput({
   merchantId,
@@ -31,7 +32,6 @@ export default function DiscountCodeInput({
         } else {
           setDiscount(null);
         }
-        // Optionally: store discount in context/state for later use
       } else {
         setResult({ success: false, message: res.error || "Invalid code." });
       }
@@ -43,7 +43,7 @@ export default function DiscountCodeInput({
 
   return (
     <div className="mb-1">
-      <div className="flex gap-4">
+      <div className="flex gap-1">
         <input
           type="text"
           value={code}
@@ -61,7 +61,7 @@ export default function DiscountCodeInput({
               : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
-          {loading ? "Verifying..." : "apply"}
+       {loading ? <FaSpinner className="animate-spin text-white" /> : "apply"}
         </button>
       </div>
       {result && (
