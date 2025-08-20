@@ -294,6 +294,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   // ✅ Action: Clear Cart (keep merchant, clear items only)
   const clearCart = () => {
     setCartItems([]);
+    setDiscount(null);
     // Note: merchantData stays - user can continue ordering from same restaurant
     window.history.back();
   };

@@ -23,7 +23,8 @@ export default function CheckoutPage() {
     getDeliveryFee,
     clearCart,
     merchantData,
-    totalDiscount
+    totalDiscount,
+    discount
   } = useCart();
 
   // Scroll to top on mount
@@ -131,7 +132,7 @@ export default function CheckoutPage() {
                         )}
                       </button>
                       <button
-                        className="ml-2 p-2 hover:bg-blue-50 text-blue-400 hover:text-blue-600 rounded-full transition cursor-pointer"
+                        className="ml-2 p-2 hover:bg-blue-50 text-red-400 hover:text-red-600 rounded-full transition cursor-pointer"
                         title="Remove"
                         style={{ background: "none" }}
                         onClick={() => {
@@ -148,7 +149,7 @@ export default function CheckoutPage() {
                           }
                         }}
                       >
-                        <FaTrash />
+                        <FaTrash size={14}/>
                       </button>
                     </div>
                   </div>
@@ -173,22 +174,26 @@ export default function CheckoutPage() {
                     clearCart();
                   }
                 }}
-                className="flex items-center gap-1 text-blue-600 hover:underline bg-transparent border-none p-0 m-0  cursor-pointer"
+                className="flex items-center gap-1 text-blue-600 hover:underline bg-transparent border-none p-0 m-0  cursor-pointer text-sm"
                 style={{ boxShadow: "none" }}
               >
                 Clear All <MdOutlineCleaningServices />
               </button>
             </div>
+             {/* Discount Section */}
+      <div className="flex justify-end mb-2">
+        <span className="text-gray-600 text-sm mr-2 underline">Discount Code</span>
+      </div>
+      <div className="flex justify-end mb-4 shadow-sm rounded bg-white p-2">
+        <DiscountCodeInput merchantId={merchantData?._id ?? ""} />
+      </div>
           </div>
         ) : (
           <p className="text-gray-500 text-center py-8">Your cart is empty</p>
         )}
       </div>
 
-      {/* Discount section aligned right */}
-      <div className="flex justify-end mb-4">
-        <DiscountCodeInput merchantId={merchantData?._id ?? ""} />
-      </div>
+     
       {/* Price Summary */}
       {cartItems.length > 0 && (
         <div className="border-t border-gray-300 pt-4">
@@ -198,7 +203,17 @@ export default function CheckoutPage() {
               <span>RM{totalPrice.toFixed(2)}</span>
             </div>
              <div className="flex justify-between text-gray-600">
-              <span>Discount:</span>
+                <span>
+                Discount
+                <span className="text-green-600">
+                  {discount?.type === "percentage"
+                  ? ` (${discount.value}% off)`
+                  : discount?.type === "amount"
+                  ? ` (RM${Number(discount.value).toFixed(2)} off)`
+                  : ""}
+                </span>
+                :
+                </span>
                 <span>-RM{totalDiscount().toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
@@ -222,22 +237,22 @@ export default function CheckoutPage() {
                 </span>
               </div>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
+            <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
               <button
-                onClick={() => window.history.back()}
-                className="py-2 px-3 border-1 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
+              onClick={() => window.history.back()}
+              className="w-full sm:w-auto py-2 px-4 border-1 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
               >
-                <span className="flex items-center gap-2 justify-center w-full">
-                  Add More
-                  <IoAddCircleOutline size={20} />
-                </span>
+              <span className="flex items-center gap-2 justify-center w-full">
+                Add More
+                <IoAddCircleOutline size={20} />
+              </span>
               </button>
 
-              <button className="py-2 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
-                <span className="flex items-center gap-2 justify-center w-full">
-                  Order Now
-                  <MdShoppingCartCheckout size={20} />
-                </span>
+              <button className="w-full sm:w-auto py-2 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
+              <span className="flex items-center gap-2 justify-center w-full">
+                Order Now
+                <MdShoppingCartCheckout size={20} />
+              </span>
               </button>
             </div>
           </div>
