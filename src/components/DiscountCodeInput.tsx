@@ -43,7 +43,7 @@ export default function DiscountCodeInput({
   };
 
   return (
-    <div className="mb-1">
+    <div className="mb-1 mt-4">
       <div className="flex  gap-1">
         {discount ? (
             <div className="flex items-center gap-4">
@@ -51,14 +51,16 @@ export default function DiscountCodeInput({
               {discount.code}
             </span>
             <button
+              title="Remove applied discount code"
               onClick={() => {
-                setDiscount(null);
-                setCode("");
-                setResult(null);
+              setDiscount(null);
+              setCode("");
+              setResult(null);
               }}
-              className="text-xs text-red-400 hover:underline cursor-pointer"
+              className="text-xs text-red-400 hover:underline cursor-pointer flex items-center gap-1"
             >
               <FaTrash size={14} />
+              <span className="sr-only">Remove discount</span>
             </button>
           </div>
         ) : (
@@ -72,6 +74,7 @@ export default function DiscountCodeInput({
               disabled={loading}
             />
             <button
+              title="Apply discount code"
               onClick={handleVerify}
               disabled={loading || !code.trim()}
               className={`className="py-2 px-3 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-normal rounded shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-xs sm:text-base" ${
