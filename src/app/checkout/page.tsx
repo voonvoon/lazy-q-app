@@ -11,10 +11,15 @@ import { IoAddCircleOutline } from "react-icons/io5";
 import { MdOutlineCleaningServices } from "react-icons/md";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import DiscountCodeInput from "@/components/DiscountCodeInput";
+import { createPaymentLinkPost } from "@/lib/actions/fiuu";
 
 export default function CheckoutPage() {
   const {
     cartItems,
+    customerInfo,
+    delivery,
+    discount,
+    merchantData,
     setCartItems,
     totalPrice,
     totalItems,
@@ -22,9 +27,7 @@ export default function CheckoutPage() {
     totalWithTaxAndDelivery,
     getDeliveryFee,
     clearCart,
-    merchantData,
     totalDiscount,
-    discount
   } = useCart();
 
   // Scroll to top on mount
@@ -121,6 +124,7 @@ export default function CheckoutPage() {
                     {/* --- Edit Button --- */}
                     <div className="flex items-center mt-2">
                       <button
+                        title="Edit item"
                         className="py-1 px-3 bg-yellow-200 hover:bg-yellow-300 text-black text-xs rounded transition cursor-pointer flex items-center gap-2"
                         onClick={() => handleEdit(item.itemId, item.cartItemId)}
                         disabled={loadingEdit === item.itemId}
@@ -149,7 +153,7 @@ export default function CheckoutPage() {
                           }
                         }}
                       >
-                        <FaTrash size={14}/>
+                        <FaTrash size={14} />
                       </button>
                     </div>
                   </div>
@@ -164,6 +168,7 @@ export default function CheckoutPage() {
             ))}
             <div className="flex justify-end items-center gap-2 mt-2 mr-2">
               <button
+                title="clear all cart items"
                 type="button"
                 onClick={() => {
                   if (
@@ -180,20 +185,21 @@ export default function CheckoutPage() {
                 Clear All <MdOutlineCleaningServices />
               </button>
             </div>
-             {/* Discount Section */}
-      <div className="flex justify-end mb-2">
-        <span className="text-gray-600 text-sm mr-2 underline">Discount Code</span>
-      </div>
-      <div className="flex justify-end mb-4 shadow-sm rounded bg-white p-2">
-        <DiscountCodeInput merchantId={merchantData?._id ?? ""} />
-      </div>
+            {/* Discount Section */}
+            <div className="flex  justify-start sm:justify-end mb-2">
+              {/* <span className="text-gray-600 text-sm mr-2 underline">
+                Discount Code
+              </span> */}
+            </div>
+            <div className="flex justify-end mb-4 shadow-sm rounded bg-white p-2">
+              <DiscountCodeInput merchantId={merchantData?._id ?? ""} />
+            </div>
           </div>
         ) : (
           <p className="text-gray-500 text-center py-8">Your cart is empty</p>
         )}
       </div>
 
-     
       {/* Price Summary */}
       {cartItems.length > 0 && (
         <div className="border-t border-gray-300 pt-4">
@@ -202,19 +208,19 @@ export default function CheckoutPage() {
               <span>Subtotal:</span>
               <span>RM{totalPrice.toFixed(2)}</span>
             </div>
-             <div className="flex justify-between text-gray-600">
-                <span>
+            <div className="flex justify-between text-gray-600">
+              <span>
                 Discount
                 <span className="text-green-600">
                   {discount?.type === "percentage"
-                  ? ` (${discount.value}% off)`
-                  : discount?.type === "amount"
-                  ? ` (RM${Number(discount.value).toFixed(2)} off)`
-                  : ""}
+                    ? ` (${discount.value}% off)`
+                    : discount?.type === "amount"
+                    ? ` (RM${Number(discount.value).toFixed(2)} off)`
+                    : ""}
                 </span>
                 :
-                </span>
-                <span>-RM{totalDiscount().toFixed(2)}</span>
+              </span>
+              <span>-RM{totalDiscount().toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
               <span>SST ({merchantData?.tax ?? 6}%):</span>
@@ -239,20 +245,74 @@ export default function CheckoutPage() {
             </div>
             <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
               <button
-              onClick={() => window.history.back()}
-              className="w-full sm:w-auto py-2 px-4 border-1 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
+                title="Add more items"
+                onClick={() => window.history.back()}
+                className="w-full sm:w-auto py-2 px-4 border-1 border-blue-600 text-blue-600 font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:bg-blue-50 hover:-translate-y-0.5 hover:scale-105 flex items-center gap-2 cursor-pointer bg-white text-sm sm:text-base"
               >
-              <span className="flex items-center gap-2 justify-center w-full">
-                Add More
-                <IoAddCircleOutline size={20} />
-              </span>
+                <span className="flex items-center gap-2 justify-center w-full">
+                  Add More
+                  <IoAddCircleOutline size={20} />
+                </span>
               </button>
 
-              <button className="w-full sm:w-auto py-2 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base">
-              <span className="flex items-center gap-2 justify-center w-full">
-                Order Now
-                <MdShoppingCartCheckout size={20} />
-              </span>
+              <button
+                onClick={async () => {
+                  // Bundle all checkout state into one object
+                  const paymentPayload = {
+                    cartItems,
+                    customerInfo,
+                    delivery,
+                    discount,
+                    merchantData,
+                  };
+
+                  const response = await createPaymentLinkPost(paymentPayload);
+
+                  const { url, data } = response;
+
+                  console.log("data(after createPaymentLinkPost) ----------------------------------------------->:", data.metadata);
+
+                  // Create a new form element
+                  const form = document.createElement("form");
+                  console.log(
+                    "form ----------------------------------------------->:",
+                    form
+                  );
+                  // Set the form's method to POST
+                  form.method = "POST";
+                  // Set the form's action to the URL where the POST request should be sent
+                  form.action = url;
+                  // Set the form's target to '_blank' to open the result in a new tab
+                  form.target = "_blank";
+
+                  // Loop through each key in the data object
+                  for (const key in data) {
+                    // Only add real data fields, not inherited ones
+                    if (data.hasOwnProperty(key)) {
+                      // Create a hidden input element for each key-value pair
+                      const input = document.createElement("input");
+                      input.type = "hidden";
+                      input.name = key;
+                      input.value = data[key];
+                      // Append the input element to the form
+                      form.appendChild(input);
+                    }
+                  }
+
+                  // Append the form to the document body
+                  document.body.appendChild(form);
+                  // Submit the form, which sends the POST request and opens the result in a new tab
+                  form.submit();
+                  // Remove the form from the document body
+                  document.body.removeChild(form);
+                }}
+                title="Order now"
+                className="w-full sm:w-auto py-2 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base"
+              >
+                <span className="flex items-center gap-2 justify-center w-full">
+                  Order Now
+                  <MdShoppingCartCheckout size={20} />
+                </span>
               </button>
             </div>
           </div>
