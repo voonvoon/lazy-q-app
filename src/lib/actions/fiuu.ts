@@ -7,6 +7,9 @@ import AddOn from "@/models/AddOn";
 const merchantID = process.env.FIUU_MERCHANT_ID || "defaultMerchantID";
 const vkey = process.env.FIUU_VERIFY_KEY || "defaultVkey";
 
+console.log("FIUU_MERCHANT_ID:", process.env.FIUU_MERCHANT_ID);
+console.log("FIUU_VERIFY_KEY:", process.env.FIUU_VERIFY_KEY);
+
 // Helper: MD5 hash
 const getMD5HashData = (data: string) => CryptoJS.MD5(data).toString();
 
