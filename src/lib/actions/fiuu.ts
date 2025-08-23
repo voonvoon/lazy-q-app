@@ -3,6 +3,7 @@
 import CryptoJS from "crypto-js";
 import Item from "@/models/Item";
 import AddOn from "@/models/AddOn";
+import dbConnect from "@/lib/mongodb";
 
 const merchantID = process.env.FIUU_MERCHANT_ID || "defaultMerchantID";
 const vkey = process.env.FIUU_VERIFY_KEY || "defaultVkey";
@@ -45,6 +46,9 @@ export const createPaymentLinkPost = async ({
   //     (sum, item) => sum + Number(item.price) * item.quantity,
   //     0
   //   );
+
+  await dbConnect();
+  
   let subtotal = 0;
   const validatedCartItems:any = [];
 
