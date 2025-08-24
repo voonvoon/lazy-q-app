@@ -6,8 +6,8 @@ import Merchant from "@/models/Merchant";
 import dbConnect from "@/lib/mongodb";
 import { verifyDiscountCode } from "@/lib/actions/discount";
 
-const merchantID = process.env.FIUU_MERCHANT_ID || "defaultMerchantID";
-const vkey = process.env.FIUU_VERIFY_KEY || "defaultVkey";
+// const merchantID = process.env.FIUU_MERCHANT_ID || "defaultMerchantID";
+// const vkey = process.env.FIUU_VERIFY_KEY || "defaultVkey";
 
 // Helper: MD5 hash
 const getMD5HashData = (data: string) => CryptoJS.MD5(data).toString();
@@ -41,11 +41,14 @@ export const createPaymentLinkPost = async ({
   discount: any;
   merchantData: any;
 }): Promise<{ url: string; data: any }> => {
-
   await dbConnect();
 
   const realMerchant: any = await Merchant.findById(merchantData?._id).lean();
   if (!realMerchant) throw new Error("Merchant not found");
+
+  const merchantID =
+    realMerchant.paymentConfig?.fiuuMerchantId || "defaultMerchantID";
+  const vkey = realMerchant.paymentConfig?.fiuuVerifyKey || "defaultVkey";
 
   let subtotal = 0;
   const validatedCartItems: any = [];

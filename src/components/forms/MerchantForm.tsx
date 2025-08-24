@@ -385,6 +385,26 @@ export default function MerchantForm({
               </div>
             </div>
           </div>
+          {/* FiUU Merchant ID */}
+        <div>
+          <label
+            htmlFor="fiuuMerchantId"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            FiUU Merchant ID
+          </label>
+          <input
+            type="text"
+            id="fiuuMerchantId"
+            name="fiuuMerchantId"
+            defaultValue={merchant?.paymentConfig?.fiuuMerchantId || ""}
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
+            placeholder="merchant_id_1234567890"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Your unique FiUU Merchant ID for payment integration.
+          </p>
+        </div>
 
           {/* Verify Key (Public) */}
           <div>
