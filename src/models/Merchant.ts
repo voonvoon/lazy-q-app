@@ -42,6 +42,7 @@ export interface IMerchant extends Document {
 
   // Payment & Integration Settings
   paymentConfig: {
+    fiuuMerchantId?: string;
     fiuuVerifyKey?: string; // Stored as-is (public key)
     fiuuPrivateKey?: string; // Stored encrypted
     isConfigured?: boolean; // Flag to check if payment is set up
@@ -176,6 +177,11 @@ const merchantSchema = new Schema<IMerchant>(
     ],
 
     paymentConfig: {
+      fiuuMerchantId: {
+        type: String,
+        trim: true,
+        default: "",
+      },
       fiuuVerifyKey: {
         type: String,
         trim: true,

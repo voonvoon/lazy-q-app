@@ -32,6 +32,7 @@ export async function createMerchant(formData: FormData) {
     const plan = (formData.get("plan") as string) || "free";
     const printServerApi = formData.get("printServerApi") as string;
     const ownerId = formData.get("owner") as string;
+    const fiuuMerchantId = formData.get("fiuuMerchantId") as string;
     const fiuuVerifyKey = formData.get("fiuuVerifyKey") as string;
     const fiuuPrivateKey = formData.get("fiuuPrivateKey") as string;
 
@@ -98,6 +99,7 @@ export async function createMerchant(formData: FormData) {
       plan,
       printServerApi,
       paymentConfig: {
+        fiuuMerchantId: fiuuMerchantId || "",
         fiuuVerifyKey: fiuuVerifyKey || "",
         fiuuPrivateKey: encryptedPrivateKey,
         //!! converts any value to a proper boolean without flipping it
@@ -206,11 +208,17 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
     const zipCode = formData.get("zipCode") as string;
     const country = formData.get("country") as string;
     const plan = (formData.get("plan") as string) || "free";
+    const fiuuMerchantId = formData.get("fiuuMerchantId") as string;
     const fiuuVerifyKey = formData.get("fiuuVerifyKey") as string;
     const fiuuPrivateKey = formData.get("fiuuPrivateKey") as string;
 
     // Encrypt private key if provided , in case other fields update causes it to be empty
     const paymentConfigUpdates: any = {};
+
+    if (fiuuMerchantId?.trim()) {
+      paymentConfigUpdates["paymentConfig.fiuuMerchantId"] =
+        fiuuMerchantId.trim();
+    }
 
     //cuz " ".trim() -> "" (falsy ❌)
     if (fiuuVerifyKey?.trim() && fiuuPrivateKey?.trim()) {
@@ -360,7 +368,6 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
 //   }
 // }
 
-
 export async function getMerchantsByUserId() {
   try {
     await checkPermission("read", "Merchant");
@@ -379,7 +386,9 @@ export async function getMerchantsByUserId() {
     const merchants = await Merchant.find({
       owner: session.user.id,
     })
-      .select("_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime createdAt")
+      .select(
+        "_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime createdAt"
+      )
       .sort({ createdAt: -1 })
       .lean();
 
@@ -441,10 +450,6 @@ export async function getMerchantsByUserId() {
     };
   }
 }
-
-
-
-
 
 // Delete merchant action
 export async function deleteMerchant(merchantId: string) {
