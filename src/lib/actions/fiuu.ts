@@ -55,7 +55,7 @@ export const createPaymentLinkPost = async ({
   const validatedCartItems: any = [];
 
 
-  
+
   for (const cartItem of cartItems) {
     // Fetch real item from DB
     const realItem: any = await Item.findById(cartItem.itemId).lean();
@@ -155,7 +155,7 @@ export const createPaymentLinkPost = async ({
     customerInfo,
     delivery,
     discount: verifiedDiscount,
-    merchantData,
+    merchantData:{ _id: realMerchant._id },
   });
 
   // Prepare Fiuu payment data
