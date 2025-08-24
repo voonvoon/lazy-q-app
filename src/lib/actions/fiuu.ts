@@ -46,6 +46,7 @@ export const createPaymentLinkPost = async ({
   const realMerchant: any = await Merchant.findById(merchantData?._id).lean();
   if (!realMerchant) throw new Error("Merchant not found");
 
+  // Use real merchant payment config
   const merchantID =
     realMerchant.paymentConfig?.fiuuMerchantId || "defaultMerchantID";
   const vkey = realMerchant.paymentConfig?.fiuuVerifyKey || "defaultVkey";
@@ -53,6 +54,8 @@ export const createPaymentLinkPost = async ({
   let subtotal = 0;
   const validatedCartItems: any = [];
 
+
+  
   for (const cartItem of cartItems) {
     // Fetch real item from DB
     const realItem: any = await Item.findById(cartItem.itemId).lean();
