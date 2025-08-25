@@ -48,16 +48,32 @@ export async function POST(req: NextRequest) {
       data.extraP.metadata = JSON.parse(data.extraP.metadata);
     }
 
+    data.treq = 1; // Additional parameter for IPN. Value always set to 1.
+
     // Fetch merchant and decrypt fiuuPrivateKey
     await dbConnect();
     const merchantId = data.extraP?.metadata?.merchantData?._id;
-    if (!merchantId) {
+    const hasMetadata = !!data.extraP?.metadata;
+
+    if (hasMetadata && !merchantId) {
       return NextResponse.json(
         { error: "Merchant ID missing in metadata" },
         { status: 400 }
       );
     }
-    const merchant:any = await Merchant.findById(merchantId).lean();
+
+    if (!hasMetadata) {
+      // Likely a Fiuu test webhook or non-app payment, just log and return 200
+      console.log(
+        "No metadata found in webhook payload. Skipping merchant validation."
+      );
+      return NextResponse.json(
+        { message: "Webhook received (no metadata, likely test)" },
+        { status: 200 }
+      );
+    }
+
+    const merchant: any = await Merchant.findById(merchantId).lean();
     if (!merchant || !merchant.paymentConfig?.fiuuPrivateKey) {
       return NextResponse.json(
         { error: "Merchant or private key not found" },
