@@ -3,7 +3,7 @@ import CryptoJS from "crypto-js";
 import querystring from "querystring";
 import dbConnect from "@/lib/mongodb";
 import Merchant from "@/models/Merchant";
-//import Order from "@/models/Order";
+import Order from "@/models/Order";
 import { decrypt } from "@/lib/crypto";
 
 // Helper: Create order in DB
@@ -53,23 +53,13 @@ export async function POST(req: NextRequest) {
     // Fetch merchant and decrypt fiuuPrivateKey
     await dbConnect();
     const merchantId = data.extraP?.metadata?.merchantData?._id;
-    const hasMetadata = !!data.extraP?.metadata;
+    const hasMetadata = !!data.extraP?.metadata; // Check if metadata exists
 
+    //convinient for fiuu webhook checking. else error due to no metadata ...
     if (hasMetadata && !merchantId) {
       return NextResponse.json(
         { error: "Merchant ID missing in metadata" },
         { status: 400 }
-      );
-    }
-
-    if (!hasMetadata) {
-      // Likely a Fiuu test webhook or non-app payment, just log and return 200
-      console.log(
-        "No metadata found in webhook payload. Skipping merchant validation."
-      );
-      return NextResponse.json(
-        { message: "Webhook received (no metadata, likely test)" },
-        { status: 200 }
       );
     }
 
@@ -109,8 +99,47 @@ export async function POST(req: NextRequest) {
 
     // Only create order if payment is successful
     if (status === "00") {
-      //await createOrder(data);
-      console.log("Order created for orderid----->", orderid);
+      // Prepare order data from webhook payload
+      const meta = data.extraP?.metadata || {};
+      const customer = meta.customerInfo || {};
+      const discount = meta.discount || {};
+
+      const orderData = {
+        items: meta.cartItems || [],
+        merchantId: meta.merchantData?._id,
+        customerInfo: {
+          name: customer.name || "",
+          email: customer.email || "",
+          phone: customer.phone || "",
+          address: customer.address || "",
+          state: customer.state || "",
+          postcode: customer.postcode || "",
+          city: customer.city || "",
+        },
+        delivery: meta.delivery ?? false,
+        deliveryFee: meta.deliveryFee ?? 0,
+        tax: {
+          rate: meta.taxRate ?? 0,
+          totalTax: meta.totalTax ?? 0,
+        },
+        discount,
+        totalAmount: parseFloat(data.amount),
+        tranID: data.tranID,
+        orderid: data.orderid,
+        paymentStatus: data.status,
+        paymentMeta: data,
+        status: "new",
+        notes: meta.notes || "",
+        receiptNo: meta.receiptNo || "",
+        isTestOrder: !!meta.isTestOrder,
+      };
+
+      try {
+        await Order.create(orderData);
+        console.log("Order created for orderid----->", data.orderid);
+      } catch (err) {
+        console.error("Error creating order:", err);
+      }
     } else {
       console.log("Payment failed or invalid for orderid:", orderid);
     }
