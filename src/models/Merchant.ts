@@ -255,7 +255,7 @@ async function generateMerchantId(): Promise<string> {
 // Indexes
 //merchantSchema.index({ slug: 1 });
 merchantSchema.index({ owner: 1 });
-merchantSchema.index({ merchantId: 1 });
+//merchantSchema.index({ merchantId: 1 }); 
 
 const Merchant =
   mongoose.models.Merchant ||
