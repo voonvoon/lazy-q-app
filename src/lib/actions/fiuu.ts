@@ -169,7 +169,7 @@ export const createPaymentLinkPost = async ({
     bill_mobile: customerInfo?.phone || "0123456789",
     bill_desc: "Order from Lazy-Q App",
     //returnurl: `https://lonely-food-app.vercel.app/api/return-url?id=${orderId}`,
-    returnurl: `https://lazy-q-app.vercel.app/`,
+    returnurl: "https://lazy-q-app.vercel.app/",
     b_addr1: customerInfo?.address1 || "",
     b_addr2: customerInfo?.address2 || "",
     b_zipcode: customerInfo?.zipcode || "",
