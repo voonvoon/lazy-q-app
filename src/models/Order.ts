@@ -27,15 +27,20 @@ export interface IOrder extends Document {
   status: string;
   notes?: string;
   receiptNo?: string;
-  isTestOrder?: boolean;
+  orderSequentialNoForDay?: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 const OrderSchema = new Schema<IOrder>(
   {
-    items: { type: Schema.Types.Mixed , required: true },// field can be any type (array, object, etc)
-    merchantId: { type: Schema.Types.ObjectId, ref: "Merchant", required: true },
+    items: { type: Schema.Types.Mixed, required: true }, // field can be any type (array, object, etc)
+    merchantId: {
+      type: Schema.Types.ObjectId,
+      ref: "Merchant",
+      required: true,
+    },
     customerInfo: {
       name: { type: String, required: true },
       email: { type: String },
@@ -60,9 +65,10 @@ const OrderSchema = new Schema<IOrder>(
     status: { type: String, default: "new" }, // new, preparing, ready, completed, cancelled
     notes: { type: String },
     receiptNo: { type: String },
-    isTestOrder: { type: Boolean, default: false },
+    orderSequentialNoForDay: { type: String }, 
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+export default mongoose.models.Order ||
+  mongoose.model<IOrder>("Order", OrderSchema);
