@@ -4,7 +4,9 @@ import querystring from "querystring";
 import dbConnect from "@/lib/mongodb";
 import Merchant from "@/models/Merchant";
 import Order from "@/models/Order";
+import Counter from "@/models/Counter";
 import { decrypt } from "@/lib/crypto";
+import mongoose from "mongoose";
 
 // Helper: Create order in DB
 // async function createOrder(data: any) {
@@ -28,6 +30,14 @@ import { decrypt } from "@/lib/crypto";
 //   }
 // }
 
+async function getNextReceiptNo(merchantId: mongoose.Types.ObjectId) {
+  const result = await Counter.findByIdAndUpdate(
+    merchantId,
+    { $inc: { seq: 1 } }, //+ by 1
+    { new: true, upsert: true } //upsert: true -->If the doc for this merchant not exist, create with seq starting at 1.
+  );
+  return `RN-${result.seq.toString().padStart(6, "0")}`; // e.g., "RN-000001"
+}
 export async function POST(req: NextRequest) {
   try {
     let data: any;
@@ -48,6 +58,7 @@ export async function POST(req: NextRequest) {
       data.extraP.metadata = JSON.parse(data.extraP.metadata);
     }
 
+    //“Fiuu! I got your webhook!”
     data.treq = 1; // Additional parameter for IPN. Value always set to 1.
 
     // Fetch merchant and decrypt fiuuPrivateKey
@@ -102,7 +113,21 @@ export async function POST(req: NextRequest) {
       // Prepare order data from webhook payload
       const meta = data.extraP?.metadata || {};
       const customer = meta.customerInfo || {};
-      const discount = meta.discount || {};
+      // Convert merchantId to ObjectId
+      const merchantObjectId = new mongoose.Types.ObjectId(
+        meta.merchantData?._id
+      );
+
+      const receiptNo = await getNextReceiptNo(merchantObjectId);
+
+      const discount = meta.discount
+        ? {
+            _id: meta.discount._id,
+            code: meta.discount.code,
+            type: meta.discount.type,
+            value: meta.discount.value,
+          }
+        : undefined;
 
       const orderData = {
         items: meta.cartItems || [],
@@ -127,11 +152,15 @@ export async function POST(req: NextRequest) {
         tranID: data.tranID,
         orderid: data.orderid,
         paymentStatus: data.status,
-        paymentMeta: data,
+        paymentMeta: {
+          currency: data.currency,
+          paydate: data.paydate,
+          channel: data.channel, // TnG etc..
+        },
         status: "new",
         notes: meta.notes || "",
-        receiptNo: meta.receiptNo || "",
-        isTestOrder: !!meta.isTestOrder,
+        receiptNo: receiptNo || "",
+        orderSequentialNoForDay: receiptNo || "",
       };
 
       try {
