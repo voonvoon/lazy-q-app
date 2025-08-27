@@ -172,16 +172,14 @@ export async function POST(req: NextRequest) {
         merchantObjectId
       );
 
-      //       const orderSummary = `
-      // *New Order Paid!*
-      // Order ID: ${data.orderid}
-      // Amount: ${data.amount} ${data.currency}
-      // Customer: ${meta.customerInfo?.name || "-"}
-      // Items: ${meta.cartItems?.length || 0}
-      // Time: ${data.paydate}
-      // `;
-
-      const orderSummary = "awesome voon! your telegram is working perfectly";
+      const orderSummary = `
+      *New Order Paid!*
+      Order ID: ${data.orderid}
+      Amount: ${data.amount} ${data.currency}
+      Customer: ${meta.customerInfo?.name || "-"}
+      Items: ${meta.cartItems?.length || 0}
+      Time: ${data.paydate}
+      `;
 
       try {
         await createOrderFromWebhook(
