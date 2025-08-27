@@ -10,26 +10,58 @@ import { decrypt } from "@/lib/crypto";
 import mongoose from "mongoose";
 
 // Helper: Create order in DB
-// async function createOrder(data: any) {
-//   try {
-//     const orderData = {
-//       customerName: data.extraP?.metadata?.customerInfo?.name,
-//       items: data.extraP?.metadata?.cartItems,
-//       email: data.extraP?.metadata?.customerInfo?.email,
-//       phone: data.extraP?.metadata?.customerInfo?.phone,
-//       totalAmount: parseFloat(data.amount),
-//       tranID: data.tranID,
-//       orderid: data.orderid,
-//       paymentStatus: data.status,
-//       paymentMeta: data,
-//     };
+async function createOrderFromWebhook(
+  data: any,
+  meta: any,
+  receiptNo: string,
+  orderSequentialNoForDay: string
+) {
+  const customer = meta.customerInfo || {};
+  const discount = meta.discount
+    ? {
+        _id: meta.discount._id,
+        code: meta.discount.code,
+        type: meta.discount.type,
+        value: meta.discount.value,
+      }
+    : undefined;
 
-//     await dbConnect();
-//     await Order.create(orderData);
-//   } catch (error) {
-//     console.error("Error creating order:", error);
-//   }
-// }
+  const orderData = {
+    items: meta.cartItems || [],
+    merchantId: meta.merchantData?._id,
+    customerInfo: {
+      name: customer.name || "",
+      email: customer.email || "",
+      phone: customer.phone || "",
+      address: customer.address || "",
+      state: customer.state || "",
+      postcode: customer.postcode || "",
+      city: customer.city || "",
+    },
+    delivery: meta.delivery ?? false,
+    deliveryFee: meta.deliveryFee ?? 0,
+    tax: {
+      rate: meta.taxRate ?? 0,
+      totalTax: meta.totalTax ?? 0,
+    },
+    discount,
+    totalAmount: parseFloat(data.amount),
+    tranID: data.tranID,
+    orderid: data.orderid,
+    paymentStatus: data.status,
+    paymentMeta: {
+      currency: data.currency,
+      paydate: data.paydate,
+      channel: data.channel,
+    },
+    status: "new",
+    notes: meta.notes || "",
+    receiptNo: receiptNo || "",
+    orderSequentialNoForDay: orderSequentialNoForDay || "",
+  };
+
+  await Order.create(orderData);
+}
 
 async function getNextReceiptNo(merchantId: mongoose.Types.ObjectId) {
   const result = await Counter.findByIdAndUpdate(
@@ -127,7 +159,7 @@ export async function POST(req: NextRequest) {
     if (status === "00") {
       // Prepare order data from webhook payload
       const meta = data.extraP?.metadata || {};
-      const customer = meta.customerInfo || {};
+      //const customer = meta.customerInfo || {};
       // Convert merchantId to ObjectId
       const merchantObjectId = new mongoose.Types.ObjectId(
         meta.merchantData?._id
@@ -138,51 +170,56 @@ export async function POST(req: NextRequest) {
         merchantObjectId
       );
 
-      const discount = meta.discount
-        ? {
-            _id: meta.discount._id,
-            code: meta.discount.code,
-            type: meta.discount.type,
-            value: meta.discount.value,
-          }
-        : undefined;
+      // const discount = meta.discount
+      //   ? {
+      //       _id: meta.discount._id,
+      //       code: meta.discount.code,
+      //       type: meta.discount.type,
+      //       value: meta.discount.value,
+      //     }
+      //   : undefined;
 
-      const orderData = {
-        items: meta.cartItems || [],
-        merchantId: meta.merchantData?._id,
-        customerInfo: {
-          name: customer.name || "",
-          email: customer.email || "",
-          phone: customer.phone || "",
-          address: customer.address || "",
-          state: customer.state || "",
-          postcode: customer.postcode || "",
-          city: customer.city || "",
-        },
-        delivery: meta.delivery ?? false,
-        deliveryFee: meta.deliveryFee ?? 0,
-        tax: {
-          rate: meta.taxRate ?? 0,
-          totalTax: meta.totalTax ?? 0,
-        },
-        discount,
-        totalAmount: parseFloat(data.amount),
-        tranID: data.tranID,
-        orderid: data.orderid,
-        paymentStatus: data.status,
-        paymentMeta: {
-          currency: data.currency,
-          paydate: data.paydate,
-          channel: data.channel, // TnG etc..
-        },
-        status: "new",
-        notes: meta.notes || "",
-        receiptNo: receiptNo || "",
-        orderSequentialNoForDay: orderSequentialNoForDay || "",
-      };
+      // const orderData = {
+      //   items: meta.cartItems || [],
+      //   merchantId: meta.merchantData?._id,
+      //   customerInfo: {
+      //     name: customer.name || "",
+      //     email: customer.email || "",
+      //     phone: customer.phone || "",
+      //     address: customer.address || "",
+      //     state: customer.state || "",
+      //     postcode: customer.postcode || "",
+      //     city: customer.city || "",
+      //   },
+      //   delivery: meta.delivery ?? false,
+      //   deliveryFee: meta.deliveryFee ?? 0,
+      //   tax: {
+      //     rate: meta.taxRate ?? 0,
+      //     totalTax: meta.totalTax ?? 0,
+      //   },
+      //   discount,
+      //   totalAmount: parseFloat(data.amount),
+      //   tranID: data.tranID,
+      //   orderid: data.orderid,
+      //   paymentStatus: data.status,
+      //   paymentMeta: {
+      //     currency: data.currency,
+      //     paydate: data.paydate,
+      //     channel: data.channel, // TnG etc..
+      //   },
+      //   status: "new",
+      //   notes: meta.notes || "",
+      //   receiptNo: receiptNo || "",
+      //   orderSequentialNoForDay: orderSequentialNoForDay || "",
+      // };
 
       try {
-        await Order.create(orderData);
+        await createOrderFromWebhook(
+          data,
+          meta,
+          receiptNo,
+          orderSequentialNoForDay
+        );
         console.log("Order created for orderid----->", data.orderid);
       } catch (err) {
         console.error("Error creating order:", err);
