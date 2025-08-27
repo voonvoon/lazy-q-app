@@ -8,8 +8,9 @@ import Counter from "@/models/Counter";
 import OrderCounter from "@/models/OrderCounter";
 import { decrypt } from "@/lib/crypto";
 import mongoose from "mongoose";
+import { sendTelegramMessage } from "@/lib/utils/telegram";
 
-// Helper: Create order in DB
+//Create order in DB
 async function createOrderFromWebhook(
   data: any,
   meta: any,
@@ -63,6 +64,7 @@ async function createOrderFromWebhook(
   await Order.create(orderData);
 }
 
+// Helper: Get next receipt number
 async function getNextReceiptNo(merchantId: mongoose.Types.ObjectId) {
   const result = await Counter.findByIdAndUpdate(
     merchantId,
@@ -72,6 +74,7 @@ async function getNextReceiptNo(merchantId: mongoose.Types.ObjectId) {
   return `RN-${result.seq.toString().padStart(6, "0")}`; // e.g., "RN-000001"
 }
 
+// Helper: Get order sequential number for the day
 async function getOrderSequentialNoForDay(merchantId: mongoose.Types.ObjectId) {
   const today = new Date();
   const yyyyMMdd = today.toISOString().slice(0, 10).replace(/-/g, ""); // e.g., "20250829"
@@ -85,6 +88,7 @@ async function getOrderSequentialNoForDay(merchantId: mongoose.Types.ObjectId) {
   return result.seq.toString().padStart(3, "0"); // e.g., "001"
 }
 
+// Webhook handler
 export async function POST(req: NextRequest) {
   try {
     let data: any;
@@ -159,8 +163,6 @@ export async function POST(req: NextRequest) {
     if (status === "00") {
       // Prepare order data from webhook payload
       const meta = data.extraP?.metadata || {};
-      //const customer = meta.customerInfo || {};
-      // Convert merchantId to ObjectId
       const merchantObjectId = new mongoose.Types.ObjectId(
         meta.merchantData?._id
       );
@@ -170,48 +172,14 @@ export async function POST(req: NextRequest) {
         merchantObjectId
       );
 
-      // const discount = meta.discount
-      //   ? {
-      //       _id: meta.discount._id,
-      //       code: meta.discount.code,
-      //       type: meta.discount.type,
-      //       value: meta.discount.value,
-      //     }
-      //   : undefined;
-
-      // const orderData = {
-      //   items: meta.cartItems || [],
-      //   merchantId: meta.merchantData?._id,
-      //   customerInfo: {
-      //     name: customer.name || "",
-      //     email: customer.email || "",
-      //     phone: customer.phone || "",
-      //     address: customer.address || "",
-      //     state: customer.state || "",
-      //     postcode: customer.postcode || "",
-      //     city: customer.city || "",
-      //   },
-      //   delivery: meta.delivery ?? false,
-      //   deliveryFee: meta.deliveryFee ?? 0,
-      //   tax: {
-      //     rate: meta.taxRate ?? 0,
-      //     totalTax: meta.totalTax ?? 0,
-      //   },
-      //   discount,
-      //   totalAmount: parseFloat(data.amount),
-      //   tranID: data.tranID,
-      //   orderid: data.orderid,
-      //   paymentStatus: data.status,
-      //   paymentMeta: {
-      //     currency: data.currency,
-      //     paydate: data.paydate,
-      //     channel: data.channel, // TnG etc..
-      //   },
-      //   status: "new",
-      //   notes: meta.notes || "",
-      //   receiptNo: receiptNo || "",
-      //   orderSequentialNoForDay: orderSequentialNoForDay || "",
-      // };
+      const orderSummary = `
+*New Order Paid!*
+Order ID: ${data.orderid}
+Amount: ${data.amount} ${data.currency}
+Customer: ${meta.customerInfo?.name || "-"}
+Items: ${meta.cartItems?.length || 0}
+Time: ${data.paydate}
+`;
 
       try {
         await createOrderFromWebhook(
@@ -220,6 +188,7 @@ export async function POST(req: NextRequest) {
           receiptNo,
           orderSequentialNoForDay
         );
+        await sendTelegramMessage("5775700118", orderSummary);
         console.log("Order created for orderid----->", data.orderid);
       } catch (err) {
         console.error("Error creating order:", err);
