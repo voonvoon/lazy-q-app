@@ -172,14 +172,16 @@ export async function POST(req: NextRequest) {
         merchantObjectId
       );
 
-      const orderSummary = `
-*New Order Paid!*
-Order ID: ${data.orderid}
-Amount: ${data.amount} ${data.currency}
-Customer: ${meta.customerInfo?.name || "-"}
-Items: ${meta.cartItems?.length || 0}
-Time: ${data.paydate}
-`;
+      //       const orderSummary = `
+      // *New Order Paid!*
+      // Order ID: ${data.orderid}
+      // Amount: ${data.amount} ${data.currency}
+      // Customer: ${meta.customerInfo?.name || "-"}
+      // Items: ${meta.cartItems?.length || 0}
+      // Time: ${data.paydate}
+      // `;
+
+      const orderSummary = "awesome voon! your telegram is working perfectly";
 
       try {
         await createOrderFromWebhook(
@@ -188,7 +190,14 @@ Time: ${data.paydate}
           receiptNo,
           orderSequentialNoForDay
         );
-        await sendTelegramMessage("5775700118", orderSummary);
+        try {
+          await sendTelegramMessage("5775700118", orderSummary);
+        } catch (telegramErr: any) {
+          console.error(
+            "Error sending Telegram message:",
+            telegramErr?.response?.data || telegramErr
+          );
+        }
         console.log("Order created for orderid----->", data.orderid);
       } catch (err) {
         console.error("Error creating order:", err);
