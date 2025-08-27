@@ -5,6 +5,7 @@ import dbConnect from "@/lib/mongodb";
 import Merchant from "@/models/Merchant";
 import Order from "@/models/Order";
 import Counter from "@/models/Counter";
+import OrderCounter from "@/models/OrderCounter";
 import { decrypt } from "@/lib/crypto";
 import mongoose from "mongoose";
 
@@ -38,6 +39,20 @@ async function getNextReceiptNo(merchantId: mongoose.Types.ObjectId) {
   );
   return `RN-${result.seq.toString().padStart(6, "0")}`; // e.g., "RN-000001"
 }
+
+async function getOrderSequentialNoForDay(merchantId: mongoose.Types.ObjectId) {
+  const today = new Date();
+  const yyyyMMdd = today.toISOString().slice(0, 10).replace(/-/g, ""); // e.g., "20250829"
+  const counterId = `${merchantId}_${yyyyMMdd}`; // e.g., "merchantId_20250829"
+
+  const result = await OrderCounter.findByIdAndUpdate(
+    counterId,
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return result.seq.toString().padStart(3, "0"); // e.g., "001"
+}
+
 export async function POST(req: NextRequest) {
   try {
     let data: any;
@@ -119,6 +134,9 @@ export async function POST(req: NextRequest) {
       );
 
       const receiptNo = await getNextReceiptNo(merchantObjectId);
+      const orderSequentialNoForDay = await getOrderSequentialNoForDay(
+        merchantObjectId
+      );
 
       const discount = meta.discount
         ? {
@@ -160,7 +178,7 @@ export async function POST(req: NextRequest) {
         status: "new",
         notes: meta.notes || "",
         receiptNo: receiptNo || "",
-        orderSequentialNoForDay: receiptNo || "",
+        orderSequentialNoForDay: orderSequentialNoForDay || "",
       };
 
       try {
