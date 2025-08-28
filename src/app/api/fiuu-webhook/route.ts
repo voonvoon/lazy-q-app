@@ -195,15 +195,22 @@ export async function POST(req: NextRequest) {
       let itemsText = "";
       items.forEach((item: any, idx: number) => {
         itemsText += `\n*${idx + 1}. ${item.title || "-"}*`;
+
+        if (item.addons && item.addons.length > 0) {
+          itemsText += `\n  _Add-ons:_ ${item.addons
+            .map(
+              (a: any) =>
+                `${a.name} (${a.price?.toFixed(2) || "0.00"} ${data.currency})`
+            )
+            .join(", ")}`;
+        }
+
         itemsText += `\n  Qty: ${item.qty || 1}`;
+
         itemsText += ` | Price: ${
           item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"
         } ${data.currency}`;
-        if (item.addons && item.addons.length > 0) {
-          itemsText += `\n  _Add-ons:_ ${item.addons
-            .map((a: any) => a.title)
-            .join(", ")}`;
-        }
+
         if (item.remarks) {
           itemsText += `\n  _Remarks:_ _${item.remarks}_`;
         }
@@ -214,7 +221,7 @@ export async function POST(req: NextRequest) {
       summary += `*Email:* ${customer.email || "-"}\n`;
       summary += `*Phone:* ${customer.phone || "-"}\n`;
       summary += `*Order ID:* ${data.orderid}\n`;
-      summary += `*Amount:* ${data.amount} ${data.currency}\n`;
+      summary += `*Amount:* ${data.currency} ${data.amount} \n`;
       summary += `*Items:* ${items.length}\n`;
       summary += itemsText + "\n";
       summary += `*Time:* ${data.paydate}\n`;
@@ -228,12 +235,12 @@ export async function POST(req: NextRequest) {
         }\n`;
       }
       if (hasDiscount) {
-        summary += `*Discount:* -${meta.discount.value.toFixed(2)} ${
-          data.currency
-        }\n`;
+        summary += `*Discount:* -${data.currency} ${meta.discount.value.toFixed(
+          2
+        )} \n`;
       }
 
-      summary += `\n*Total:* ${data.amount} ${data.currency}`;
+      summary += `\n*Total:*  ${data.currency} ${data.amount}`;
 
       const orderSummary = summary;
 
