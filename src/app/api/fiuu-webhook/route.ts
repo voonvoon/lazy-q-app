@@ -196,11 +196,13 @@ export async function POST(req: NextRequest) {
       items.forEach((item: any, idx: number) => {
         itemsText += `\n*${idx + 1}. ${item.title || "-"}*`;
 
-        if (item.addons && item.addons.length > 0) {
-          itemsText += `\n  _Add-ons:_ ${item.addons
+        if (item.addOns && item.addOns.length > 0) {
+          itemsText += `\n  _Add-ons:_ ${item.addOns
             .map(
               (a: any) =>
-                `${a.name} (${a.price?.toFixed(2) || "0.00"} ${data.currency})`
+                `_${a.name} (${data.currency} ${
+                  a.price?.toFixed(2) || "0.00"
+                } )_`
             )
             .join(", ")}`;
         }
@@ -227,7 +229,7 @@ export async function POST(req: NextRequest) {
       summary += `*Time:* ${data.paydate}\n`;
 
       if (hasTax) {
-        summary += `*Tax:* ${meta.totalTax.toFixed(2)} ${data.currency}\n`;
+        summary += `*Tax:*${data.currency} ${meta.totalTax.toFixed(2)} \n`;
       }
       if (hasDelivery) {
         summary += `*Delivery Fee:* ${meta.deliveryFee.toFixed(2)} ${
