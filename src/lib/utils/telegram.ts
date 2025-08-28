@@ -11,3 +11,11 @@ export async function sendTelegramMessage(chatId: string, text: string) {
     parse_mode: "Markdown",
   });
 }
+
+export async function sendLongTelegramMessage(chatId: string, message: string) {
+  const chunkSize = 4096;
+  for (let i = 0; i < message.length; i += chunkSize) {
+    const chunk = message.substring(i, i + chunkSize);
+    await sendTelegramMessage(chatId, chunk);
+  }
+}
