@@ -1,6 +1,5 @@
 import axios from "axios";
 
-
 export async function sendTelegramMessage(chatId: string, text: string) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   if (!botToken) throw new Error("TELEGRAM_BOT_TOKEN not set");
@@ -12,57 +11,65 @@ export async function sendTelegramMessage(chatId: string, text: string) {
   });
 }
 
-// export async function sendLongTelegramMessage(chatId: string, message: string) {
-//   const chunkSize = 4096;
-//   for (let i = 0; i < message.length; i += chunkSize) {
-//     const chunk = message.substring(i, i + chunkSize);
-//     await sendTelegramMessage(chatId, chunk);
-//   }
-// }
-
-// export async function sendLongTelegramMessage(chatId: string, message: string) {
-//   const chunkSize = 4096;
-//   let chunkCount = 0;
-//   for (let i = 0; i < message.length; i += chunkSize) {
-//     const chunk = message.substring(i, i + chunkSize);
-//     chunkCount++;
-//     console.log(`Sending chunk ${chunkCount}, length: ${chunk.length}`);
-//     try {
-//       await sendTelegramMessage(chatId, chunk);
-//     } catch (err) {
-//       console.error(`Failed to send chunk ${chunkCount}:`, err);
-//     }
-//   }
-//   console.log(`Total chunks sent: ${chunkCount}`);
-// }
-
+//Avoid Splitting in the middle of Markdown formatting causes Telegram to reject the message.
+//Solution: Split on line breaks, not at arbitrary character counts.
+//Example:
+// *New Order Paid!*
+// Order ID: 123
+// Amount: 50 USD
+// Customer: John
+// Items: 2
+// Time: 2025-08-29
+//lines will give me:
+//  [
+//   "*New Order Paid!*",
+//   "Order ID: 123",
+//   "Amount: 50 USD",
+//   "Customer: John",
+//   "Items: 2",
+//   "Time: 2025-08-29",
+//   ""
+// ]
 export async function sendLongTelegramMessage(chatId: string, message: string) {
-  const chunkSize = 4096;
-  const lines = message.split('\n');
-  let chunk = '';
-  let chunkCount = 0;
+  const chunkSize = 4096; // Set the maximum allowed message size for Telegram
+  const lines = message.split("\n"); // Split the message into lines using newline as separator
 
+  let chunk = ""; // Initialize an empty string to build each chunk
+  let chunkCount = 0; // Counter to keep track of how many chunks are sent
+
+  // Loop through each line in the message
   for (const line of lines) {
-    if ((chunk + line + '\n').length > chunkSize) {
-      chunkCount++;
+    // Check if adding this line would make the chunk too big
+    if ((chunk + line + "\n").length > chunkSize) {
+      chunkCount++; // Increase the chunk counter
       try {
-        await sendTelegramMessage(chatId, chunk);
-        console.log(`Sent chunk ${chunkCount}, length: ${chunk.length}`);
+        await sendTelegramMessage(chatId, chunk); // Send the current chunk to Telegram
+        console.log(`Sent chunk ${chunkCount}, length: ${chunk.length}`); // Log success
       } catch (err: any) {
-        console.error(`Failed to send chunk ${chunkCount}:`, err?.response?.data || err);
+        // Log any error that occurs while sending
+        console.error(
+          `Failed to send chunk ${chunkCount}:`,
+          err?.response?.data || err
+        );
       }
-      chunk = '';
+      chunk = ""; // Reset chunk to start a new one
     }
-    chunk += line + '\n';
+    chunk += line + "\n"; // Add the current line (with newline) to the chunk
   }
+  
+  // After the loop, check if there's any leftover chunk to send
   if (chunk.length > 0) {
-    chunkCount++;
+    chunkCount++; // Increase the chunk counter
     try {
-      await sendTelegramMessage(chatId, chunk);
-      console.log(`Sent chunk ${chunkCount}, length: ${chunk.length}`);
+      await sendTelegramMessage(chatId, chunk); // Send the last chunk
+      console.log(`Sent chunk ${chunkCount}, length: ${chunk.length}`); // Log success
     } catch (err: any) {
-      console.error(`Failed to send chunk ${chunkCount}:`, err?.response?.data || err);
+      // Log any error that occurs while sending
+      console.error(
+        `Failed to send chunk ${chunkCount}:`,
+        err?.response?.data || err
+      );
     }
   }
-  console.log(`Total chunks sent: ${chunkCount}`);
+  console.log(`Total chunks sent: ${chunkCount}`); // Log the total number of chunks sent
 }
