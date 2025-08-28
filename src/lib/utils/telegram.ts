@@ -12,10 +12,26 @@ export async function sendTelegramMessage(chatId: string, text: string) {
   });
 }
 
+// export async function sendLongTelegramMessage(chatId: string, message: string) {
+//   const chunkSize = 4096;
+//   for (let i = 0; i < message.length; i += chunkSize) {
+//     const chunk = message.substring(i, i + chunkSize);
+//     await sendTelegramMessage(chatId, chunk);
+//   }
+// }
+
 export async function sendLongTelegramMessage(chatId: string, message: string) {
   const chunkSize = 4096;
+  let chunkCount = 0;
   for (let i = 0; i < message.length; i += chunkSize) {
     const chunk = message.substring(i, i + chunkSize);
-    await sendTelegramMessage(chatId, chunk);
+    chunkCount++;
+    console.log(`Sending chunk ${chunkCount}, length: ${chunk.length}`);
+    try {
+      await sendTelegramMessage(chatId, chunk);
+    } catch (err) {
+      console.error(`Failed to send chunk ${chunkCount}:`, err);
+    }
   }
+  console.log(`Total chunks sent: ${chunkCount}`);
 }
