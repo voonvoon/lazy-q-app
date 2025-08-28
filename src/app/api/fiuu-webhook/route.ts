@@ -8,7 +8,10 @@ import Counter from "@/models/Counter";
 import OrderCounter from "@/models/OrderCounter";
 import { decrypt } from "@/lib/crypto";
 import mongoose from "mongoose";
-import { sendTelegramMessage } from "@/lib/utils/telegram";
+import {
+  sendTelegramMessage,
+  sendLongTelegramMessage,
+} from "@/lib/utils/telegram";
 
 //Create order in DB
 async function createOrderFromWebhook(
@@ -179,7 +182,7 @@ export async function POST(req: NextRequest) {
       Customer: ${meta.customerInfo?.name || "-"}
       Items: ${meta.cartItems?.length || 0}
       Time: ${data.paydate}
-      `;
+      `.repeat(100);
 
       try {
         await createOrderFromWebhook(
@@ -189,7 +192,7 @@ export async function POST(req: NextRequest) {
           orderSequentialNoForDay
         );
         try {
-          await sendTelegramMessage("5775700118", orderSummary);
+          await sendLongTelegramMessage("5775700118", orderSummary);
         } catch (telegramErr: any) {
           console.error(
             "Error sending Telegram message:",
