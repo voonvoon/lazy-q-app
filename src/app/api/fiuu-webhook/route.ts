@@ -175,14 +175,69 @@ export async function POST(req: NextRequest) {
         merchantObjectId
       );
 
-      const orderSummary = `
-      *New Order Paid!*
-      Order ID: ${data.orderid}
-      Amount: ${data.amount} ${data.currency}
-      Customer: ${meta.customerInfo?.name || "-"}
-      Items: ${meta.cartItems?.length || 0}
-      Time: ${data.paydate}
-      `.repeat(100);
+      // const orderSummary = `
+      // *New Order Paid!*
+      // Order ID: ${data.orderid}
+      // Amount: ${data.amount} ${data.currency}
+      // Customer: ${meta.customerInfo?.name || "-"}
+      // Items: ${meta.cartItems?.length || 0}
+      // Time: ${data.paydate}
+      // `.repeat(100);
+
+      // test real data send to telegram
+      const orderNumber = orderSequentialNoForDay; // already padded, e.g. "001"
+      const customer = meta.customerInfo || {};
+      const items = meta.cartItems || [];
+      const hasTax = meta.totalTax && meta.totalTax > 0;
+      const hasDelivery = meta.deliveryFee && meta.deliveryFee > 0;
+      const hasDiscount = meta.discount && meta.discount.value > 0;
+
+      let itemsText = "";
+      items.forEach((item: any, idx: number) => {
+        itemsText += `\n*${idx + 1}. ${item.title || "-"}*`;
+        itemsText += `\n  Qty: ${item.qty || 1}`;
+        itemsText += ` | Price: ${
+          item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"
+        } ${data.currency}`;
+        if (item.addons && item.addons.length > 0) {
+          itemsText += `\n  _Add-ons:_ ${item.addons
+            .map((a: any) => a.title)
+            .join(", ")}`;
+        }
+        if (item.remarks) {
+          itemsText += `\n  _Remarks:_ _${item.remarks}_`;
+        }
+      });
+
+      let summary = `*Order #${orderNumber}*\n`; // Big font (bold)
+      summary += `*Customer:* ${customer.name || "-"}\n`;
+      summary += `*Email:* ${customer.email || "-"}\n`;
+      summary += `*Phone:* ${customer.phone || "-"}\n`;
+      summary += `*Order ID:* ${data.orderid}\n`;
+      summary += `*Amount:* ${data.amount} ${data.currency}\n`;
+      summary += `*Items:* ${items.length}\n`;
+      summary += itemsText + "\n";
+      summary += `*Time:* ${data.paydate}\n`;
+
+      if (hasTax) {
+        summary += `*Tax:* ${meta.totalTax.toFixed(2)} ${data.currency}\n`;
+      }
+      if (hasDelivery) {
+        summary += `*Delivery Fee:* ${meta.deliveryFee.toFixed(2)} ${
+          data.currency
+        }\n`;
+      }
+      if (hasDiscount) {
+        summary += `*Discount:* -${meta.discount.value.toFixed(2)} ${
+          data.currency
+        }\n`;
+      }
+
+      summary += `\n*Total:* ${data.amount} ${data.currency}`;
+
+      const orderSummary = summary;
+
+      //end test real data to telegram
 
       try {
         await createOrderFromWebhook(
