@@ -214,15 +214,16 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      let summary = `<b>Order #${orderNumber}</b>\n`;
-      summary += `<b>Customer:</b> ${customer.name || "-"}\n`;
-      summary += `<b>Email:</b> ${customer.email || "-"}\n`;
-      summary += `<b>Phone:</b> ${customer.phone || "-"}\n`;
-      summary += `<b>Order ID:</b> ${data.orderid}\n`;
-      summary += `<b>Amount:</b> ${data.currency} ${data.amount}\n`;
-      summary += `<b>Items:</b> ${items.length}\n`;
+      let summary = `<b>🎉<u>New Order Paid!</u>🥳</b>\n`;
+      summary += `<b>Order #:</b> <code>${orderNumber}</code>\n`;
+      summary += `<b>Time:</b> <code>${data.paydate}</code>\n`;
+      summary += `<b>Customer:</b> <i>${customer.name || "-"}</i>\n`;
+      summary += `<b>Email:</b> <i>${customer.email || "-"}</i>\n`;
+      summary += `<b>Phone:</b> <i>${customer.phone || "-"}</i>\n`;
+      summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
+      summary += `<b>Amount:</b> <b>${data.currency} ${data.amount}</b>\n`;
+      summary += `<b>Items:</b> <b>${items.length}</b>\n`;
       summary += itemsText + "\n";
-      summary += `<b>Time:</b> ${data.paydate}\n`;
 
       if (hasTax) {
         summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
