@@ -8,10 +8,7 @@ import Counter from "@/models/Counter";
 import OrderCounter from "@/models/OrderCounter";
 import { decrypt } from "@/lib/crypto";
 import mongoose from "mongoose";
-import {
-  sendTelegramMessage,
-  sendLongTelegramMessage,
-} from "@/lib/utils/telegram";
+import { sendLongTelegramMessage } from "@/lib/utils/telegram";
 
 //Create order in DB
 async function createOrderFromWebhook(
@@ -242,7 +239,7 @@ export async function POST(req: NextRequest) {
         )} \n`;
       }
 
-      summary += `\n*Total:*  ${data.currency} ${data.amount}`;
+      summary += `\n*<b>Total:</b>*  <b>${data.currency} ${data.amount}</b>`;
 
       const orderSummary = summary;
 
@@ -256,7 +253,13 @@ export async function POST(req: NextRequest) {
           orderSequentialNoForDay
         );
         try {
-          await sendLongTelegramMessage("5775700118", orderSummary);
+          if (merchant.telegramId) {
+            await sendLongTelegramMessage(merchant.telegramId, orderSummary);
+          } else {
+            console.warn(
+              "Merchant telegramId not set, skipping Telegram notification."
+            );
+          }
         } catch (telegramErr: any) {
           console.error(
             "Error sending Telegram message:",

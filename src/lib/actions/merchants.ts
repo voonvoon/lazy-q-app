@@ -9,6 +9,7 @@ import { revalidatePath } from "next/cache";
 import { checkPermission } from "@/lib/casl/permissions";
 import { encrypt } from "@/lib/crypto";
 import { redirect } from "next/navigation";
+import { fi } from "zod/v4/locales";
 
 // Create merchant action
 export async function createMerchant(formData: FormData) {
@@ -35,7 +36,7 @@ export async function createMerchant(formData: FormData) {
     const fiuuMerchantId = formData.get("fiuuMerchantId") as string;
     const fiuuVerifyKey = formData.get("fiuuVerifyKey") as string;
     const fiuuPrivateKey = formData.get("fiuuPrivateKey") as string;
-
+    const telegramId = formData.get("telegramId") as string;
     // Encrypt private key if provided
     const encryptedPrivateKey = fiuuPrivateKey ? encrypt(fiuuPrivateKey) : "";
 
@@ -88,6 +89,7 @@ export async function createMerchant(formData: FormData) {
       description,
       phone,
       email,
+      telegramId: telegramId || "",
       owner: ownerId,
       address: {
         street,
@@ -151,7 +153,7 @@ export async function getUserMerchants() {
 
     const merchants = await Merchant.find(query)
       .select(
-        "name slug merchantId address isActive plan printServerApi createdAt updatedAt owner"
+        "name slug merchantId address isActive plan printServerApi createdAt updatedAt owner fiuuMerchantId"
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -165,6 +167,7 @@ export async function getUserMerchants() {
       address: merchant.address || {},
       isActive: merchant.isActive ?? true,
       plan: merchant.plan || "free",
+      fiuuMerchantId: merchant.fiuuMerchantId || "",
       printServerApi: merchant.printServerApi || "",
       owner: (merchant.owner as any)?.toString() ?? "",
       createdAt: merchant.createdAt?.toISOString?.() ?? "",
@@ -211,7 +214,7 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
     const fiuuMerchantId = formData.get("fiuuMerchantId") as string;
     const fiuuVerifyKey = formData.get("fiuuVerifyKey") as string;
     const fiuuPrivateKey = formData.get("fiuuPrivateKey") as string;
-
+    const telegramId = formData.get("telegramId") as string;
     // Encrypt private key if provided , in case other fields update causes it to be empty
     const paymentConfigUpdates: any = {};
 
@@ -265,6 +268,7 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
         email,
         printServerApi,
         plan,
+        telegramId: telegramId || "",
         address: {
           street: street.trim(),
           city: city.trim(),

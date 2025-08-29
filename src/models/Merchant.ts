@@ -9,7 +9,7 @@ export interface IMerchant extends Document {
   description?: string;
   phone?: string;
   email?: string;
-
+  telegramId?: string;
   // Owner & Staff
   owner: mongoose.Types.ObjectId; // References User
   staff?: mongoose.Types.ObjectId[]; // Admin users who can manage this merchant
@@ -92,6 +92,12 @@ const merchantSchema = new Schema<IMerchant>(
       type: String,
       lowercase: true,
       trim: true,
+    },
+
+    telegramId: {
+      type: String,
+      trim: true,
+      default: "",
     },
 
     owner: {
@@ -255,7 +261,7 @@ async function generateMerchantId(): Promise<string> {
 // Indexes
 //merchantSchema.index({ slug: 1 });
 merchantSchema.index({ owner: 1 });
-//merchantSchema.index({ merchantId: 1 }); 
+//merchantSchema.index({ merchantId: 1 });
 
 const Merchant =
   mongoose.models.Merchant ||

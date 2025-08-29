@@ -26,9 +26,11 @@ export default async function EditMerchantPage({ params }: EditMerchantPageProps
     notFound(); // Shows 404 page
   }
 
+  const { catOrder, ...rest } = merchant; //no need catOrder else caused serialization issues
+
   // Convert MongoDB document to plain object for client component
   const merchantData = {
-    ...merchant,
+    ...rest,
     _id: merchant._id?.toString?.() ?? "",
     owner: merchant.owner?.toString?.() ?? "",
     createdAt: merchant.createdAt?.toISOString?.() ?? "",

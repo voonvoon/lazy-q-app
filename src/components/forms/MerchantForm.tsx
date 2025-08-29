@@ -114,16 +114,16 @@ export default function MerchantForm({
     }
   };
 
-    // ✅ Prepare business hours data for editing
+  // ✅ Prepare business hours data for editing
   const getBusinessHoursForEdit = () => {
     if (!isEditing || !merchant?.businessHours) return undefined;
-    
+
     // Convert merchant business hours to component format
-    return merchant.businessHours.map(hour => ({
+    return merchant.businessHours.map((hour) => ({
       day: hour.day,
-      open: hour.open || '09:00',
-      close: hour.close || '22:00', 
-      isClosed: hour.isClosed || false
+      open: hour.open || "09:00",
+      close: hour.close || "22:00",
+      isClosed: hour.isClosed || false,
     }));
   };
 
@@ -263,8 +263,28 @@ export default function MerchantForm({
           </div>
         </div>
 
+        <div>
+          <label
+            htmlFor="telegramId"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Telegram ID
+          </label>
+          <input
+            type="text"
+            id="telegramId"
+            name="telegramId"
+            defaultValue={merchant?.telegramId || ""}
+            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
+            placeholder="123456789"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Enter the merchant's Telegram chat ID for order notifications.
+          </p>
+        </div>
+
         {/* Business Hours Section */}
-         <BusinessHoursForm 
+        <BusinessHoursForm
           defaultHours={getBusinessHoursForEdit()}
           isEditing={isEditing}
         />
@@ -386,25 +406,25 @@ export default function MerchantForm({
             </div>
           </div>
           {/* FiUU Merchant ID */}
-        <div>
-          <label
-            htmlFor="fiuuMerchantId"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            FiUU Merchant ID
-          </label>
-          <input
-            type="text"
-            id="fiuuMerchantId"
-            name="fiuuMerchantId"
-            defaultValue={merchant?.paymentConfig?.fiuuMerchantId || ""}
-            className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
-            placeholder="merchant_id_1234567890"
-          />
-          <p className="mt-1 text-xs text-gray-500">
-            Your unique FiUU Merchant ID for payment integration.
-          </p>
-        </div>
+          <div>
+            <label
+              htmlFor="fiuuMerchantId"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              FiUU Merchant ID
+            </label>
+            <input
+              type="text"
+              id="fiuuMerchantId"
+              name="fiuuMerchantId"
+              defaultValue={merchant?.paymentConfig?.fiuuMerchantId || ""}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black font-mono text-sm"
+              placeholder="merchant_id_1234567890"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Your unique FiUU Merchant ID for payment integration.
+            </p>
+          </div>
 
           {/* Verify Key (Public) */}
           <div>
@@ -506,7 +526,7 @@ export default function MerchantForm({
             </div>
           </div>
         </div>
- 
+
         {/* Simple Debug - DEV ONLY */}
         {isEditing && process.env.NODE_ENV === "development" && (
           <div className="mt-2 p-4 bg-gray-100 rounded text-xs">
