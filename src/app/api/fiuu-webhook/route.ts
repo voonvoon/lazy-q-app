@@ -191,56 +191,54 @@ export async function POST(req: NextRequest) {
 
       let itemsText = "";
       items.forEach((item: any, idx: number) => {
-        itemsText += `<b>${idx + 1}. ${item.title || "-"}</b><br/>`;
+        itemsText += `<b>${idx + 1}. ${item.title || "-"}</b>\n`;
 
         if (item.addOns && item.addOns.length > 0) {
-          itemsText += `&nbsp;&nbsp;<i>Add-ons:</i> ${item.addOns
+          itemsText += `  <i>Add-ons:</i> ${item.addOns
             .map(
               (a: any) =>
                 `<i>${a.name} (${data.currency} ${
                   a.price?.toFixed(2) || "0.00"
                 })</i>`
             )
-            .join(", ")}<br/>`;
+            .join(", ")}\n`;
         }
 
-        itemsText += `&nbsp;&nbsp;Qty: <b>${item.qty || 1}</b>`;
+        itemsText += `  Qty: <b>${item.qty || 1}</b>`;
         itemsText += ` | Price: <b>${
           item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"
-        } ${data.currency}</b><br/>`;
+        } ${data.currency}</b>\n`;
 
         if (item.remarks) {
-          itemsText += `&nbsp;&nbsp;<i>Remarks: ${item.remarks}</i><br/>`;
+          itemsText += `  <i>Remarks: ${item.remarks}</i>\n`;
         }
       });
 
-      let summary = `<b>Order #${orderNumber}</b><br/>`;
-      summary += `<b>Customer:</b> ${customer.name || "-"}<br/>`;
-      summary += `<b>Email:</b> ${customer.email || "-"}<br/>`;
-      summary += `<b>Phone:</b> ${customer.phone || "-"}<br/>`;
-      summary += `<b>Order ID:</b> ${data.orderid}<br/>`;
-      summary += `<b>Amount:</b> ${data.currency} ${data.amount}<br/>`;
-      summary += `<b>Items:</b> ${items.length}<br/>`;
-      summary += itemsText + "<br/>";
-      summary += `<b>Time:</b> ${data.paydate}<br/>`;
+      let summary = `<b>Order #${orderNumber}</b>\n`;
+      summary += `<b>Customer:</b> ${customer.name || "-"}\n`;
+      summary += `<b>Email:</b> ${customer.email || "-"}\n`;
+      summary += `<b>Phone:</b> ${customer.phone || "-"}\n`;
+      summary += `<b>Order ID:</b> ${data.orderid}\n`;
+      summary += `<b>Amount:</b> ${data.currency} ${data.amount}\n`;
+      summary += `<b>Items:</b> ${items.length}\n`;
+      summary += itemsText + "\n";
+      summary += `<b>Time:</b> ${data.paydate}\n`;
 
       if (hasTax) {
-        summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(
-          2
-        )}<br/>`;
+        summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
       }
       if (hasDelivery) {
         summary += `<b>Delivery Fee:</b> ${meta.deliveryFee.toFixed(2)} ${
           data.currency
-        }<br/>`;
+        }\n`;
       }
       if (hasDiscount) {
         summary += `<b>Discount:</b> -${
           data.currency
-        } ${meta.discount.value.toFixed(2)}<br/>`;
+        } ${meta.discount.value.toFixed(2)}\n`;
       }
 
-      summary += `<br/><b>Total:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
+      summary += `\n<b>Total:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
 
       const orderSummary = summary;
 
