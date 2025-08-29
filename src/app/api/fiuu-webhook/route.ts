@@ -191,55 +191,56 @@ export async function POST(req: NextRequest) {
 
       let itemsText = "";
       items.forEach((item: any, idx: number) => {
-        itemsText += `\n*${idx + 1}. ${item.title || "-"}*`;
+        itemsText += `<b>${idx + 1}. ${item.title || "-"}</b><br/>`;
 
         if (item.addOns && item.addOns.length > 0) {
-          itemsText += `\n  _Add-ons:_ ${item.addOns
+          itemsText += `&nbsp;&nbsp;<i>Add-ons:</i> ${item.addOns
             .map(
               (a: any) =>
-                `_${a.name} (${data.currency} ${
+                `<i>${a.name} (${data.currency} ${
                   a.price?.toFixed(2) || "0.00"
-                } )_`
+                })</i>`
             )
-            .join(", ")}`;
+            .join(", ")}<br/>`;
         }
 
-        itemsText += `\n  Qty: ${item.qty || 1}`;
-
-        itemsText += ` | Price: ${
+        itemsText += `&nbsp;&nbsp;Qty: <b>${item.qty || 1}</b>`;
+        itemsText += ` | Price: <b>${
           item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"
-        } ${data.currency}`;
+        } ${data.currency}</b><br/>`;
 
         if (item.remarks) {
-          itemsText += `\n  _Remarks:_ _${item.remarks}_`;
+          itemsText += `&nbsp;&nbsp;<i>Remarks: ${item.remarks}</i><br/>`;
         }
       });
 
-      let summary = `*Order #${orderNumber}*\n`; // Big font (bold)
-      summary += `*Customer:* ${customer.name || "-"}\n`;
-      summary += `*Email:* ${customer.email || "-"}\n`;
-      summary += `*Phone:* ${customer.phone || "-"}\n`;
-      summary += `*Order ID:* ${data.orderid}\n`;
-      summary += `*Amount:* ${data.currency} ${data.amount} \n`;
-      summary += `*Items:* ${items.length}\n`;
-      summary += itemsText + "\n";
-      summary += `*Time:* ${data.paydate}\n`;
+      let summary = `<b>Order #${orderNumber}</b><br/>`;
+      summary += `<b>Customer:</b> ${customer.name || "-"}<br/>`;
+      summary += `<b>Email:</b> ${customer.email || "-"}<br/>`;
+      summary += `<b>Phone:</b> ${customer.phone || "-"}<br/>`;
+      summary += `<b>Order ID:</b> ${data.orderid}<br/>`;
+      summary += `<b>Amount:</b> ${data.currency} ${data.amount}<br/>`;
+      summary += `<b>Items:</b> ${items.length}<br/>`;
+      summary += itemsText + "<br/>";
+      summary += `<b>Time:</b> ${data.paydate}<br/>`;
 
       if (hasTax) {
-        summary += `*Tax:*${data.currency} ${meta.totalTax.toFixed(2)} \n`;
+        summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(
+          2
+        )}<br/>`;
       }
       if (hasDelivery) {
-        summary += `*Delivery Fee:* ${meta.deliveryFee.toFixed(2)} ${
+        summary += `<b>Delivery Fee:</b> ${meta.deliveryFee.toFixed(2)} ${
           data.currency
-        }\n`;
+        }<br/>`;
       }
       if (hasDiscount) {
-        summary += `*Discount:* -${data.currency} ${meta.discount.value.toFixed(
-          2
-        )} \n`;
+        summary += `<b>Discount:</b> -${
+          data.currency
+        } ${meta.discount.value.toFixed(2)}<br/>`;
       }
 
-      summary += `\n*<b>Total:</b>*  <b>${data.currency} ${data.amount}</b>`;
+      summary += `<br/><b>Total:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
 
       const orderSummary = summary;
 
