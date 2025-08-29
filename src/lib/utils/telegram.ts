@@ -7,7 +7,7 @@ export async function sendTelegramMessage(chatId: string, text: string) {
   await axios.post(url, {
     chat_id: chatId,
     text,
-    parse_mode: "Markdown",
+    parse_mode: "HTML",
   });
 }
 
