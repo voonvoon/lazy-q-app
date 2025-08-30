@@ -56,7 +56,7 @@ export async function sendLongTelegramMessage(chatId: string, message: string) {
     }
     chunk += line + "\n"; // Add the current line (with newline) to the chunk
   }
-  
+
   // After the loop, check if there's any leftover chunk to send
   if (chunk.length > 0) {
     chunkCount++; // Increase the chunk counter
@@ -74,8 +74,13 @@ export async function sendLongTelegramMessage(chatId: string, message: string) {
   console.log(`Total chunks sent: ${chunkCount}`); // Log the total number of chunks sent
 }
 
-
-export function buildOrderMessage(data: any, meta: any, orderNumber: string): string {
+// Build the order message for Telegram
+// note that only can use \n for next line not </br>
+export function buildOrderMessage(
+  data: any,
+  meta: any,
+  orderNumber: string
+): string {
   // Build and return the formatted Telegram message string
   // Use the improved formatting from earlier suggestions
   const customer = meta.customerInfo || {};
@@ -92,13 +97,17 @@ export function buildOrderMessage(data: any, meta: any, orderNumber: string): st
       itemsText += `  <i>Add-ons:</i> ${item.addOns
         .map(
           (a: any) =>
-            `<i>${a.name} (${data.currency} ${a.price?.toFixed(2) || "0.00"})</i>`
+            `<i>${a.name} (${data.currency} ${
+              a.price?.toFixed(2) || "0.00"
+            })</i>`
         )
         .join(", ")}\n`;
     }
 
     itemsText += `  Qty: <b>${item.qty || 1}</b>`;
-    itemsText += ` | Price: <b>${item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"} ${data.currency}</b>\n`;
+    itemsText += ` | Price: <b>${
+      item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"
+    } ${data.currency}</b>\n`;
 
     if (item.remarks) {
       itemsText += `  <i>Remarks: ${item.remarks}</i>\n`;
@@ -120,10 +129,14 @@ export function buildOrderMessage(data: any, meta: any, orderNumber: string): st
     summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
   }
   if (hasDelivery) {
-    summary += `<b>Delivery Fee:</b> ${meta.deliveryFee.toFixed(2)} ${data.currency}\n`;
+    summary += `<b>Delivery Fee:</b> ${meta.deliveryFee.toFixed(2)} ${
+      data.currency
+    }\n`;
   }
   if (hasDiscount) {
-    summary += `<b>Discount:</b> -${data.currency} ${meta.discount.value.toFixed(2)}\n`;
+    summary += `<b>Discount:</b> -${
+      data.currency
+    } ${meta.discount.value.toFixed(2)}\n`;
   }
 
   summary += `\n<b>Total:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
