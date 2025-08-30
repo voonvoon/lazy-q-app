@@ -73,3 +73,59 @@ export async function sendLongTelegramMessage(chatId: string, message: string) {
   }
   console.log(`Total chunks sent: ${chunkCount}`); // Log the total number of chunks sent
 }
+
+
+export function buildOrderMessage(data: any, meta: any, orderNumber: string): string {
+  // Build and return the formatted Telegram message string
+  // Use the improved formatting from earlier suggestions
+  const customer = meta.customerInfo || {};
+  const items = meta.cartItems || [];
+  const hasTax = meta.totalTax && meta.totalTax > 0;
+  const hasDelivery = meta.deliveryFee && meta.deliveryFee > 0;
+  const hasDiscount = meta.discount && meta.discount.value > 0;
+
+  let itemsText = "";
+  items.forEach((item: any, idx: number) => {
+    itemsText += `<b>${idx + 1}. ${item.title || "-"}</b>\n`;
+
+    if (item.addOns && item.addOns.length > 0) {
+      itemsText += `  <i>Add-ons:</i> ${item.addOns
+        .map(
+          (a: any) =>
+            `<i>${a.name} (${data.currency} ${a.price?.toFixed(2) || "0.00"})</i>`
+        )
+        .join(", ")}\n`;
+    }
+
+    itemsText += `  Qty: <b>${item.qty || 1}</b>`;
+    itemsText += ` | Price: <b>${item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"} ${data.currency}</b>\n`;
+
+    if (item.remarks) {
+      itemsText += `  <i>Remarks: ${item.remarks}</i>\n`;
+    }
+  });
+
+  let summary = `<b>🎉 <u>New Order Paid!</u> 🥳</b>\n`;
+  summary += `<b>Order #:</b> <code>${orderNumber}</code>\n`;
+  summary += `<b>Customer:</b> <i>${customer.name || "-"}</i>\n`;
+  summary += `<b>Email:</b> <i>${customer.email || "-"}</i>\n`;
+  summary += `<b>Phone:</b> <i>${customer.phone || "-"}</i>\n`;
+  summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
+  summary += `<b>Amount:</b> <b>${data.currency} ${data.amount}</b>\n`;
+  summary += `<b>Items:</b> <b>${items.length}</b>\n`;
+  summary += itemsText + "\n";
+  summary += `<b>Time:</b> <code>${data.paydate}</code>\n`;
+
+  if (hasTax) {
+    summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
+  }
+  if (hasDelivery) {
+    summary += `<b>Delivery Fee:</b> ${meta.deliveryFee.toFixed(2)} ${data.currency}\n`;
+  }
+  if (hasDiscount) {
+    summary += `<b>Discount:</b> -${data.currency} ${meta.discount.value.toFixed(2)}\n`;
+  }
+
+  summary += `\n<b>Total:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
+  return summary;
+}
