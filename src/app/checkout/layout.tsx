@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useCart } from "@/contexts/CartContext";
 import CustomerInfoForm from "@/components/CustomerInfoForm";
 import { MdOutlineDeliveryDining } from "react-icons/md";
@@ -26,7 +26,8 @@ interface CheckoutLayoutProps {
 }
 
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
-  const { merchantData, setDelivery, delivery } = useCart();
+  const { merchantData, setDelivery, delivery, selectedTime, setSelectedTime } =
+    useCart();
 
   // Handler for radio change
   const handleDeliveryOptionChange = (
@@ -46,8 +47,29 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   const minTime = getLaterTime(nowPlus30, firstOrderTime);
   const maxTime = merchantData?.lastOrderTime || "20:00";
 
-  const [selectedTime, setSelectedTime] = useState(minTime);
+  //Set selectedTime to minTime when minTime changes
+  //ensure selected time always within allowed range ,start from minTime
+  useEffect(() => {
+    if (merchantData?.allowPreorder) {
+      setSelectedTime("ASAP");
+    }
+    // else do nothing
+  }, [minTime, setSelectedTime, merchantData?.allowPreorder]);
+
+  // const [selectedTime, setSelectedTime] = useState(minTime);
   const [timeError, setTimeError] = useState("");
+  const [showTimePicker, setShowTimePicker] = useState(false);
+
+  // Handler for checkbox
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowTimePicker(e.target.checked);
+    if (!e.target.checked) {
+      setSelectedTime("ASAP");
+      setTimeError("");
+    } else {
+      setSelectedTime(minTime);
+    }
+  };
 
   // Handler to validate time selection
   const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,23 +98,48 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
         <div className="mb-6">
           {merchantData?.allowPreorder ? (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Time
+              <label className="flex items-center mb-2 cursor-pointer select-none">
+                <span className="mr-3 text-sm font-medium text-gray-700">
+                  I want to select a pickup time
+                </span>
+                <input
+                  type="checkbox"
+                  checked={showTimePicker}
+                  onChange={handleCheckboxChange}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-500 transition-colors duration-200 relative">
+                  <div
+                    className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                      showTimePicker ? "translate-x-5" : ""
+                    }`}
+                  ></div>
+                </div>
               </label>
-              <input
-                type="time"
-                min={minTime}
-                max={maxTime}
-                value={selectedTime}
-                onChange={handleTimeChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-              />
-              {!timeError ? (
-                <p className="mt-1 text-xs text-gray-500">
-                  You can set pickup time between {minTime} and {maxTime}
-                </p>
+              {showTimePicker ? (
+                <>
+                  <input
+                    type="time"
+                    min={minTime}
+                    max={maxTime}
+                    value={selectedTime || minTime}
+                    onChange={handleTimeChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                  />
+                  {!timeError ? (
+                    <p className="mt-1 text-xs text-gray-500">
+                      You can set pickup time between {minTime} and {maxTime}
+                    </p>
+                  ) : (
+                    <p className="mt-1 text-xs text-red-600">{timeError}</p>
+                  )}
+                </>
               ) : (
-                <p className="mt-1 text-xs text-red-600">{timeError}</p>
+                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-sm text-yellow-800 font-medium">
+                    Order will be prepared ASAP.
+                  </p>
+                </div>
               )}
             </div>
           ) : (
@@ -103,8 +150,6 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
             </div>
           )}
         </div>
-
-      
 
         {/* Delivery Options */}
         {/* Conditional Delivery Options */}

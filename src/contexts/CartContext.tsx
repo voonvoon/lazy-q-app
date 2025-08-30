@@ -47,6 +47,7 @@ interface CartStorage {
   customerInfo: CustomerInfo;
   totalPrice: number;
   discount?: DiscountInput | null;
+  selectedTime?: string; // Added selectedTime to match usage
 }
 
 interface CartContextType {
@@ -61,6 +62,8 @@ interface CartContextType {
   customerInfo: CustomerInfo;
   discount: DiscountInput | null;
   setDiscount: (discount: DiscountInput | null) => void;
+  selectedTime?: string;
+  setSelectedTime: (time: string | undefined) => void;
 
   // Computed values
   totalItems: number;
@@ -114,10 +117,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const [discount, setDiscount] = useState<DiscountInput | null>(null);
 
+  //move this state to Global state cuz easier to manage
+  const [selectedTime, setSelectedTime] = useState<string | undefined>();
+
   console.log(
     "discount in context--------------------------------------->",
     discount
   );
+
+  console.log("selectedTime---------------->", selectedTime);
 
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
@@ -148,6 +156,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
             setCustomerInfo(parsedData.customerInfo);
             if (parsedData.discount) {
               setDiscount(parsedData.discount);
+            }
+            if (parsedData.selectedTime) {
+              setSelectedTime(parsedData.selectedTime);
             }
           }
 
@@ -191,6 +202,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
             expiresAt: now + CART_EXPIRY_TIME,
             totalPrice,
             discount,
+            selectedTime,
           };
           localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
         } else {
@@ -201,7 +213,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Error saving cart to localStorage:", error);
       }
     }
-  }, [cartItems, merchantData, isLoaded, delivery, customerInfo, discount]);
+  }, [
+    cartItems,
+    merchantData,
+    isLoaded,
+    delivery,
+    customerInfo,
+    discount,
+    selectedTime,
+  ]);
 
   // ✅ Computed Values (Memoized for performance)
   const totalItems = React.useMemo(() => {
@@ -323,6 +343,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     customerInfo,
     discount,
     setDiscount,
+    selectedTime,
+    setSelectedTime,
 
     // Computed
     totalItems,
