@@ -34,12 +34,16 @@ export const createPaymentLinkPost = async ({
   delivery,
   discount,
   merchantData,
+  remarks,
+  selectedTime,
 }: {
   cartItems: any[];
   customerInfo: any;
   delivery: boolean;
   discount: any;
   merchantData: any;
+  remarks?: string;
+  selectedTime?: string;
 }): Promise<{ url: string; data: any }> => {
   await dbConnect();
 
@@ -157,6 +161,8 @@ export const createPaymentLinkPost = async ({
     taxRate,
     totalTax,
     deliveryFee,
+    remarks,
+    selectedTime,
   });
 
   // Prepare Fiuu payment data

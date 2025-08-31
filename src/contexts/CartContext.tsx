@@ -48,6 +48,8 @@ interface CartStorage {
   totalPrice: number;
   discount?: DiscountInput | null;
   selectedTime?: string; // Added selectedTime to match usage
+  remarks?: string;
+  showTimePicker?: boolean;
 }
 
 interface CartContextType {
@@ -64,6 +66,10 @@ interface CartContextType {
   setDiscount: (discount: DiscountInput | null) => void;
   selectedTime?: string;
   setSelectedTime: (time: string | undefined) => void;
+  remarks?: string;
+  setRemarks: (remarks: string | undefined) => void;
+  showTimePicker: boolean;
+  setShowTimePicker: (show: boolean) => void;
 
   // Computed values
   totalItems: number;
@@ -118,7 +124,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [discount, setDiscount] = useState<DiscountInput | null>(null);
 
   //move this state to Global state cuz easier to manage
-  const [selectedTime, setSelectedTime] = useState<string | undefined>();
+  const [selectedTime, setSelectedTime] = useState<string | undefined>("ASAP");
+  const [remarks, setRemarks] = useState<string | undefined>();
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   console.log(
     "discount in context--------------------------------------->",
@@ -159,6 +167,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             }
             if (parsedData.selectedTime) {
               setSelectedTime(parsedData.selectedTime);
+            }
+            if (parsedData.remarks) {
+              setRemarks(parsedData.remarks);
+            }
+            if (typeof parsedData.showTimePicker === "boolean") {
+              setShowTimePicker(parsedData.showTimePicker);
             }
           }
 
@@ -203,6 +217,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
             totalPrice,
             discount,
             selectedTime,
+            remarks,
+            showTimePicker,
           };
           localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartData));
         } else {
@@ -221,6 +237,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     customerInfo,
     discount,
     selectedTime,
+    remarks,
+    showTimePicker,
   ]);
 
   // ✅ Computed Values (Memoized for performance)
@@ -345,6 +363,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setDiscount,
     selectedTime,
     setSelectedTime,
+    remarks,
+    setRemarks,
+    showTimePicker,
+    setShowTimePicker,
 
     // Computed
     totalItems,

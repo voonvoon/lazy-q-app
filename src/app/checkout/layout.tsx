@@ -5,6 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import CustomerInfoForm from "@/components/CustomerInfoForm";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { LiaRunningSolid } from "react-icons/lia";
+import { MdAccessTime } from "react-icons/md";
 
 // Helper to get now + 30 minutes in "HH:mm" format
 //setMinutes, getMinutes, and getHours are all built-in methods of JavaScript’s Date object.
@@ -26,7 +27,7 @@ interface CheckoutLayoutProps {
 }
 
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
-  const { merchantData, setDelivery, delivery, selectedTime, setSelectedTime } =
+  const { merchantData, setDelivery, delivery, selectedTime, setSelectedTime, showTimePicker, setShowTimePicker } =
     useCart();
 
   // Handler for radio change
@@ -47,18 +48,14 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   const minTime = getLaterTime(nowPlus30, firstOrderTime);
   const maxTime = merchantData?.lastOrderTime || "20:00";
 
-  //Set selectedTime to minTime when minTime changes
-  //ensure selected time always within allowed range ,start from minTime
+  //by default, set selectedTime to ASAP
   useEffect(() => {
-    if (merchantData?.allowPreorder) {
-      setSelectedTime("ASAP");
-    }
-    // else do nothing
-  }, [minTime, setSelectedTime, merchantData?.allowPreorder]);
+    setSelectedTime(selectedTime);
+  }, [setSelectedTime]);
 
   // const [selectedTime, setSelectedTime] = useState(minTime);
   const [timeError, setTimeError] = useState("");
-  const [showTimePicker, setShowTimePicker] = useState(false);
+
 
   // Handler for checkbox
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +64,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
       setSelectedTime("ASAP");
       setTimeError("");
     } else {
-      setSelectedTime(minTime);
+      setSelectedTime(selectedTime); //if refers to the previously selected time
     }
   };
 
@@ -98,24 +95,27 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
         <div className="mb-6">
           {merchantData?.allowPreorder ? (
             <div>
-              <label className="flex items-center mb-2 cursor-pointer select-none">
-                <span className="mr-3 text-sm font-medium text-gray-700">
-                  I want to select a pickup time
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                  {delivery ? "Select a delivery Time" : "Select a pickup time"}
+                  <MdAccessTime className="ml-1" size={16} />
                 </span>
-                <input
-                  type="checkbox"
-                  checked={showTimePicker}
-                  onChange={handleCheckboxChange}
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-500 transition-colors duration-200 relative">
-                  <div
-                    className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-                      showTimePicker ? "translate-x-5" : ""
-                    }`}
-                  ></div>
-                </div>
-              </label>
+                <label className="flex items-center justify-between mb-2 select-none">
+                  <input
+                    type="checkbox"
+                    checked={showTimePicker}
+                    onChange={handleCheckboxChange}
+                    className="sr-only peer"
+                  />
+                  <div className="w-12 h-6 bg-gray-200 rounded-full peer cursor-pointer  peer-checked:bg-blue-500 transition-colors duration-200 relative">
+                    <div
+                      className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                        showTimePicker ? "translate-x-5" : ""
+                      }`}
+                    ></div>
+                  </div>
+                </label>
+              </div>
               {showTimePicker ? (
                 <>
                   <input
