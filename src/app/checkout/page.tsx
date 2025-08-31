@@ -28,6 +28,9 @@ export default function CheckoutPage() {
     getDeliveryFee,
     clearCart,
     totalDiscount,
+    remarks,
+    setRemarks,
+    selectedTime
   } = useCart();
 
   // Scroll to top on mount
@@ -194,6 +197,22 @@ export default function CheckoutPage() {
             <div className="flex justify-end mb-4 shadow-sm rounded bg-white p-2">
               <DiscountCodeInput merchantId={merchantData?._id ?? ""} />
             </div>
+            <div className="mb-6">
+              <label
+                htmlFor="remarks"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Remarks (optional)
+              </label>
+              <textarea
+                id="remarks"
+                value={remarks || ""}
+                onChange={(e) => setRemarks(e.target.value)}
+                rows={3}
+                placeholder="Add any special instructions or notes for your order..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black resize-none"
+              />
+            </div>
           </div>
         ) : (
           <p className="text-gray-500 text-center py-8">Your cart is empty</p>
@@ -264,13 +283,18 @@ export default function CheckoutPage() {
                     delivery,
                     discount,
                     merchantData,
+                    remarks,
+                    selectedTime
                   };
 
                   const response = await createPaymentLinkPost(paymentPayload);
 
                   const { url, data } = response;
 
-                  console.log("data(after createPaymentLinkPost) ----------------------------------------------->:", data.metadata);
+                  console.log(
+                    "data(after createPaymentLinkPost) ----------------------------------------------->:",
+                    data.metadata
+                  );
 
                   // Create a new form element
                   const form = document.createElement("form");

@@ -116,6 +116,7 @@ export function buildOrderMessage(
 
   let summary = `<b>🎉 <u>New Order Paid!</u> 🥳</b>\n`;
   summary += `<b>Order #:</b> <code>${orderNumber}</code>\n`;
+  summary += `<b>Pick Time:</b> <code>${meta.selectedTime}</code>\n`;
   summary += `<b>Customer:</b> <i>${customer.name || "-"}</i>\n`;
   summary += `<b>Email:</b> <i>${customer.email || "-"}</i>\n`;
   summary += `<b>Phone:</b> <i>${customer.phone || "-"}</i>\n`;
@@ -124,6 +125,11 @@ export function buildOrderMessage(
   summary += `<b>Items:</b> <b>${items.length}</b>\n`;
   summary += itemsText + "\n";
   summary += `<b>Time:</b> <code>${data.paydate}</code>\n`;
+
+  // Add Remarks if remarks exists
+  if (meta.remarks) {
+    summary += `<b>Remarks:</b> <i>${meta.remarks}</i>\n`;
+  }
 
   if (hasTax) {
     summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
