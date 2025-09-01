@@ -128,14 +128,14 @@ export function buildOrderMessage(
   //summary += `<b>Time:</b> <code>${meta.selectedTime}</code>\n`;
   if (delivery) {
     summary += `\n`;
-    summary += `<b>🚚<u>For Delivery</u>-<b>Time:</b><code>${meta.selectedTime}</code>\n`;
+   summary += `<b>🚚<u>For Delivery</u></b> - <b>Time:</b> <code>${meta.selectedTime}</code>\n`;
     summary += `<b>Address:</b> <i>${customer.address || "-"}</i>\n`;
     summary += `<b>Postcode:</b> <i>${customer.postcode || "-"}</i>\n`;
     summary += `<b>State:</b> <i>${customer.state || "-"}</i>\n`;
     summary += `\n`;
   } else {
     summary += `\n`;
-    summary += `<b>🏃‍♂️<u>Self-Pick Up</u></b>-<b>Time:</b><code>${meta.selectedTime}</code>\n`;
+    summary += `<b>🏃‍♂️<u>Self-Pick Up</u></b> - <b>Time:</b> <code>${meta.selectedTime}</code>\n`;
     summary += `\n`;
   }
 
