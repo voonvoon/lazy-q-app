@@ -86,6 +86,7 @@ export function buildOrderMessage(
   const customer = meta.customerInfo || {};
   const items = meta.cartItems || [];
   const hasTax = meta.totalTax && meta.totalTax > 0;
+  const delivery = meta.delivery;
   const hasDelivery = meta.deliveryFee && meta.deliveryFee > 0;
   const hasDiscount = meta.discount && meta.discount.value > 0;
 
@@ -105,21 +106,29 @@ export function buildOrderMessage(
     }
 
     itemsText += `  Qty: <b>${item.qty || 1}</b>`;
-    itemsText += ` | Price: <b>${
-      item.totalPrice?.toFixed(2) || item.price?.toFixed(2) || "0.00"
-    } ${data.currency}</b>\n`;
+    itemsText += ` | Item Price: <b>${data.currency} ${
+      item.totalPrice?.toFixed(2) || "0.00"
+    } </b>\n`;
 
     if (item.remarks) {
       itemsText += `  <i>Remarks: ${item.remarks}</i>\n`;
     }
+
+     itemsText += `\n`;
   });
 
-  let summary = `<b>🎉 <u>New Order Paid!</u> 🥳</b>\n`;
+  let summary = `<b><u>New Order Paid!</u>🎉</b>\n`;
   summary += `<b>Order #:</b> <code>${orderNumber}</code>\n`;
   summary += `<b>Pick Time:</b> <code>${meta.selectedTime}</code>\n`;
   summary += `<b>Customer:</b> <i>${customer.name || "-"}</i>\n`;
   summary += `<b>Email:</b> <i>${customer.email || "-"}</i>\n`;
   summary += `<b>Phone:</b> <i>${customer.phone || "-"}</i>\n`;
+  if (delivery) {
+    summary += `<b>🚚<u>Delivery</u></b>\n`;
+    summary += `<b>Address:</b> <i>${customer.address || "-"}</i>\n`;
+    summary += `<b>City:</b> <i>${customer.city || "-"}</i>\n`;
+    summary += `<b>State:</b> <i>${customer.state || "-"}</i>\n`;
+  }
   summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
   summary += `<b>Amount:</b> <b>${data.currency} ${data.amount}</b>\n`;
   summary += `<b>Items:</b> <b>${items.length}</b>\n`;
