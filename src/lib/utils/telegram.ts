@@ -105,48 +105,50 @@ export function buildOrderMessage(
         .join(", ")}\n`;
     }
 
-    itemsText += `  Qty: <b>${item.qty || 1}</b>`;
+    itemsText += `  Qty: <b>${item.quantity || 1}</b>`;
     itemsText += ` | Item Price: <b>${data.currency} ${
-      item.totalPrice?.toFixed(2) || "0.00"
+      item.itemTotal?.toFixed(2) || "0.00"
     } </b>\n`;
 
     if (item.remarks) {
       itemsText += `  <i>Remarks: ${item.remarks}</i>\n`;
     }
 
-     itemsText += `\n`;
+    itemsText += `\n`;
   });
 
   let summary = `<b><u>New Order Paid!</u>🎉</b>\n`;
   summary += `<b>Order #:</b> <code>${orderNumber}</code>\n`;
-  summary += `<b>Pick Time:</b> <code>${meta.selectedTime}</code>\n`;
   summary += `<b>Customer:</b> <i>${customer.name || "-"}</i>\n`;
   summary += `<b>Email:</b> <i>${customer.email || "-"}</i>\n`;
   summary += `<b>Phone:</b> <i>${customer.phone || "-"}</i>\n`;
+  summary += `<b>Time:</b> <code>${meta.selectedTime}</code>\n`;
   if (delivery) {
-    summary += `<b>🚚<u>Delivery</u></b>\n`;
+    summary += `\n`;
+    summary += `<b>🚚<u>For Delivery</u></b>\n`;
     summary += `<b>Address:</b> <i>${customer.address || "-"}</i>\n`;
-    summary += `<b>City:</b> <i>${customer.city || "-"}</i>\n`;
+    summary += `<b>City:</b> <i>${customer.postcode || "-"}</i>\n`;
     summary += `<b>State:</b> <i>${customer.state || "-"}</i>\n`;
+    summary += `\n`;
   }
   summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
-  summary += `<b>Amount:</b> <b>${data.currency} ${data.amount}</b>\n`;
   summary += `<b>Items:</b> <b>${items.length}</b>\n`;
+  summary += "\n";
   summary += itemsText + "\n";
-  summary += `<b>Time:</b> <code>${data.paydate}</code>\n`;
+  summary += `<b>Order on:</b> <code>${data.paydate}</code>\n`;
 
   // Add Remarks if remarks exists
   if (meta.remarks) {
-    summary += `<b>Remarks:</b> <i>${meta.remarks}</i>\n`;
+    summary += `<b>Remarks:</b> <i>${meta.remarks}</i>`;
   }
 
   if (hasTax) {
     summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
   }
   if (hasDelivery) {
-    summary += `<b>Delivery Fee:</b> ${meta.deliveryFee.toFixed(2)} ${
-      data.currency
-    }\n`;
+    summary += `<b>Delivery Fee:</b>${data.currency} ${meta.deliveryFee.toFixed(
+      2
+    )} \n`;
   }
   if (hasDiscount) {
     summary += `<b>Discount:</b> -${
