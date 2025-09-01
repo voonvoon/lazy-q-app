@@ -129,8 +129,12 @@ export function buildOrderMessage(
     summary += `\n`;
     summary += `<b>🚚<u>For Delivery</u></b>\n`;
     summary += `<b>Address:</b> <i>${customer.address || "-"}</i>\n`;
-    summary += `<b>City:</b> <i>${customer.postcode || "-"}</i>\n`;
+    summary += `<b>Postcode:</b> <i>${customer.postcode || "-"}</i>\n`;
     summary += `<b>State:</b> <i>${customer.state || "-"}</i>\n`;
+    summary += `\n`;
+  } else {
+    summary += `\n`;
+    summary += `<b>🏃‍♂️<u>Self-Pick Up</u></b>\n`;
     summary += `\n`;
   }
   summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
@@ -141,7 +145,7 @@ export function buildOrderMessage(
 
   // Add Remarks if remarks exists
   if (meta.remarks) {
-    summary += `<b>Remarks:</b> <i>${meta.remarks}</i>`;
+    summary += `<b>Remarks:</b> <i>${meta.remarks}</i>\n\n`;
   }
 
   if (meta.subtotal) {
@@ -159,7 +163,7 @@ export function buildOrderMessage(
   if (hasTax) {
     summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
   }
-  
+
   if (hasDelivery) {
     summary += `<b>Delivery Fee:</b>${data.currency} ${meta.deliveryFee.toFixed(
       2
