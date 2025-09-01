@@ -163,6 +163,8 @@ export const createPaymentLinkPost = async ({
     deliveryFee,
     remarks,
     selectedTime,
+    discountAmount,
+    subtotal
   });
 
   // Prepare Fiuu payment data

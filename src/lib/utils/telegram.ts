@@ -92,7 +92,9 @@ export function buildOrderMessage(
 
   let itemsText = "";
   items.forEach((item: any, idx: number) => {
-    itemsText += `<b>${idx + 1}. ${item.title || "-"}</b>\n`;
+    itemsText += `<b>${idx + 1}. ${item.title || "-"}</b> - <i>${
+      data.currency
+    } ${item.price?.toFixed(2) || "0.00"}</i>\n`;
 
     if (item.addOns && item.addOns.length > 0) {
       itemsText += `  <i>Add-ons:</i> ${item.addOns
@@ -105,8 +107,8 @@ export function buildOrderMessage(
         .join(", ")}\n`;
     }
 
-    itemsText += `  Qty: <b>${item.quantity || 1}</b>`;
-    itemsText += ` | Item Price: <b>${data.currency} ${
+    itemsText += `  Qty: <b>${item.quantity || 1}</b>\n`;
+    itemsText += `  Total: <b>${data.currency} ${
       item.itemTotal?.toFixed(2) || "0.00"
     } </b>\n`;
 
@@ -142,20 +144,28 @@ export function buildOrderMessage(
     summary += `<b>Remarks:</b> <i>${meta.remarks}</i>`;
   }
 
+  if (meta.subtotal) {
+    summary += `<b>Subtotal:</b> ${data.currency} ${meta.subtotal.toFixed(
+      2
+    )}\n`;
+  }
+
+  if (hasDiscount) {
+    summary += `<b>Discount:</b> -${data.currency} ${
+      meta.discountAmount?.toFixed(2) || "0.00"
+    }\n`;
+  }
+
   if (hasTax) {
     summary += `<b>Tax:</b> ${data.currency} ${meta.totalTax.toFixed(2)}\n`;
   }
+  
   if (hasDelivery) {
     summary += `<b>Delivery Fee:</b>${data.currency} ${meta.deliveryFee.toFixed(
       2
     )} \n`;
   }
-  if (hasDiscount) {
-    summary += `<b>Discount:</b> -${
-      data.currency
-    } ${meta.discount.value.toFixed(2)}\n`;
-  }
 
-  summary += `\n<b>Total:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
+  summary += `\n<b>Total Paid:</b> <u><b>${data.currency} ${data.amount}</b></u>`;
   return summary;
 }
