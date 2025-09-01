@@ -124,20 +124,21 @@ export function buildOrderMessage(
   summary += `<b>Customer:</b> <i>${customer.name || "-"}</i>\n`;
   summary += `<b>Email:</b> <i>${customer.email || "-"}</i>\n`;
   summary += `<b>Phone:</b> <i>${customer.phone || "-"}</i>\n`;
-  summary += `<b>Time:</b> <code>${meta.selectedTime}</code>\n`;
+  summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
+  //summary += `<b>Time:</b> <code>${meta.selectedTime}</code>\n`;
   if (delivery) {
     summary += `\n`;
-    summary += `<b>🚚<u>For Delivery</u></b>\n`;
+    summary += `<b>🚚<u>For Delivery</u>-<b>Time:</b><code>${meta.selectedTime}</code>\n`;
     summary += `<b>Address:</b> <i>${customer.address || "-"}</i>\n`;
     summary += `<b>Postcode:</b> <i>${customer.postcode || "-"}</i>\n`;
     summary += `<b>State:</b> <i>${customer.state || "-"}</i>\n`;
     summary += `\n`;
   } else {
     summary += `\n`;
-    summary += `<b>🏃‍♂️<u>Self-Pick Up</u></b>\n`;
+    summary += `<b>🏃‍♂️<u>Self-Pick Up</u></b>-<b>Time:</b><code>${meta.selectedTime}</code>\n`;
     summary += `\n`;
   }
-  summary += `<b>Order ID:</b> <code>${data.orderid}</code>\n`;
+
   summary += `<b>Items:</b> <b>${items.length}</b>\n`;
   summary += "\n";
   summary += itemsText + "\n";
