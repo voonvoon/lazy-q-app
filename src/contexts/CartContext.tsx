@@ -70,6 +70,9 @@ interface CartContextType {
   setRemarks: (remarks: string | undefined) => void;
   showTimePicker: boolean;
   setShowTimePicker: (show: boolean) => void;
+  customerInfoValid: boolean;
+  setCustomerInfoValid: (valid: boolean) => void;
+
 
   // Computed values
   totalItems: number;
@@ -127,6 +130,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [selectedTime, setSelectedTime] = useState<string | undefined>("ASAP");
   const [remarks, setRemarks] = useState<string | undefined>();
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [customerInfoValid, setCustomerInfoValid] = useState(false);
+
 
   console.log(
     "discount in context--------------------------------------->",
@@ -367,6 +372,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setRemarks,
     showTimePicker,
     setShowTimePicker,
+    customerInfoValid, 
+    setCustomerInfoValid,
+
 
     // Computed
     totalItems,
