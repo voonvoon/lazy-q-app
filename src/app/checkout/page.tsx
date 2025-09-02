@@ -12,6 +12,7 @@ import { MdOutlineCleaningServices } from "react-icons/md";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import DiscountCodeInput from "@/components/DiscountCodeInput";
 import { createPaymentLinkPost } from "@/lib/actions/fiuu";
+import { toast } from "react-hot-toast";
 
 export default function CheckoutPage() {
   const {
@@ -30,7 +31,9 @@ export default function CheckoutPage() {
     totalDiscount,
     remarks,
     setRemarks,
-    selectedTime
+    selectedTime,
+    customerInfoValid,
+    setCustomerInfoValid,
   } = useCart();
 
   // Scroll to top on mount
@@ -43,7 +46,7 @@ export default function CheckoutPage() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
   const [existingItemForEdit, setExistingItemForEdit] = useState(undefined); // State for existing item being edited
-
+  const [orderLoading, setOrderLoading] = useState(false);
   // Handler for Edit button
   const handleEdit = async (itemId: string, cartItemId: string) => {
     setLoadingEdit(itemId);
@@ -276,66 +279,72 @@ export default function CheckoutPage() {
 
               <button
                 onClick={async () => {
-                  // Bundle all checkout state into one object
-                  const paymentPayload = {
-                    cartItems,
-                    customerInfo,
-                    delivery,
-                    discount,
-                    merchantData,
-                    remarks,
-                    selectedTime
-                  };
-
-                  const response = await createPaymentLinkPost(paymentPayload);
-
-                  const { url, data } = response;
-
-                  console.log(
-                    "data(after createPaymentLinkPost) ----------------------------------------------->:",
-                    data.metadata
-                  );
-
-                  // Create a new form element
-                  const form = document.createElement("form");
-                  console.log(
-                    "form ----------------------------------------------->:",
-                    form
-                  );
-                  // Set the form's method to POST
-                  form.method = "POST";
-                  // Set the form's action to the URL where the POST request should be sent
-                  form.action = url;
-                  // Set the form's target to '_blank' to open the result in a new tab
-                  form.target = "_blank";
-
-                  // Loop through each key in the data object
-                  for (const key in data) {
-                    // Only add real data fields, not inherited ones
-                    if (data.hasOwnProperty(key)) {
-                      // Create a hidden input element for each key-value pair
-                      const input = document.createElement("input");
-                      input.type = "hidden";
-                      input.name = key;
-                      input.value = data[key];
-                      // Append the input element to the form
-                      form.appendChild(input);
+                    if (!customerInfoValid) {
+                    toast.error(
+                      "Please fill in all required customer information before proceeding."
+                    );
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    return;
                     }
-                  }
+                  setOrderLoading(true);
+                  try {
+                    // Bundle all checkout state into one object
+                    const paymentPayload = {
+                      cartItems,
+                      customerInfo,
+                      delivery,
+                      discount,
+                      merchantData,
+                      remarks,
+                      selectedTime,
+                    };
 
-                  // Append the form to the document body
-                  document.body.appendChild(form);
-                  // Submit the form, which sends the POST request and opens the result in a new tab
-                  form.submit();
-                  // Remove the form from the document body
-                  document.body.removeChild(form);
+                    const response = await createPaymentLinkPost(
+                      paymentPayload
+                    );
+                    const { url, data } = response;
+
+                    // Create a new form element
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = url;
+                    form.target = "_blank";
+                    for (const key in data) {
+                      if (data.hasOwnProperty(key)) {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = key;
+                        input.value = data[key];
+                        form.appendChild(input);
+                      }
+                    }
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                  } catch (err) {
+                    toast.error(
+                      "Failed to create payment link. Please try again."
+                    );
+                    console.error(err);
+                  } finally {
+                    setOrderLoading(false);
+                  }
                 }}
                 title="Order now"
                 className="w-full sm:w-auto py-2 px-4 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-semibold rounded-2xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 flex items-center gap-3 cursor-pointer text-sm sm:text-base"
               >
                 <span className="flex items-center gap-2 justify-center w-full">
-                  Order Now
-                  <MdShoppingCartCheckout size={20} />
+                  {orderLoading ? (
+                    <>
+                      <FaSpinner className="animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      Order Now
+                      <MdShoppingCartCheckout size={20} />
+                    </>
+                  )}
                 </span>
               </button>
             </div>

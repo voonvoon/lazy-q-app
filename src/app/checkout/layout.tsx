@@ -27,8 +27,16 @@ interface CheckoutLayoutProps {
 }
 
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
-  const { merchantData, setDelivery, delivery, selectedTime, setSelectedTime, showTimePicker, setShowTimePicker } =
-    useCart();
+  const {
+    merchantData,
+    setDelivery,
+    delivery,
+    selectedTime,
+    setSelectedTime,
+    showTimePicker,
+    setShowTimePicker,
+    setCustomerInfoValid,
+  } = useCart();
 
   // Handler for radio change
   const handleDeliveryOptionChange = (
@@ -231,7 +239,11 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
               Fill in details
             </span>
             {/* Pass delivery state to the form */}
-            <CustomerInfoForm delivery={delivery} />
+            {/* <CustomerInfoForm delivery={delivery} /> */}
+            <CustomerInfoForm
+              delivery={delivery}
+              onValidityChange={setCustomerInfoValid}
+            />
           </div>
         </div>
       </aside>

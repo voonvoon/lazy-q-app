@@ -62,8 +62,10 @@ function FormInput({
 // 3. Main form component
 export default function CustomerInfoForm({
   delivery = false,
+  onValidityChange,
 }: {
   delivery?: boolean;
+  onValidityChange?: (isValid: boolean) => void;
 } = {}) {
   const { setCustomerInfo, customerInfo } = useCart();
 
@@ -96,14 +98,20 @@ export default function CustomerInfoForm({
 
   const {
     register,
-    formState: { errors },
+    formState: { errors, isValid },
     watch,
     reset,
   } = useForm<CustomerInfo>({
     resolver: zodResolver(schema),
     defaultValues: customerInfo, // Optional: prefill from context if available
-    mode: "onChange",
+    mode: "all",
   });
+
+  // Notify global state when validity changes
+  //isValid: prop from react-hook-form, boolean, tells if all req fields are filled correctly
+  useEffect(() => {
+    if (onValidityChange) onValidityChange(isValid);
+  }, [isValid, onValidityChange]);
 
   //tis useEffect --> even user refresh page form field persist.
   //cuz react-hook-form’s defaultValues are only set on the first render.
