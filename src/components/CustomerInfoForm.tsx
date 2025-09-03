@@ -67,7 +67,7 @@ export default function CustomerInfoForm({
   delivery?: boolean;
   onValidityChange?: (isValid: boolean) => void;
 } = {}) {
-  const { setCustomerInfo, customerInfo } = useCart();
+  const { setCustomerInfo, customerInfo, triggerCheck, delivery: deliverStateInCartContext } = useCart();
 
   // 4. Dynamic Zod schema based on delivery prop
   const schema = delivery
@@ -101,14 +101,22 @@ export default function CustomerInfoForm({
     formState: { errors, isValid },
     watch,
     reset,
+    trigger,
   } = useForm<CustomerInfo>({
     resolver: zodResolver(schema),
     defaultValues: customerInfo, // Optional: prefill from context if available
     mode: "all",
   });
 
+  //when pay btn check trigger a validation check in Zod so error then show!
+  useEffect(() => {
+    if (triggerCheck) {
+      trigger();
+    }
+  }, [triggerCheck, trigger, deliverStateInCartContext]); //add deliverStateInCartContext so when it change will re-check validity.
+  
   // Notify global state when validity changes
-  //isValid: prop from react-hook-form, boolean, tells if all req fields are filled correctly
+  //isValid: prop from react-hook-form, boolean, tells if all required fields are filled correctly
   useEffect(() => {
     if (onValidityChange) onValidityChange(isValid);
   }, [isValid, onValidityChange]);

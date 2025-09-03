@@ -34,6 +34,8 @@ export default function CheckoutPage() {
     selectedTime,
     customerInfoValid,
     setCustomerInfoValid,
+    triggerCheck,
+    setTriggerCheck,
   } = useCart();
 
   // Scroll to top on mount
@@ -279,13 +281,15 @@ export default function CheckoutPage() {
 
               <button
                 onClick={async () => {
-                    if (!customerInfoValid) {
+                
+                  if (!customerInfoValid) {
+                    setTriggerCheck(!triggerCheck); // Toggle to trigger validation check
                     toast.error(
                       "Please fill in all required customer information before proceeding."
                     );
                     window.scrollTo({ top: 0, behavior: "smooth" });
                     return;
-                    }
+                  }
                   setOrderLoading(true);
                   try {
                     // Bundle all checkout state into one object
