@@ -72,7 +72,8 @@ interface CartContextType {
   setShowTimePicker: (show: boolean) => void;
   customerInfoValid: boolean;
   setCustomerInfoValid: (valid: boolean) => void;
-
+  triggerCheck: boolean;
+  setTriggerCheck: (trigger: boolean) => void;
 
   // Computed values
   totalItems: number;
@@ -131,14 +132,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [remarks, setRemarks] = useState<string | undefined>();
   const [showTimePicker, setShowTimePicker] = useState(false);
   const [customerInfoValid, setCustomerInfoValid] = useState(false);
+  const [triggerCheck, setTriggerCheck] = useState(false);// when pay btn click trigger validation check
 
-
-  console.log(
-    "discount in context--------------------------------------->",
-    discount
-  );
-
-  console.log("selectedTime---------------->", selectedTime);
+  console.log("CustomerInfoValid------->", customerInfoValid);
 
   // Load cart AND merchant from single localStorage item, so even refreshes keep the same restaurant context
   useEffect(() => {
@@ -374,6 +370,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setShowTimePicker,
     customerInfoValid, 
     setCustomerInfoValid,
+     triggerCheck,
+  setTriggerCheck,
 
 
     // Computed
