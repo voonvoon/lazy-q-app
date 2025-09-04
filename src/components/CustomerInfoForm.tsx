@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCart } from "@/contexts/CartContext";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 
 // 1. Base type for all fields
 type CustomerInfoBase = {
@@ -67,7 +67,15 @@ export default function CustomerInfoForm({
   delivery?: boolean;
   onValidityChange?: (isValid: boolean) => void;
 } = {}) {
-  const { setCustomerInfo, customerInfo, triggerCheck, delivery: deliverStateInCartContext } = useCart();
+  const {
+    setCustomerInfo,
+    customerInfo,
+    triggerCheck,
+    delivery: deliverStateInCartContext, //nick name
+  } = useCart();
+
+  const prevDeliveryRef = useRef(deliverStateInCartContext); // To track previous delivery state to trigger useEffect!
+  const deliveryChangeCountRef = useRef(0);//track this cuz i want trigger on 2nd change else first load all red ugly!
 
   // 4. Dynamic Zod schema based on delivery prop
   const schema = delivery
@@ -113,8 +121,20 @@ export default function CustomerInfoForm({
     if (triggerCheck) {
       trigger();
     }
-  }, [triggerCheck, trigger, deliverStateInCartContext]); //add deliverStateInCartContext so when it change will re-check validity.
-  
+  }, [triggerCheck, trigger]); //add deliverStateInCartContext so when it change will re-check validity.
+
+  //if delivery state change trigger validation again!
+  //Use a Ref to Store Previous Value to compare
+ useEffect(() => {
+  if (prevDeliveryRef.current !== deliverStateInCartContext) {
+    deliveryChangeCountRef.current += 1;
+    if (deliveryChangeCountRef.current > 1) {
+      trigger(); // Only validate on 2nd and subsequent changes
+    }
+    prevDeliveryRef.current = deliverStateInCartContext;
+  }
+}, [deliverStateInCartContext, trigger]);
+
   // Notify global state when validity changes
   //isValid: prop from react-hook-form, boolean, tells if all required fields are filled correctly
   useEffect(() => {
@@ -145,25 +165,25 @@ export default function CustomerInfoForm({
   }, [watch, setCustomerInfo]);
 
   return (
-    <form className="max-w-md mx-auto">
+    <form className="w-full max-w-none mx-auto">
       <FormInput
-        name="name"
-        register={register}
-        error={errors.name}
-        placeholder="Name"
+      name="name"
+      register={register}
+      error={errors.name}
+      placeholder="Name"
       />
       <FormInput
-        name="email"
-        type="email"
-        register={register}
-        error={errors.email}
-        placeholder="Email"
+      name="email"
+      type="email"
+      register={register}
+      error={errors.email}
+      placeholder="Email"
       />
       <FormInput
-        name="phone"
-        register={register}
-        error={errors.phone}
-        placeholder="Phone Number"
+      name="phone"
+      register={register}
+      error={errors.phone}
+      placeholder="Phone Number"
       />
       {delivery && (
         <>

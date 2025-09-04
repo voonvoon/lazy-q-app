@@ -64,7 +64,6 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   // const [selectedTime, setSelectedTime] = useState(minTime);
   const [timeError, setTimeError] = useState("");
 
-
   // Handler for checkbox
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setShowTimePicker(e.target.checked);
@@ -91,7 +90,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-white">
       {/* Sidebar: Mobile top, Desktop left */}
-      <aside className="w-full lg:w-2/5 lg:max-w-md bg-gray-100 p-6 lg:p-4 min-h-[40vh] lg:min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 lg:overflow-y-auto lg:h-screen lg:sticky lg:top-0 text-black">
+      <aside className="w-full lg:w-2/5 lg:max-w-md bg-gray-50 p-6 lg:p-4 min-h-[40vh] lg:min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 lg:overflow-y-auto lg:h-screen lg:sticky lg:top-0 text-black">
         {/* Restaurant Header */}
         <div className="mb-6">
           <h2 className="text-xl font-bold text-gray-800 mb-1">
@@ -103,7 +102,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
         <div className="mb-6">
           {merchantData?.allowPreorder ? (
             <div>
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
                   {delivery ? "Select a delivery Time" : "Select a pickup time"}
                   <MdAccessTime className="ml-1" size={16} />
@@ -135,7 +134,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
                   />
                   {!timeError ? (
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-gray-500">
                       You can set pickup time between {minTime} and {maxTime}
                     </p>
                   ) : (
@@ -143,7 +142,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                   )}
                 </>
               ) : (
-                <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="p-1 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <p className="text-sm text-yellow-800 font-medium">
                     Order will be prepared ASAP.
                   </p>
@@ -151,7 +150,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
               )}
             </div>
           ) : (
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-sm text-yellow-800 font-medium">
                 Order will be prepared as soon as order is placed.
               </p>
@@ -163,8 +162,8 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
         {/* Conditional Delivery Options */}
 
         {/* // Show both delivery and pickup when delivery is allowed */}
-        <div className="mt-2 pt-6 border-t border-gray-300">
-          <h4 className="font-semibold text-gray-800 mb-3">
+        <div className="mt-1 pt-6 border-t border-gray-300">
+          <h4 className="font-semibold text-gray-800 mb-1">
             Self pick-up/Delivery Options
           </h4>
           <div className="space-y-3">
@@ -235,7 +234,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                 </div>
               </label>
             )}
-            <span className="block text-sm font-light text-gray-800 ml-1 mt-2">
+            <span className="block text-sm font-light text-gray-800 mt-2">
               Fill in details
             </span>
             {/* Pass delivery state to the form */}
