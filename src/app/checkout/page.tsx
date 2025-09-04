@@ -77,15 +77,17 @@ export default function CheckoutPage() {
 
   return (
     <main className="p-4 bg-white rounded shadow">
-      <h1 className="text-3xl font-bold text-black mb-5">Checkout</h1>
+      <h1 className="text-3xl font-bold text-black mb-3">Checkout</h1>
       {/* ✅ Free Delivery Threshold Messager */}
       {merchantData?.allowedDelivery &&
       merchantData?.freeDeliveryThreshold &&
       merchantData.freeDeliveryThreshold > 0 ? (
-        <div className="flex items-center justify-center bg-blue-50 animate-bounce text-gray-600 px-2 py-2 rounded-md border-1 border-blue-400 shadow-sm tracking-wide w-auto max-w-fit mx-auto text-xs sm:text-sm font-normal sm:font-semibold">
-          Free Delivery For Order More than RM
-          {merchantData.freeDeliveryThreshold.toFixed(2)}!
-          <MdOutlineDeliveryDining color="gray" size={24} className="ml-2" />
+        <div className="relative w-full overflow-hidden bg-gray-50  rounded-md shadow-xs py-2">
+          <div className="whitespace-nowrap animate-marquee text-gray-600 px-2 font-normal sm:font-semibold flex items-center gap-2">
+            Free Delivery For Order More than RM{" "}
+            {merchantData.freeDeliveryThreshold.toFixed(2)}!
+            <MdOutlineDeliveryDining color="gray" size={24} className="ml-2" />
+          </div>
         </div>
       ) : (
         ""
@@ -281,7 +283,6 @@ export default function CheckoutPage() {
 
               <button
                 onClick={async () => {
-                
                   if (!customerInfoValid) {
                     setTriggerCheck(!triggerCheck); // Toggle to trigger validation check
                     toast.error(
