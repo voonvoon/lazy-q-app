@@ -60,6 +60,9 @@ const OrderSchema = new Schema<IOrder>(
       totalTax: { type: Number, default: 0 },
     },
     discount: { type: Schema.Types.Mixed },
+    discountAmount: { type: Number },
+    subTotal: { type: Number },
+    pickTime: { type: String },
     totalAmount: { type: Number, required: true },
     tranID: { type: String, required: true },
     orderid: { type: String, required: true },
@@ -68,7 +71,7 @@ const OrderSchema = new Schema<IOrder>(
     status: { type: String, default: "new" }, // new, preparing, ready, completed, cancelled
     notes: { type: String },
     receiptNo: { type: String },
-    orderSequentialNoForDay: { type: String }, 
+    orderSequentialNoForDay: { type: String },
   },
   { timestamps: true }
 );
