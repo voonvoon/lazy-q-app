@@ -62,7 +62,7 @@ async function createOrderFromWebhook(
       channel: data.channel,
     },
     status: "new",
-    notes: meta.notes || "",
+    notes: meta.remarks || "",
     receiptNo: receiptNo || "",
     orderSequentialNoForDay: orderSequentialNoForDay || "",
     pickTime: meta.selectedTime || "",
