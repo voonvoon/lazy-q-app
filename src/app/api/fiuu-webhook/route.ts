@@ -43,7 +43,7 @@ async function createOrderFromWebhook(
       city: customer.city || "",
     },
 
-    subTotal: meta.subTotal ? parseFloat(meta.subTotal) : 0, // before tax, discount and delivery
+    subTotal: meta.subtotal ? parseFloat(meta.subtotal) : 0, // before tax, discount and delivery
     discount,
     discountAmount: meta.discountAmount ? meta.discountAmount : 0,
     tax: {
