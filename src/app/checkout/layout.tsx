@@ -241,7 +241,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
             {/* <CustomerInfoForm delivery={delivery} /> */}
             <CustomerInfoForm
               delivery={delivery}
-              onValidityChange={setCustomerInfoValid}
+              onValidityChange={setCustomerInfoValid} // Notify parent about form validity
             />
           </div>
         </div>

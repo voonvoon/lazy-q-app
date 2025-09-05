@@ -19,6 +19,8 @@ export interface IOrder extends Document {
     totalTax: number;
   };
   discount?: any; // Use a specific type if you have one
+  discountAmount?: number;
+  subTotal?: number; // before tax, discount and delivery
   totalAmount: number;
   tranID: string;
   orderid: string;
@@ -28,6 +30,7 @@ export interface IOrder extends Document {
   notes?: string;
   receiptNo?: string;
   orderSequentialNoForDay?: string;
+  pickTime?: string;
 
   createdAt: Date;
   updatedAt: Date;

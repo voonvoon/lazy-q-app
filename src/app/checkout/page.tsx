@@ -284,7 +284,7 @@ export default function CheckoutPage() {
               <button
                 onClick={async () => {
                   if (!customerInfoValid) {
-                    setTriggerCheck(!triggerCheck); // Toggle to trigger validation check
+                    setTriggerCheck(!triggerCheck); // trigger validation check when pay!
                     toast.error(
                       "Please fill in all required customer information before proceeding."
                     );
