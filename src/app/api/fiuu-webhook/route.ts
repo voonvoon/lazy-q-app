@@ -42,13 +42,16 @@ async function createOrderFromWebhook(
       postcode: customer.postcode || "",
       city: customer.city || "",
     },
-    delivery: meta.delivery ?? false,
-    deliveryFee: meta.deliveryFee ?? 0,
+
+    subTotal: meta.subTotal ? parseFloat(meta.subTotal) : 0, // before tax, discount and delivery
+    discount,
+    discountAmount: meta.discountAmount ? meta.discountAmount : 0,
     tax: {
       rate: meta.taxRate ?? 0,
       totalTax: meta.totalTax ?? 0,
     },
-    discount,
+    delivery: meta.delivery ?? false,
+    deliveryFee: meta.deliveryFee ?? 0,
     totalAmount: parseFloat(data.amount),
     tranID: data.tranID,
     orderid: data.orderid,
@@ -62,6 +65,7 @@ async function createOrderFromWebhook(
     notes: meta.notes || "",
     receiptNo: receiptNo || "",
     orderSequentialNoForDay: orderSequentialNoForDay || "",
+    pickTime: meta.selectedTime || "",
   };
 
   await Order.create(orderData);
@@ -188,7 +192,10 @@ export async function POST(req: NextRequest) {
         );
         try {
           if (merchant.telegramId) {
-            await sendLongTelegramMessage(merchant.telegramId, orderSummaryTelegram);
+            await sendLongTelegramMessage(
+              merchant.telegramId,
+              orderSummaryTelegram
+            );
           } else {
             console.warn(
               "Merchant telegramId not set, skipping Telegram notification."

@@ -129,14 +129,15 @@ export default function CustomerInfoForm({
   if (prevDeliveryRef.current !== deliverStateInCartContext) {
     deliveryChangeCountRef.current += 1;
     if (deliveryChangeCountRef.current > 1) {
-      trigger(); // Only validate on 2nd and subsequent changes
+      trigger(); // Only validate on 2nd and subsequent changes to avoid initial load red errors
     }
-    prevDeliveryRef.current = deliverStateInCartContext;
+    prevDeliveryRef.current = deliverStateInCartContext; // Update previous value for next comparison
   }
 }, [deliverStateInCartContext, trigger]);
 
   // Notify global state when validity changes
   //isValid: prop from react-hook-form, boolean, tells if all required fields are filled correctly
+  //onValidityChange is a func passed from parent comp. == setCustomerInfoValid (state in CartContext)
   useEffect(() => {
     if (onValidityChange) onValidityChange(isValid);
   }, [isValid, onValidityChange]);

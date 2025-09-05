@@ -69,7 +69,7 @@ export default function DiscountCodeInput({
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              className="border px-3 py-2 rounded w-60 text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-0 border-gray-300"
+              className="border px-3 py-2 rounded w-50 text-gray-600 focus:outline-none focus:border-blue-500 focus:ring-0 border-gray-300"
               placeholder="Enter Discount Code"
               disabled={loading}
             />
