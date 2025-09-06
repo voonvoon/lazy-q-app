@@ -66,7 +66,6 @@ const OrderSummaryContent: React.FC = () => {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-blue-400">#</span>
                   <span>Order ID:</span>
                   <span className="font-semibold">
                     {showOrderInfo?.orderid}
@@ -90,20 +89,6 @@ const OrderSummaryContent: React.FC = () => {
                     {showOrderInfo?.customerInfo?.phone}
                   </span>
                 </div> */}
-
-                {showOrderInfo.delivery && (
-                  <div className="flex flex-col items-center">
-                    <div className="font-bold text-lg">Delivery</div>
-                    <div className="flex items-center gap-2">
-                      <span>
-                        Address: {showOrderInfo.customerInfo?.address}
-                        {", "}
-                        {showOrderInfo.customerInfo?.postcode},{" "}
-                        {showOrderInfo.customerInfo?.state}
-                      </span>
-                    </div>
-                  </div>
-                )}
                 <div className="flex items-center gap-2">
                   <span>Order Time:</span>
                   <span className="font-semibold">
@@ -118,6 +103,19 @@ const OrderSummaryContent: React.FC = () => {
                     {showOrderInfo?.paymentMeta?.channel || "-"}
                   </span>
                 </div>
+                {showOrderInfo.delivery && (
+                  <div className="flex flex-col items-center">
+                    <div className="font-bold text-lg underline">Delivery</div>
+                    <div className="flex items-center gap-2">
+                      <span>
+                        Address: {showOrderInfo.customerInfo?.address}
+                        {", "}
+                        {showOrderInfo.customerInfo?.postcode},{" "}
+                        {showOrderInfo.customerInfo?.state}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
               <h4 className="text-lg font-semibold mt-6 mb-2 flex items-center gap-2 text-blue-600">
                 Items Ordered
@@ -127,7 +125,7 @@ const OrderSummaryContent: React.FC = () => {
                   <li key={index} className="mb-4">
                     <div className="flex items-start gap-2">
                       <div>
-                        <span className="font-semibold">
+                        <span className="font-semibold text-gray-900">
                           {item.title || "-"}
                         </span>{" "}
                         (Qty: {item.quantity || 1}):{" "}
@@ -159,7 +157,7 @@ const OrderSummaryContent: React.FC = () => {
             <div className="border-t border-gray-200 pt-4 mt-4">
               {/* Show notes if present */}
               {showOrderInfo?.notes && (
-                <div className="mb-1 text-gray-700 flex items-center gap-2">
+                <div className="mb-1 text-gray-700 flex items-center gap-2 text-sm sm:text-base">
                   <span className="font-semibold">Remarks:</span>
                   <span>{showOrderInfo.notes}</span>
                 </div>
