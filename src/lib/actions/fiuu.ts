@@ -157,7 +157,7 @@ export const createPaymentLinkPost = async ({
     customerInfo,
     delivery,
     discount: verifiedDiscount,
-    merchantData: { _id: realMerchant._id },
+    merchantData: { _id: realMerchant._id, name: realMerchant.name },
     taxRate,
     totalTax,
     deliveryFee,

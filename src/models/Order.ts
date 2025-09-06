@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface IOrder extends Document {
   items: any[]; // You can define a more specific type if you have one
   merchantId: Types.ObjectId;
+  merchantName?: string;
   customerInfo: {
     name: string;
     email: string;
@@ -44,6 +45,7 @@ const OrderSchema = new Schema<IOrder>(
       ref: "Merchant",
       required: true,
     },
+    merchantName: { type: String },
     customerInfo: {
       name: { type: String, required: true },
       email: { type: String },
