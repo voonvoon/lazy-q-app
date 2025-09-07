@@ -215,9 +215,9 @@ const OrderSummaryContent: React.FC = () => {
             </p>
           </div>
         )}
-        <Link href="/">
+        <Link href={`/merchant/${showOrderInfo?.merchantSlug}`}>
           <div className="mt-8 bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 text-center font-semibold shadow transition-all duration-200">
-            Back to Home
+            Back to Merchant Page
           </div>
         </Link>
       </div>

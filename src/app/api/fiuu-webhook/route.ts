@@ -34,6 +34,7 @@ async function createOrderFromWebhook(
     items: meta.cartItems || [],
     merchantId: meta.merchantData?._id,
     merchantName: meta.merchantData?.name || "",
+    merchantSlug: meta.merchantData?.slug || "",
     customerInfo: {
       name: customer.name || "",
       email: customer.email || "",

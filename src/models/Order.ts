@@ -32,6 +32,7 @@ export interface IOrder extends Document {
   receiptNo?: string;
   orderSequentialNoForDay?: string;
   pickTime?: string;
+  merchantSlug?: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -46,6 +47,7 @@ const OrderSchema = new Schema<IOrder>(
       required: true,
     },
     merchantName: { type: String },
+    merchantSlug: { type: String },
     customerInfo: {
       name: { type: String, required: true },
       email: { type: String },
