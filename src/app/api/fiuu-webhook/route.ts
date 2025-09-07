@@ -5,6 +5,7 @@ import dbConnect from "@/lib/mongodb";
 import Merchant from "@/models/Merchant";
 import Order from "@/models/Order";
 import Counter from "@/models/Counter";
+import Discount from "@/models/Discount";
 import OrderCounter from "@/models/OrderCounter";
 import { decrypt } from "@/lib/crypto";
 import mongoose from "mongoose";
@@ -192,6 +193,15 @@ export async function POST(req: NextRequest) {
           receiptNo,
           orderSequentialNoForDay
         );
+
+        //delete useOnce discount after order is created
+        if (meta.discount?._id) {
+          const discountDoc = await Discount.findById(meta.discount._id);
+          if (discountDoc && discountDoc.useOnce) {
+            await Discount.findByIdAndDelete(meta.discount._id);
+            console.log(`Discount ${meta.discount._id} deleted (useOnce).`);
+          }
+        }
         try {
           if (merchant.telegramId) {
             await sendLongTelegramMessage(
