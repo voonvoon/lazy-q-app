@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                     const form = document.createElement("form");
                     form.method = "POST";
                     form.action = url;
-                    form.target = "_blank";
+                    //form.target = "_blank";
                     for (const key in data) {
                       if (data.hasOwnProperty(key)) {
                         const input = document.createElement("input");
