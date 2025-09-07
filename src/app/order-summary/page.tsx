@@ -1,16 +1,18 @@
 "use client";
-import Link from "next/link";
+//import Link from "next/link";
 import React, { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getOrderByOrderId } from "@/lib/actions/order";
-import { FaCheckCircle, FaReceipt, FaMoneyBillWave } from "react-icons/fa";
+import { FaCheckCircle, FaReceipt, FaMoneyBillWave, FaSpinner } from "react-icons/fa";
 
 const OrderSummaryContent: React.FC = () => {
   const [showOrderInfo, setShowOrderInfo] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const fetchOrder = async () => {
+      setLoading(true);
       const id = searchParams.get("id");
       if (id) {
         const order = await getOrderByOrderId(id);
@@ -19,6 +21,7 @@ const OrderSummaryContent: React.FC = () => {
         setShowOrderInfo(null);
       }
       localStorage.setItem("lazy-q-cart", "");
+      setLoading(false);
     };
     fetchOrder();
   }, [searchParams]);
@@ -26,7 +29,14 @@ const OrderSummaryContent: React.FC = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg border border-blue-100">
-        {showOrderInfo ? (
+        {loading ? (
+          <div className="flex flex-col items-center py-12">
+            <FaSpinner className="text-4xl text-blue-400 mb-2 animate-spin" />
+            <h2 className="text-xl font-bold mb-2 text-blue-700">
+              Loading your order...
+            </h2>
+          </div>
+        ) : showOrderInfo ? (
           <>
             <div className="flex flex-col items-center mb-6">
               <FaCheckCircle className="text-green-500 text-5xl mb-2 animate-bounce" />
@@ -126,9 +136,9 @@ const OrderSummaryContent: React.FC = () => {
                     <div className="flex items-start gap-2">
                       <div>
                         <span className="font-semibold text-gray-900">
-                          {item.title || "-"}
-                        </span>{" "}
-                        (Qty: {item.quantity || 1}):{" "}
+                          {item.title || "-"} (Qty: {item.quantity || 1}):{" "}
+                        </span>
+
                         <span className="text-blue-700 font-semibold">
                           RM{item.itemTotal?.toFixed(2) ?? "0.00"}
                         </span>
@@ -215,11 +225,12 @@ const OrderSummaryContent: React.FC = () => {
             </p>
           </div>
         )}
-        <Link href={`/merchant/${showOrderInfo?.merchantSlug}`}>
-          <div className="mt-8 bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 text-center font-semibold shadow transition-all duration-200">
-            Back to Merchant Page
-          </div>
-        </Link>
+        <a
+          href={`/merchant/${showOrderInfo?.merchantSlug}`}
+          className="mt-8 bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-600 text-center font-semibold shadow transition-all duration-200 block"
+        >
+          Back to Merchant Page
+        </a>
       </div>
     </div>
   );
