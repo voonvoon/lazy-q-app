@@ -6,7 +6,7 @@ export async function sendReceiptEmail({
   to,
   subject,
   html,
-  from = "Your App <receipts@yourdomain.com>",
+  from = "onboarding@resend.dev",
   replyTo,
 }: {
   to: string;

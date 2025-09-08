@@ -205,7 +205,8 @@ export async function POST(req: NextRequest) {
  <p>Merchant: ${meta.merchantData?.name}</p>
  <p>Total Paid: RM${data.amount}</p>
  <p>We appreciate your business!</p>`,
-            from: `${meta.merchantData?.name} <receipts@yourdomain.com>`,
+            //from: `${meta.merchantData?.name} <receipts@yourdomain.com>`,
+            from: "onboarding@resend.dev",
             replyTo: meta.merchantData?.email,
           });
           console.log(
