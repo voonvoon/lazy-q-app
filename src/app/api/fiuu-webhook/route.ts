@@ -14,6 +14,8 @@ import {
   buildOrderMessage,
 } from "@/lib/utils/telegram";
 
+import { sendReceiptEmail } from "@/lib/utils/email";
+
 //Create order in DB
 async function createOrderFromWebhook(
   data: any,
@@ -193,6 +195,25 @@ export async function POST(req: NextRequest) {
           receiptNo,
           orderSequentialNoForDay
         );
+
+        try {
+          await sendReceiptEmail({
+            to: meta.customerInfo?.email,
+            subject: `Your Receipt from ${meta.merchantData?.name}`,
+            html: `<h2>Thank you for your order!</h2>
+ <p>Order ID: ${data.orderid}</p>
+ <p>Merchant: ${meta.merchantData?.name}</p>
+ <p>Total Paid: RM${data.amount}</p>
+ <p>We appreciate your business!</p>`,
+            from: `${meta.merchantData?.name} <receipts@yourdomain.com>`,
+            replyTo: meta.merchantData?.email,
+          });
+          console.log(
+            `Receipt email attempted to: ${meta.customerInfo?.email} for order ${data.orderid}`
+          );
+        } catch (err) {
+          console.error("Error sending receipt email:", err);
+        }
 
         //delete useOnce discount after order is created
         if (meta.discount?._id) {
