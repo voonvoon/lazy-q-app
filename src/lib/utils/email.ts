@@ -7,7 +7,7 @@ export async function sendReceiptEmail({
   subject,
   html,
   //from = "onboarding@resend.dev",
-  from= "receipts@pelicanwebdev.com",
+  from = "receipts@pelicanwebdev.com",
   replyTo,
 }: {
   to: string;
@@ -29,6 +29,7 @@ export function buildOrderEmailHtml(
   data: any,
   meta: any,
   orderNumber: string,
+  address: any,
   receiptNo?: string
 ): string {
   const customer = meta.customerInfo || {};
@@ -44,19 +45,33 @@ export function buildOrderEmailHtml(
       <tr>
         <td style="padding:8px;border-bottom:1px solid #eee;">
           <strong>${idx + 1}. ${item.title || "-"}</strong>
-          ${item.remarks ? `<div style="color:#888;font-size:12px;">Remarks: ${item.remarks}</div>` : ""}
-          ${item.addOns && item.addOns.length > 0
-            ? `<div style="font-size:12px;color:#555;">Add-ons: ${item.addOns
-                .map(
-                  (a: any) =>
-                    `${a.name} (${data.currency} ${a.price?.toFixed(2) || "0.00"})`
-                )
-                .join(", ")}</div>`
-            : ""}
+          ${
+            item.remarks
+              ? `<div style="color:#888;font-size:12px;">Remarks: ${item.remarks}</div>`
+              : ""
+          }
+          ${
+            item.addOns && item.addOns.length > 0
+              ? `<div style="font-size:12px;color:#555;">Add-ons: ${item.addOns
+                  .map(
+                    (a: any) =>
+                      `${a.name} (${data.currency} ${
+                        a.price?.toFixed(2) || "0.00"
+                      })`
+                  )
+                  .join(", ")}</div>`
+              : ""
+          }
         </td>
-        <td style="padding:8px;text-align:center;border-bottom:1px solid #eee;">${item.quantity || 1}</td>
-        <td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${data.currency} ${item.price?.toFixed(2) || "0.00"}</td>
-        <td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${data.currency} ${item.itemTotal?.toFixed(2) || "0.00"}</td>
+        <td style="padding:8px;text-align:center;border-bottom:1px solid #eee;">${
+          item.quantity || 1
+        }</td>
+        <td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${
+          data.currency
+        } ${item.price?.toFixed(2) || "0.00"}</td>
+        <td style="padding:8px;text-align:right;border-bottom:1px solid #eee;">${
+          data.currency
+        } ${item.itemTotal?.toFixed(2) || "0.00"}</td>
       </tr>
     `
     )
@@ -74,14 +89,36 @@ export function buildOrderEmailHtml(
           <td><strong>Order #:</strong></td>
           <td>${orderNumber}</td>
         </tr>
-        ${receiptNo ? `<tr>
+        ${
+          receiptNo
+            ? `<tr>
           <td><strong>Receipt No.:</strong></td>
           <td>${receiptNo}</td>
-        </tr>` : ""}
+        </tr>`
+            : ""
+        }
         <tr>
           <td><strong>Merchant:</strong></td>
           <td>${meta.merchantData?.name || "-"}</td>
         </tr>
+        <tr>
+    <td></td>
+    <td style="color:#555;font-size:12px;">
+      ${
+        address
+          ? [
+              address.street,
+              address.city,
+              address.zipCode,
+              address.state,
+              address.country,
+            ]
+              .filter(Boolean)
+              .join(", ")
+          : ""
+      }
+    </td>
+  </tr>
         <tr>
           <td><strong>Order ID:</strong></td>
           <td>${data.orderid}</td>
@@ -142,13 +179,17 @@ export function buildOrderEmailHtml(
       <table style="width:100%;margin-top:24px;font-size:14px;">
         <tr>
           <td style="text-align:right;"><strong>Subtotal:</strong></td>
-          <td style="text-align:right;">${data.currency} ${meta.subtotal?.toFixed(2) || "0.00"}</td>
+          <td style="text-align:right;">${data.currency} ${
+    meta.subtotal?.toFixed(2) || "0.00"
+  }</td>
         </tr>
         ${
           hasDiscount
             ? `<tr>
                 <td style="text-align:right;"><strong>Discount:</strong></td>
-                <td style="text-align:right;color:#1aaf5d;">- ${data.currency} ${meta.discountAmount?.toFixed(2) || "0.00"}</td>
+                <td style="text-align:right;color:#1aaf5d;">- ${
+                  data.currency
+                } ${meta.discountAmount?.toFixed(2) || "0.00"}</td>
               </tr>`
             : ""
         }
@@ -156,7 +197,9 @@ export function buildOrderEmailHtml(
           hasTax
             ? `<tr>
                 <td style="text-align:right;"><strong>Tax:</strong></td>
-                <td style="text-align:right;">${data.currency} ${meta.totalTax.toFixed(2)}</td>
+                <td style="text-align:right;">${
+                  data.currency
+                } ${meta.totalTax.toFixed(2)}</td>
               </tr>`
             : ""
         }
@@ -164,7 +207,9 @@ export function buildOrderEmailHtml(
           hasDelivery
             ? `<tr>
                 <td style="text-align:right;"><strong>Delivery Fee:</strong></td>
-                <td style="text-align:right;">${data.currency} ${meta.deliveryFee.toFixed(2)}</td>
+                <td style="text-align:right;">${
+                  data.currency
+                } ${meta.deliveryFee.toFixed(2)}</td>
               </tr>`
             : ""
         }
@@ -173,7 +218,9 @@ export function buildOrderEmailHtml(
         </tr>
         <tr>
           <td style="text-align:right;font-size:18px;"><strong>Total Paid:</strong></td>
-          <td style="text-align:right;font-size:18px;"><strong>${data.currency} ${data.amount}</strong></td>
+          <td style="text-align:right;font-size:18px;"><strong>${
+            data.currency
+          } ${data.amount}</strong></td>
         </tr>
       </table>
       ${
@@ -185,7 +232,9 @@ export function buildOrderEmailHtml(
       }
 
       <div style="margin-top:32px;text-align:center;">
-        <a href="https://lazy-q-app.vercel.app/merchant/${meta.merchantData?.slug}" 
+        <a href="https://lazy-q-app.vercel.app/merchant/${
+          meta.merchantData?.slug
+        }" 
            style="display:inline-block;padding:12px 28px;background:#4f8cff;color:#fff;
                   border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">
           View Menu
