@@ -27,7 +27,8 @@ export async function sendReceiptEmail({
 export function buildOrderEmailHtml(
   data: any,
   meta: any,
-  orderNumber: string
+  orderNumber: string,
+  receiptNo?: string
 ): string {
   const customer = meta.customerInfo || {};
   const items = meta.cartItems || [];
@@ -62,8 +63,8 @@ export function buildOrderEmailHtml(
 
   return `
   <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
-    <div style="background:#4f8cff;color:#fff;padding:24px 32px;">
-      <h2 style="margin:0;">🎉 Thank you for your order!</h2>
+    <div style="background:#4f8cff;color:#fff;padding:24px 24px;">
+      <h2 style="margin:0;">🎉Thank you for your order!</h2>
       <p style="margin:8px 0 0 0;font-size:16px;">Order Receipt</p>
     </div>
     <div style="padding:24px 32px;background:#fafbfc;">
@@ -71,6 +72,14 @@ export function buildOrderEmailHtml(
         <tr>
           <td><strong>Order #:</strong></td>
           <td>${orderNumber}</td>
+        </tr>
+        ${receiptNo ? `<tr>
+          <td><strong>Receipt No.:</strong></td>
+          <td>${receiptNo}</td>
+        </tr>` : ""}
+        <tr>
+          <td><strong>Merchant:</strong></td>
+          <td>${meta.merchantName || "-"}</td>
         </tr>
         <tr>
           <td><strong>Order ID:</strong></td>
@@ -86,14 +95,6 @@ export function buildOrderEmailHtml(
         <tr>
           <td><strong>Name:</strong></td>
           <td>${customer.name || "-"}</td>
-        </tr>
-        <tr>
-          <td><strong>Email:</strong></td>
-          <td>${customer.email || "-"}</td>
-        </tr>
-        <tr>
-          <td><strong>Phone:</strong></td>
-          <td>${customer.phone || "-"}</td>
         </tr>
         ${
           delivery
@@ -137,7 +138,7 @@ export function buildOrderEmailHtml(
           ${itemsHtml}
         </tbody>
       </table>
-      <table style="width:100%;margin-top:24px;font-size:16px;">
+      <table style="width:100%;margin-top:24px;font-size:14px;">
         <tr>
           <td style="text-align:right;"><strong>Subtotal:</strong></td>
           <td style="text-align:right;">${data.currency} ${meta.subtotal?.toFixed(2) || "0.00"}</td>
@@ -167,6 +168,9 @@ export function buildOrderEmailHtml(
             : ""
         }
         <tr>
+          <td colspan="2" style="height:6px;"></td>
+        </tr>
+        <tr>
           <td style="text-align:right;font-size:18px;"><strong>Total Paid:</strong></td>
           <td style="text-align:right;font-size:18px;"><strong>${data.currency} ${data.amount}</strong></td>
         </tr>
@@ -178,9 +182,18 @@ export function buildOrderEmailHtml(
             </div>`
           : ""
       }
-      <div style="margin-top:32px;color:#888;font-size:13px;text-align:center;">
-        Thank you for shopping with us!<br>
-        If you have any questions, reply to this email.
+
+      <div style="margin-top:32px;text-align:center;">
+        <a href="https://lazy-q-app.vercel.app/merchant/${meta.merchantData?.slug}" 
+           style="display:inline-block;padding:12px 28px;background:#4f8cff;color:#fff;
+                  border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">
+          View My Order
+        </a>
+      </div>
+      
+      <div style="margin-top:32px;color:#888;font-size:12px;text-align:center;">
+        <i>Thank you for shopping with us!<br>
+        If you have any questions, reply to this email.</i>
       </div>
     </div>
   </div>
