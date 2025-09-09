@@ -6,7 +6,8 @@ export async function sendReceiptEmail({
   to,
   subject,
   html,
-  from = "onboarding@resend.dev",
+  //from = "onboarding@resend.dev",
+  from= "receipts@pelicanwebdev.com",
   replyTo,
 }: {
   to: string;
@@ -79,7 +80,7 @@ export function buildOrderEmailHtml(
         </tr>` : ""}
         <tr>
           <td><strong>Merchant:</strong></td>
-          <td>${meta.merchantName || "-"}</td>
+          <td>${meta.merchantData?.name || "-"}</td>
         </tr>
         <tr>
           <td><strong>Order ID:</strong></td>
@@ -187,10 +188,10 @@ export function buildOrderEmailHtml(
         <a href="https://lazy-q-app.vercel.app/merchant/${meta.merchantData?.slug}" 
            style="display:inline-block;padding:12px 28px;background:#4f8cff;color:#fff;
                   border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">
-          View My Order
+          View Menu
         </a>
       </div>
-      
+
       <div style="margin-top:32px;color:#888;font-size:12px;text-align:center;">
         <i>Thank you for shopping with us!<br>
         If you have any questions, reply to this email.</i>
