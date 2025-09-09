@@ -14,7 +14,7 @@ import {
   buildOrderMessage,
 } from "@/lib/utils/telegram";
 
-import { sendReceiptEmail } from "@/lib/utils/email";
+import { sendReceiptEmail, buildOrderEmailHtml } from "@/lib/utils/email";
 
 //Create order in DB
 async function createOrderFromWebhook(
@@ -200,11 +200,7 @@ export async function POST(req: NextRequest) {
           await sendReceiptEmail({
             to: meta.customerInfo?.email,
             subject: `Your Receipt from ${meta.merchantData?.name}`,
-            html: `<h2>Thank you for your order!</h2>
- <p>Order ID: ${data.orderid}</p>
- <p>Merchant: ${meta.merchantData?.name}</p>
- <p>Total Paid: RM${data.amount}</p>
- <p>We appreciate your business!</p>`,
+            html: buildOrderEmailHtml(data, meta, orderNumber),
             //from: `${meta.merchantData?.name} <receipts@yourdomain.com>`,
             from: "onboarding@resend.dev",
             replyTo: meta.merchantData?.email,
