@@ -202,7 +202,8 @@ export async function POST(req: NextRequest) {
             subject: `Your Receipt from ${meta.merchantData?.name}`,
             html: buildOrderEmailHtml(data, meta, orderNumber, receiptNo),
             //from: `${meta.merchantData?.name} <receipts@yourdomain.com>`,
-            from: "onboarding@resend.dev",
+            //from: "onboarding@resend.dev",
+            from: "noreply@pelicanwebdev.com",
             replyTo: meta.merchantData?.email,
           });
           console.log(
