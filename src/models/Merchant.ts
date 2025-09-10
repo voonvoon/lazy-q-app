@@ -1,6 +1,11 @@
 // models/Merchant.ts
 import mongoose, { Document, Schema } from "mongoose";
 
+export interface IMerchantLogo {
+  url: string;
+  public_id: string;
+}
+
 export interface IMerchant extends Document {
   // Basic Info
   name: string;
@@ -13,6 +18,11 @@ export interface IMerchant extends Document {
   // Owner & Staff
   owner: mongoose.Types.ObjectId; // References User
   staff?: mongoose.Types.ObjectId[]; // Admin users who can manage this merchant
+
+  //company info
+  companyName?: string;
+  companyRegNo?: string;
+  logo?: IMerchantLogo;
 
   // Address
   address: {
@@ -52,7 +62,7 @@ export interface IMerchant extends Document {
   printServerApi?: string;
 
   // Branding
-  logo?: string;
+
   coverImage?: string;
 
   // Plan
@@ -64,6 +74,14 @@ export interface IMerchant extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const MerchantLogoSchema = new Schema<IMerchantLogo>(
+  {
+    url: { type: String, required: true },
+    public_id: { type: String, required: true },
+  },
+  { _id: false }
+);
 
 const merchantSchema = new Schema<IMerchant>(
   {
@@ -111,6 +129,10 @@ const merchantSchema = new Schema<IMerchant>(
         ref: "User",
       },
     ],
+
+    companyName: { type: String, trim: true },
+    companyRegNo: { type: String, trim: true },
+    logo: { type: MerchantLogoSchema, default: null },
 
     address: {
       street: { type: String, required: true },
@@ -210,8 +232,6 @@ const merchantSchema = new Schema<IMerchant>(
     },
 
     printServerApi: String,
-
-    logo: String,
     coverImage: String,
 
     plan: {

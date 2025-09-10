@@ -92,7 +92,7 @@ export function buildOrderEmailHtml(
         ${
           receiptNo
             ? `<tr>
-          <td><strong>Receipt No.:</strong></td>
+          <td><strong>Receipt No:</strong></td>
           <td>${receiptNo}</td>
         </tr>`
             : ""
@@ -102,8 +102,8 @@ export function buildOrderEmailHtml(
           <td>${meta.merchantData?.name || "-"}</td>
         </tr>
         <tr>
-    <td></td>
-    <td style="color:#555;font-size:12px;">
+    <td><strong>Address:</strong></td>
+    <td style="color:#555;font-size:10px;">
       ${
         address
           ? [

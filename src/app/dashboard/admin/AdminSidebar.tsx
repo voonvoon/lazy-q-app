@@ -13,6 +13,7 @@ import {
   FiPlusCircle,
 } from "react-icons/fi";
 import { GiMeal, GiKnifeFork } from "react-icons/gi";
+import { SiTheboringcompany } from "react-icons/si";
 
 export default function AdminSidebar() {
   const { selectedMerchantId, isLoading } = useMerchant();
@@ -88,6 +89,14 @@ export default function AdminSidebar() {
             disabled={!isMerchantSelected}
           >
             All Orders
+          </NavLink>
+
+          <NavLink
+            href="/dashboard/admin/logo"
+            icon={SiTheboringcompany}
+            disabled={!isMerchantSelected}
+          >
+            Logo
           </NavLink>
 
           <NavLink

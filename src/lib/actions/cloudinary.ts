@@ -43,3 +43,26 @@ export async function deleteImageFromCloudinary(publicId: string) {
     return { success: false, error: "Failed to delete image from Cloudinary." };
   }
 }
+
+export async function uploadLogoToCloudinary(
+  file: string, // base64 string from frontend
+  merchantSlug: string
+) {
+  try {
+    const uploadResult = await cloudinary.uploader.upload(file, {
+      folder: `lazy_Q/${merchantSlug}/logo`,
+      overwrite: true, // always overwrite the logo if re-uploaded
+      resource_type: "image",
+    });
+    return {
+      success: true,
+      data: {
+        url: uploadResult.secure_url,
+        public_id: uploadResult.public_id,
+      },
+    };
+  } catch (err) {
+    console.error("Cloudinary logo upload error:", err);
+    return { success: false, error: "Cloudinary logo upload failed." };
+  }
+}
