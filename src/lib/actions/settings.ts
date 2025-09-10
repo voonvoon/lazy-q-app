@@ -105,3 +105,25 @@ export async function updateMerchantSettings(
   }
 }
 
+export async function updateMerchantLogo(merchantId: string, logo: { url: string; public_id: string } | null) {
+  try {
+    await dbConnect();
+    const session = await auth();
+    if (!session?.user) redirect("/login");
+    const merchant = await Merchant.findById(merchantId);
+    if (!merchant) throw new Error("Merchant not found");
+    await checkPermission("manage", "MerchantSettings");
+    if (merchant.owner.toString() !== session.user.id) {
+      throw new Error("You can only manage your own merchant settings");
+    }
+    // Optionally: remove old logo from Cloudinary if logo is being replaced or removed
+
+    merchant.logo = logo;
+    await merchant.save();
+    revalidatePath("/dashboard/admin/logo");
+    return { success: true, message: "Logo updated", data: logo };
+  } catch (error: any) {
+    return { success: false, message: error.message || "Failed to update logo" };
+  }
+}
+

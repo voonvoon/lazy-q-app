@@ -187,6 +187,39 @@ export default function MerchantForm({
 
           <div>
             <label
+              htmlFor="companyName"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Company Name
+            </label>
+            <input
+              type="text"
+              id="companyName"
+              name="companyName"
+              defaultValue={merchant?.companyName || ""}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
+              placeholder="Pelican Web Dev Sdn Bhd"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="companyRegNo"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Company Registration No.
+            </label>
+            <input
+              type="text"
+              id="companyRegNo"
+              name="companyRegNo"
+              defaultValue={merchant?.companyRegNo || ""}
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:outline-none focus:ring-blue-500 focus:border-transparent text-black"
+              placeholder="202401234567"
+            />
+          </div>
+
+          <div>
+            <label
               htmlFor="name"
               className="block text-sm font-medium text-gray-700 mb-1"
             >

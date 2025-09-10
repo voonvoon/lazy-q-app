@@ -39,6 +39,8 @@ export async function createMerchant(formData: FormData) {
     const telegramId = formData.get("telegramId") as string;
     // Encrypt private key if provided
     const encryptedPrivateKey = fiuuPrivateKey ? encrypt(fiuuPrivateKey) : "";
+    const companyName = formData.get("companyName") as string;
+    const companyRegNo = formData.get("companyRegNo") as string;
 
     //create schedule
     // Extract business hours
@@ -98,6 +100,8 @@ export async function createMerchant(formData: FormData) {
         zipCode,
         country,
       },
+      companyName: companyName || "",
+      companyRegNo: companyRegNo || "",
       plan,
       printServerApi,
       paymentConfig: {
@@ -217,6 +221,8 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
     const telegramId = formData.get("telegramId") as string;
     // Encrypt private key if provided , in case other fields update causes it to be empty
     const paymentConfigUpdates: any = {};
+    const companyName = formData.get("companyName") as string;
+    const companyRegNo = formData.get("companyRegNo") as string;
 
     if (fiuuMerchantId?.trim()) {
       paymentConfigUpdates["paymentConfig.fiuuMerchantId"] =
@@ -276,6 +282,8 @@ export async function updateMerchant(merchantId: string, formData: FormData) {
           zipCode: zipCode.trim(),
           country: country?.trim() || "Malaysia",
         },
+        companyName: companyName || "",
+        companyRegNo: companyRegNo || "",
         ...paymentConfigUpdates,
         businessHours,
       },
@@ -391,7 +399,7 @@ export async function getMerchantsByUserId() {
       owner: session.user.id,
     })
       .select(
-        "_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime createdAt"
+        "_id name slug email isActive address phone catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime createdAt logo"
       )
       .sort({ createdAt: -1 })
       .lean();
@@ -437,6 +445,7 @@ export async function getMerchantsByUserId() {
       catOrder: Array.isArray(merchant.catOrder)
         ? merchant.catOrder.map((id) => id?.toString?.() ?? id)
         : [],
+      logo: merchant.logo || null,
     }));
 
     return {
