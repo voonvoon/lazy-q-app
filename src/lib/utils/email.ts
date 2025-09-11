@@ -83,7 +83,7 @@ export function buildOrderEmailHtml(
   return `
  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
   <div style="background:#4f8cff;color:#fff;padding:24px 24px;">
-    <div style="display:flex;align-items:center;justify-content:center;">
+    <div style="display:flex;align-items:center;justify-content:space-around;">
       ${
         merchantLogoUrl
           ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;margin-right:20px;box-shadow:0 2px 8px #0001;" />`
@@ -91,29 +91,29 @@ export function buildOrderEmailHtml(
       }
       <div style="flex:1;text-align:center;">
         <h2 style="margin:0;font-size:22px;">
-          ${merchantCompanyName || meta.merchantData?.name || "-"}
+  ${merchantCompanyName || meta.merchantData?.name || "-"}
+</h2>
+${
+  merchantCompanyRegNo
+    ? `<div style="font-size:18px;font-weight:normal;margin-top:2px;">(${merchantCompanyRegNo})</div>`
+    : ""
+}
+        <div style="margin-top:4px;font-size:12px;font-weight:400;">
           ${
-            merchantCompanyRegNo
-              ? `<span style="font-size:15px;font-weight:normal;"> (${merchantCompanyRegNo})</span>`
-              : ""
-          }
-        </h2>
-        <div style="margin-top:4px;font-size:14px;font-weight:400;">
-          ${
-            meta.merchantData?.address
+            address
               ? [
-                  meta.merchantData.address.street,
-                  meta.merchantData.address.city,
-                  meta.merchantData.address.state,
-                  meta.merchantData.address.zipCode,
-                  meta.merchantData.address.country,
+                  address.street,
+                  address.city,
+                  address.state,
+                  address.zipCode,
+                  address.country,
                 ]
                   .filter(Boolean)
                   .join(", ")
               : ""
           }
         </div>
-        <h3 style="margin:18px 0 0 0;font-size:18px;font-weight:600;">Order Receipt</h3>
+       
       </div>
     </div>
   </div>
