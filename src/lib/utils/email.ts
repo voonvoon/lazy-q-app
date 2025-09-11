@@ -30,7 +30,10 @@ export function buildOrderEmailHtml(
   meta: any,
   orderNumber: string,
   address: any,
-  receiptNo?: string
+  receiptNo?: string,
+  merchantCompanyName?: string,
+  merchantCompanyRegNo?: string,
+  merchantLogoUrl?: string
 ): string {
   const customer = meta.customerInfo || {};
   const items = meta.cartItems || [];
@@ -78,11 +81,42 @@ export function buildOrderEmailHtml(
     .join("");
 
   return `
-  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
-    <div style="background:#4f8cff;color:#fff;padding:24px 24px;">
-      <h2 style="margin:0;">🎉Thank you for your order!</h2>
-      <p style="margin:8px 0 0 0;font-size:16px;">Order Receipt</p>
+ <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
+  <div style="background:#4f8cff;color:#fff;padding:24px 24px;">
+    <div style="display:flex;align-items:center;justify-content:center;">
+      ${
+        merchantLogoUrl
+          ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;margin-right:20px;box-shadow:0 2px 8px #0001;" />`
+          : ""
+      }
+      <div style="flex:1;text-align:center;">
+        <h2 style="margin:0;font-size:22px;">
+          ${merchantCompanyName || meta.merchantData?.name || "-"}
+          ${
+            merchantCompanyRegNo
+              ? `<span style="font-size:15px;font-weight:normal;"> (${merchantCompanyRegNo})</span>`
+              : ""
+          }
+        </h2>
+        <div style="margin-top:4px;font-size:14px;font-weight:400;">
+          ${
+            meta.merchantData?.address
+              ? [
+                  meta.merchantData.address.street,
+                  meta.merchantData.address.city,
+                  meta.merchantData.address.state,
+                  meta.merchantData.address.zipCode,
+                  meta.merchantData.address.country,
+                ]
+                  .filter(Boolean)
+                  .join(", ")
+              : ""
+          }
+        </div>
+        <h3 style="margin:18px 0 0 0;font-size:18px;font-weight:600;">Order Receipt</h3>
+      </div>
     </div>
+  </div>
     <div style="padding:24px 32px;background:#fafbfc;">
       <table style="width:100%;margin-bottom:16px;">
         <tr>
@@ -101,24 +135,7 @@ export function buildOrderEmailHtml(
           <td><strong>Merchant:</strong></td>
           <td>${meta.merchantData?.name || "-"}</td>
         </tr>
-        <tr>
-    <td><strong>Address:</strong></td>
-    <td style="color:#555;font-size:10px;">
-      ${
-        address
-          ? [
-              address.street,
-              address.city,
-              address.zipCode,
-              address.state,
-              address.country,
-            ]
-              .filter(Boolean)
-              .join(", ")
-          : ""
-      }
-    </td>
-  </tr>
+      
         <tr>
           <td><strong>Order ID:</strong></td>
           <td>${data.orderid}</td>

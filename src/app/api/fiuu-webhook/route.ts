@@ -200,7 +200,16 @@ export async function POST(req: NextRequest) {
           await sendReceiptEmail({
             to: meta.customerInfo?.email,
             subject: `Your Receipt from ${meta.merchantData?.name}`,
-            html: buildOrderEmailHtml(data, meta, orderNumber, merchant?.address, receiptNo),
+            html: buildOrderEmailHtml(
+              data,
+              meta,
+              orderNumber,
+              merchant?.address,
+              receiptNo,
+              merchant?.companyName,
+              merchant?.companyRegNo,
+              merchant?.logo?.url
+            ),
             //from: "onboarding@resend.dev",
             from: "noreply@pelicanwebdev.com",
             replyTo: meta.merchantData?.email,
