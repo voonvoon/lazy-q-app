@@ -83,22 +83,22 @@ export function buildOrderEmailHtml(
   return `
  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
   <div style="background:#4f8cff;color:#fff;padding:16px 10px;">
-    <div style="display:flex;align-items:center;justify-content:space-around;">
+    <div style="display:flex;align-items:center;justify-content:flex-start;">
       ${
         merchantLogoUrl
-          ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;margin-right:20px;box-shadow:0 2px 8px #0001;" />`
+          ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;margin-right:24px;box-shadow:0 2px 8px #0001;" />`
           : ""
       }
-      <div style="flex:1;text-align:center;">
-        <h2 style="margin:0;font-size:22px; color:#fff">
-  ${merchantCompanyName || meta.merchantData?.name || "-"}
-</h2>
-${
-  merchantCompanyRegNo
-    ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff">(${merchantCompanyRegNo})</div>`
-    : ""
-}
-        <div style="margin-top:4px;font-size:12px;font-weight:400;">
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
+        <h2 style="margin:0;font-size:22px;color:#fff;">
+          ${merchantCompanyName || meta.merchantData?.name || "-"}
+        </h2>
+        ${
+          merchantCompanyRegNo
+            ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff;">(${merchantCompanyRegNo})</div>`
+            : ""
+        }
+        <div style="margin-top:2px;font-size:12px;font-weight:400;color:#fff;">
           ${
             address
               ? [
@@ -113,7 +113,6 @@ ${
               : ""
           }
         </div>
-       
       </div>
     </div>
   </div>
