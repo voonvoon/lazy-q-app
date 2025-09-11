@@ -82,7 +82,7 @@ export function buildOrderEmailHtml(
 
   return `
  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
-  <div style="background:#4f8cff;color:#fff;padding:24px 24px;">
+  <div style="background:#4f8cff;color:#fff;padding:16px 10px;">
     <div style="display:flex;align-items:center;justify-content:space-around;">
       ${
         merchantLogoUrl
@@ -90,12 +90,12 @@ export function buildOrderEmailHtml(
           : ""
       }
       <div style="flex:1;text-align:center;">
-        <h2 style="margin:0;font-size:22px;">
+        <h2 style="margin:0;font-size:22px; color:#fff">
   ${merchantCompanyName || meta.merchantData?.name || "-"}
 </h2>
 ${
   merchantCompanyRegNo
-    ? `<div style="font-size:18px;font-weight:normal;margin-top:2px;">(${merchantCompanyRegNo})</div>`
+    ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff">(${merchantCompanyRegNo})</div>`
     : ""
 }
         <div style="margin-top:4px;font-size:12px;font-weight:400;">
