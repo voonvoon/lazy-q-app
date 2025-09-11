@@ -83,40 +83,38 @@ export function buildOrderEmailHtml(
   return `
  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
   <div style="background:#4f8cff;color:#fff;padding:16px 10px;">
-    <div style="display:flex;align-items:center;justify-content:center;">
-     
-     <div style="flex:1;text-align:center;">
+   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+  ${
+    merchantLogoUrl
+      ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 2px 8px #0001;margin-bottom:10px;" />`
+      : ""
+  }
+  <div style="text-align:center;">
+    <h2 style="margin:0;font-size:20px;color:#fff;">
+      ${merchantCompanyName || meta.merchantData?.name || "-"}
+    </h2>
+    ${
+      merchantCompanyRegNo
+        ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff;">(${merchantCompanyRegNo})</div>`
+        : ""
+    }
+    <div style="margin-top:2px;font-size:12px;font-weight:400;color:#fff;">
       ${
-        merchantLogoUrl
-          ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 2px 8px #0001;margin-bottom:10px;" />`
+        address
+          ? [
+              address.street,
+              address.city,
+              address.state,
+              address.zipCode,
+              address.country,
+            ]
+              .filter(Boolean)
+              .join(", ")
           : ""
       }
-      <div style="text-align:center;">
-        <h2 style="margin:0;font-size:20px;color:#fff;">
-          ${merchantCompanyName || meta.merchantData?.name || "-"}
-        </h2>
-        ${
-          merchantCompanyRegNo
-            ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff;">(${merchantCompanyRegNo})</div>`
-            : ""
-        }
-        <div style="margin-top:2px;font-size:12px;font-weight:400;color:#fff;">
-          ${
-            address
-              ? [
-                  address.street,
-                  address.city,
-                  address.state,
-                  address.zipCode,
-                  address.country,
-                ]
-                  .filter(Boolean)
-                  .join(", ")
-              : ""
-          }
-        </div>
-      </div>
     </div>
+  </div>
+</div>
   </div>
     <div style="padding:24px 32px;background:#fafbfc;">
       <table style="width:100%;margin-bottom:16px;">
