@@ -83,18 +83,19 @@ export function buildOrderEmailHtml(
   return `
  <div style="font-family:Segoe UI,Arial,sans-serif;max-width:600px;margin:auto;border:1px solid #eee;border-radius:8px;overflow:hidden;">
   <div style="background:#4f8cff;color:#fff;padding:16px 10px;">
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="display:flex;align-items:center;justify-content:center;">
+     
+     <div style="flex:1;text-align:center;">
       ${
         merchantLogoUrl
           ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;margin-right:20px;box-shadow:0 2px 8px #0001;" />`
           : ""
       }
-     <div style="flex:1;text-align:center;">
         <h2 style="margin:0;font-size:20px; color:#fff">
         ${merchantCompanyName || meta.merchantData?.name || "-"}
         </h2>
       ${
-      merchantCompanyRegNo
+        merchantCompanyRegNo
           ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff">(${merchantCompanyRegNo})</div>`
           : ""
       }
