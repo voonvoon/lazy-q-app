@@ -88,18 +88,19 @@ export function buildOrderEmailHtml(
      <div style="flex:1;text-align:center;">
       ${
         merchantLogoUrl
-          ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;margin-right:20px;box-shadow:0 2px 8px #0001;" />`
+          ? `<img src="${merchantLogoUrl}" alt="Logo" style="width:56px;height:56px;object-fit:contain;border-radius:8px;background:#fff;box-shadow:0 2px 8px #0001;margin-bottom:10px;" />`
           : ""
       }
-        <h2 style="margin:0;font-size:20px; color:#fff">
-        ${merchantCompanyName || meta.merchantData?.name || "-"}
+      <div style="text-align:center;">
+        <h2 style="margin:0;font-size:20px;color:#fff;">
+          ${merchantCompanyName || meta.merchantData?.name || "-"}
         </h2>
-      ${
-        merchantCompanyRegNo
-          ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff">(${merchantCompanyRegNo})</div>`
-          : ""
-      }
-        <div style="margin-top:2px;font-size:12px;font-weight:400;">
+        ${
+          merchantCompanyRegNo
+            ? `<div style="font-size:14px;font-weight:normal;margin-top:2px;color:#fff;">(${merchantCompanyRegNo})</div>`
+            : ""
+        }
+        <div style="margin-top:2px;font-size:12px;font-weight:400;color:#fff;">
           ${
             address
               ? [
@@ -114,7 +115,6 @@ export function buildOrderEmailHtml(
               : ""
           }
         </div>
-       
       </div>
     </div>
   </div>
