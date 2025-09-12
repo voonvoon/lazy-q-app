@@ -12,6 +12,8 @@ interface MerchantContextType {
   initializeMerchants: (merchants: any[]) => void;
 }
 
+
+
 //"Like Make a magic box can hold restaurant stuff!"
 //Why undefined at the start? Cuz The box starts EMPTY!
 const MerchantContext = createContext<MerchantContextType | undefined>(undefined);

@@ -26,6 +26,8 @@ export default function MerchantPage() {
     merchantData,
   } = useItems();
 
+
+
   //update merchant data in CartContext/ localStorage so that it can be used in Cart
   // ✅ Clear cart data if switching merchants
   useEffect(() => {

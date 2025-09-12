@@ -3,19 +3,16 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { IoMenu } from "react-icons/io5";
-import { signOut, useSession } from "next-auth/react";
-import { toast } from "react-hot-toast";
 
+interface NavbarMerchantProps {
+  logoUrl?: string;
+  name: string;
+  slug?: string;
+}
 
-const Navbar = () => {
+const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const { data: session } = useSession();
-
-  console.log("Session:", session);
-
-
-
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -29,36 +26,33 @@ const Navbar = () => {
       }
     };
 
-    // Only add listener when menu is open
     if (isMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
-    // Cleanup listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
 
   return (
-    <nav className="bg-gray-900 sticky top-0 z-50" ref={menuRef}>
+    <nav className="bg-gray-900 sticky top-0 z-50" ref={menuRef} >
       <div className="mx-auto px-4">
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center justify-start">
             <div className="flex items-center justify-center">
               <Link
-                href="/"
+                href={`/merchant/${slug}`}
                 className="flex flex-col items-center justify-center text-center mt-1"
               >
                 <Image
-                  src="/food-logo.svg"
-                  alt="Next.js Logo"
+                  src={logoUrl || "/food-logo.svg"}
+                  alt={name || "Merchant Logo"}
                   width={30}
                   height={30}
-                  className="invert"
+                  className="bg-white rounded mb-1"
                 />
-                <span className="mb-1 text-sm font-bold tracking-wide text-white drop-shadow-lg font-serif">
-                  Lazy<span className="text-red-400"> Q</span>
+                <span className="mb-1 text-xs font-bold tracking-wide text-white drop-shadow-lg font-serif">
+                  {name}
                 </span>
                 <div className="flex items-center justify-center"> </div>
               </Link>
@@ -72,43 +66,6 @@ const Navbar = () => {
             >
               <IoMenu size={30} />
             </button>
-          </div>
-
-          <div className="absolute right-10 flex items-center space-x-3">
-            {session ? (
-              <>
-                <div className="flex items-center space-x-2">
-                  {/* Google Profile Image */}
-                  {session.user?.image && (
-                    <img
-                      src={session.user.image}
-                      alt={session.user?.name || "Profile"}
-                      className="w-8 h-8 rounded-full border-2 border-gray-300"
-                    />
-                  )}
-                  <span className="text-sm text-gray-300">
-                    Hello, {session.user?.name}
-                  </span>
-                </div>
-                <button
-                  onClick={async () => {
-                    const promise = signOut({ callbackUrl: "/" });
-                    toast.success("Signed out successfully");
-                    await promise;
-                  }}
-                  className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white cursor-pointer"
-                >
-                  Logout
-                </button>
-              </>
-            ) : (
-              <Link
-                href="/signin"
-                className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white"
-              >
-                Login
-              </Link>
-            )}
           </div>
         </div>
       </div>
@@ -145,4 +102,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavbarMerchant;

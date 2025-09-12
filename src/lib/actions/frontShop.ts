@@ -70,7 +70,7 @@ export async function getMerchantBySlug(slug: string) {
 
   const merchant: any = await Merchant.findOne({ slug })
     .select(
-      "_id name slug catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime"
+      "_id name slug catOrder tax allowedDelivery deliveryFee freeDeliveryThreshold allowPreorder firstOrderTime lastOrderTime logo"
     ) // ✅ Added new fields
     .populate("catOrder", "name")
     .lean();
@@ -94,6 +94,7 @@ export async function getMerchantBySlug(slug: string) {
     allowPreorder: merchant.allowPreorder ?? false,
     firstOrderTime: merchant.firstOrderTime || "10:00",
     lastOrderTime: merchant.lastOrderTime || "21:00",
+    logoUrl: merchant.logo?.url || null,
   };
 }
 
