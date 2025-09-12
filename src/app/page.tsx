@@ -1,12 +1,15 @@
 import Image from "next/image";
+import Navbar from "@/components/shared/Navbar";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-5xl font-bold ">Welcome to LazyQ Food App!</h1>
-      <p className="mt-4 text-2xl">Your one-stop solution for food order!</p>
-      <p className="mt-4 text-lg font-mono">phone:03-8945238</p>
-      <p className="mt-4 text-xl font-sans ">Make your order now!</p>
+    <>  
+      <Navbar />
+      <main className="flex min-h-screen flex-col items-center justify-center p-24">
+        <h1 className="text-5xl font-bold ">Welcome to LazyQ Food App!</h1>
+        <p className="mt-4 text-2xl">Your one-stop solution for food order!</p>
+        <p className="mt-4 text-lg font-mono">phone:03-8945238</p>
+          <p className="mt-4 text-xl font-sans ">Make your order now!</p>
       <Image
       src="/food-logo.svg"
       alt="Next.js Logo"
@@ -15,5 +18,6 @@ export default function Home() {
       className="mt-8 invert"
       />
     </main>
+    </>
   );
 }

@@ -6,6 +6,8 @@ import CustomerInfoForm from "@/components/CustomerInfoForm";
 import { MdOutlineDeliveryDining } from "react-icons/md";
 import { LiaRunningSolid } from "react-icons/lia";
 import { MdAccessTime } from "react-icons/md";
+import NavbarMerchant from "@/components/shared/NavbarMerchant";
+import { ItemsProvider } from "@/contexts/ItemsContext";
 
 // Helper to get now + 30 minutes in "HH:mm" format
 //setMinutes, getMinutes, and getHours are all built-in methods of JavaScript’s Date object.
@@ -37,6 +39,11 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
     setShowTimePicker,
     setCustomerInfoValid,
   } = useCart();
+
+  console.log(
+    "🛒 CheckoutLayout merchantData----------------------->",
+    merchantData
+  );
 
   // Handler for radio change
   const handleDeliveryOptionChange = (
@@ -88,123 +95,93 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-white">
-      {/* Sidebar: Mobile top, Desktop left */}
-      <aside className="w-full lg:w-2/5 lg:max-w-md bg-gray-50 p-6 lg:p-4 min-h-[40vh] lg:min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 lg:overflow-y-auto lg:h-screen lg:sticky lg:top-0 text-black">
-        {/* Restaurant Header */}
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-1">
-            {merchantData?.name || "No Merchant Selected"}
-          </h2>
-        </div>
+    <>
+      {/* <NavbarMerchant logoUrl="{merchant.logoUrl}" name="{merchant.name}" /> */}
+      <div className="flex flex-col lg:flex-row min-h-screen bg-white">
+        {/* Sidebar: Mobile top, Desktop left */}
+        <aside className="w-full lg:w-2/5 lg:max-w-md bg-gray-50 p-6 lg:p-4 min-h-[40vh] lg:min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 lg:overflow-y-auto lg:h-screen lg:sticky lg:top-0 text-black">
+          {/* Restaurant Header */}
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-gray-800 mb-1">
+              {merchantData?.name || "No Merchant Selected"}
+            </h2>
+          </div>
 
-        {/* pre-order pick up time */}
-        <div className="mb-6">
-          {merchantData?.allowPreorder ? (
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
-                  {delivery ? "Select a delivery Time" : "Select a pickup time"}
-                  <MdAccessTime className="ml-1" size={16} />
-                </span>
-                <label className="flex items-center justify-between mb-2 select-none">
-                  <input
-                    type="checkbox"
-                    checked={showTimePicker}
-                    onChange={handleCheckboxChange}
-                    className="sr-only peer"
-                  />
-                  <div className="w-12 h-6 bg-gray-200 rounded-full peer cursor-pointer  peer-checked:bg-blue-500 transition-colors duration-200 relative">
-                    <div
-                      className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
-                        showTimePicker ? "translate-x-5" : ""
-                      }`}
-                    ></div>
-                  </div>
-                </label>
-              </div>
-              {showTimePicker ? (
-                <>
-                  <input
-                    type="time"
-                    min={minTime}
-                    max={maxTime}
-                    value={selectedTime || minTime}
-                    onChange={handleTimeChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                  />
-                  {!timeError ? (
-                    <p className="mt-2 text-xs text-gray-500">
-                      You can set pickup time between {minTime} and {maxTime}
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-xs text-red-600">{timeError}</p>
-                  )}
-                </>
-              ) : (
-                <div className="p-1 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-sm text-yellow-800 font-medium">
-                    Order will be prepared ASAP.
-                  </p>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <p className="text-sm text-yellow-800 font-medium">
-                Order will be prepared as soon as order is placed.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Delivery Options */}
-        {/* Conditional Delivery Options */}
-
-        {/* // Show both delivery and pickup when delivery is allowed */}
-        <div className="mt-1 pt-6 border-t border-gray-300">
-          <h4 className="font-semibold text-gray-800 mb-1">
-            Self pick-up/Delivery Options
-          </h4>
-          <div className="space-y-3">
-            <label
-              className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors
-    ${
-      !delivery
-        ? "border-blue-500 bg-blue-50 shadow"
-        : "border-gray-200 hover:bg-gray-50"
-    }
-  `}
-            >
-              <input
-                type="radio"
-                name="deliveryOption"
-                value="pickup"
-                className=" appearance-none  text-blue-600 focus:ring-blue-500"
-                checked={!delivery}
-                onChange={handleDeliveryOptionChange}
-              />
-              <div className="flex-1">
+          {/* pre-order pick up time */}
+          <div className="mb-6">
+            {merchantData?.allowPreorder ? (
+              <div>
                 <div className="flex items-center justify-between">
-                  <span className="flex text-sm font-medium text-gray-800">
-                    <LiaRunningSolid className="mr-1" size={20} />
-                    Self Pick-up
+                  <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    {delivery
+                      ? "Select a delivery Time"
+                      : "Select a pickup time"}
+                    <MdAccessTime className="ml-1" size={16} />
                   </span>
-                  <span className="text-sm font-semibold text-green-600">
-                    Free
-                  </span>
+                  <label className="flex items-center justify-between mb-2 select-none">
+                    <input
+                      type="checkbox"
+                      checked={showTimePicker}
+                      onChange={handleCheckboxChange}
+                      className="sr-only peer"
+                    />
+                    <div className="w-12 h-6 bg-gray-200 rounded-full peer cursor-pointer  peer-checked:bg-blue-500 transition-colors duration-200 relative">
+                      <div
+                        className={`absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${
+                          showTimePicker ? "translate-x-5" : ""
+                        }`}
+                      ></div>
+                    </div>
+                  </label>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
-                  Pick up from restaurant
+                {showTimePicker ? (
+                  <>
+                    <input
+                      type="time"
+                      min={minTime}
+                      max={maxTime}
+                      value={selectedTime || minTime}
+                      onChange={handleTimeChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                    />
+                    {!timeError ? (
+                      <p className="mt-2 text-xs text-gray-500">
+                        You can set pickup time between {minTime} and {maxTime}
+                      </p>
+                    ) : (
+                      <p className="mt-1 text-xs text-red-600">{timeError}</p>
+                    )}
+                  </>
+                ) : (
+                  <div className="p-1 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-sm text-yellow-800 font-medium">
+                      Order will be prepared ASAP.
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800 font-medium">
+                  Order will be prepared as soon as order is placed.
                 </p>
               </div>
-            </label>
+            )}
+          </div>
 
-            {merchantData?.allowedDelivery && (
+          {/* Delivery Options */}
+          {/* Conditional Delivery Options */}
+
+          {/* // Show both delivery and pickup when delivery is allowed */}
+          <div className="mt-1 pt-6 border-t border-gray-300">
+            <h4 className="font-semibold text-gray-800 mb-1">
+              Self pick-up/Delivery Options
+            </h4>
+            <div className="space-y-3">
               <label
                 className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors
     ${
-      delivery
+      !delivery
         ? "border-blue-500 bg-blue-50 shadow"
         : "border-gray-200 hover:bg-gray-50"
     }
@@ -213,42 +190,79 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
                 <input
                   type="radio"
                   name="deliveryOption"
-                  value="delivery"
-                  className="appearance-none  text-blue-600 focus:ring-blue-500"
-                  checked={delivery}
+                  value="pickup"
+                  className=" appearance-none  text-blue-600 focus:ring-blue-500"
+                  checked={!delivery}
                   onChange={handleDeliveryOptionChange}
                 />
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <span className="flex items-center text-sm font-medium text-gray-800">
-                      <MdOutlineDeliveryDining className="mr-1" size={20} />{" "}
-                      Delivery
+                    <span className="flex text-sm font-medium text-gray-800">
+                      <LiaRunningSolid className="mr-1" size={20} />
+                      Self Pick-up
                     </span>
-                    <span className="text-sm font-semibold text-blue-600">
-                      RM{(merchantData?.deliveryFee ?? 5.0).toFixed(2)}
+                    <span className="text-sm font-semibold text-green-600">
+                      Free
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Delivered to your doorstep
+                    Pick up from restaurant
                   </p>
                 </div>
               </label>
-            )}
-            <span className="block text-sm font-light text-gray-800 mt-2">
-              Fill in details
-            </span>
-            {/* Pass delivery state to the form */}
-            {/* <CustomerInfoForm delivery={delivery} /> */}
-            <CustomerInfoForm
-              delivery={delivery}
-              onValidityChange={setCustomerInfoValid} // Notify parent about form validity
-            />
-          </div>
-        </div>
-      </aside>
 
-      {/* Main content: Mobile full width, Desktop right side */}
-      <main className="flex-1 p-4">{children}</main>
-    </div>
+              {merchantData?.allowedDelivery && (
+                <label
+                  className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors
+    ${
+      delivery
+        ? "border-blue-500 bg-blue-50 shadow"
+        : "border-gray-200 hover:bg-gray-50"
+    }
+  `}
+                >
+                  <input
+                    type="radio"
+                    name="deliveryOption"
+                    value="delivery"
+                    className="appearance-none  text-blue-600 focus:ring-blue-500"
+                    checked={delivery}
+                    onChange={handleDeliveryOptionChange}
+                  />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center text-sm font-medium text-gray-800">
+                        <MdOutlineDeliveryDining className="mr-1" size={20} />{" "}
+                        Delivery
+                      </span>
+                      <span className="text-sm font-semibold text-blue-600">
+                        RM{(merchantData?.deliveryFee ?? 5.0).toFixed(2)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Delivered to your doorstep
+                    </p>
+                  </div>
+                </label>
+              )}
+              <span className="block text-sm font-light text-gray-800 mt-2">
+                Fill in details
+              </span>
+              {/* Pass delivery state to the form */}
+              {/* <CustomerInfoForm delivery={delivery} /> */}
+              <CustomerInfoForm
+                delivery={delivery}
+                onValidityChange={setCustomerInfoValid} // Notify parent about form validity
+              />
+            </div>
+          </div>
+        </aside>
+
+        {/* Main content: Mobile full width, Desktop right side */}
+        <main className="flex-1 p-4">
+          <ItemsProvider>{children}</ItemsProvider>
+        </main>
+      </div>
+    </>
   );
 }

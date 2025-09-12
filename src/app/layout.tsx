@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/shared/Navbar";
+// import Navbar from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
 
 import { SessionProvider } from "next-auth/react";
@@ -50,7 +50,7 @@ export default function RootLayout({
         <SessionProvider>
           <div className="flex flex-col min-h-screen bg-background">
             <Toaster />
-            <Navbar />
+            {/* <Navbar /> */}
             <ItemsProvider>
               <CartProvider>
                 {/* Wrap children with ItemsProvider if needed */}
