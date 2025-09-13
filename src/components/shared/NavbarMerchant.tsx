@@ -35,7 +35,10 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
   }, [isMenuOpen]);
 
   return (
-    <nav className="bg-gray-900 sticky top-0 z-50" ref={menuRef} >
+    <nav
+      className="bg-white sticky top-0 z-50 shadow-lg border-b"
+      ref={menuRef}
+    >
       <div className="mx-auto px-4">
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center justify-start">
@@ -44,14 +47,22 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
                 href={`/merchant/${slug}`}
                 className="flex flex-col items-center justify-center text-center mt-1"
               >
-                <Image
-                  src={logoUrl || "/food-logo.svg"}
-                  alt={name || "Merchant Logo"}
-                  width={30}
-                  height={30}
-                  className="bg-white rounded mb-1"
-                />
-                <span className="mb-1 text-xs font-bold tracking-wide text-white drop-shadow-lg font-serif">
+                {logoUrl ? (
+                  <Image
+                    src={logoUrl}
+                    alt={name || "Merchant Logo"}
+                    width={30}
+                    height={30}
+                    className="bg-white rounded mb-1 border border-gray-300"
+                  />
+                ) : null}
+                <span
+                  className={`mb-1 font-bold tracking-wide drop-shadow-lg font-serif ${
+                    logoUrl
+                      ? "text-xs text-gray-800"
+                      : "text-lg text-gray-800 border border-gray-400 p-2 rounded-md"
+                  }`}
+                >
                   {name}
                 </span>
                 <div className="flex items-center justify-center"> </div>
@@ -61,7 +72,7 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
 
           <div className="absolute right-0 flex items-center ">
             <button
-              className="flex items-center justify-center rounded-md p-1 text-gray-400 hover:text-white cursor-pointer"
+              className="flex items-center justify-center rounded-md p-1 text-gray-600 hover:text-gray-900 cursor-pointer"
               onClick={toggleMenu}
             >
               <IoMenu size={30} />
@@ -77,24 +88,30 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
             : "max-h-0 opacity-0 invisible"
         }`}
       >
-        <div className="px-2 pb-1 pt-2 text-center  transition-all duration-300 ease-in-out">
+        <div className="px-2 pb-1 pt-2 text-center transition-all duration-300 ease-in-out space-y-1">
           <Link
             href="/checkout"
-            className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
+            className="block rounded-md px-3 py-2 text-base  tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
           >
-            Cart
+            My Cart
           </Link>
           <Link
             href="/menu"
-            className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
+            className="block rounded-md px-3 py-2 text-base  tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
           >
-            Menu
+            About Us
+          </Link>
+          <Link
+            href="/menu"
+            className="block rounded-md px-3 py-2 text-base  tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+          >
+            Contact
           </Link>
           <Link
             href="/dashboard/admin"
-            className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
+            className="block rounded-md px-3 py-2 text-base tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
           >
-            Dashboard
+            Opening Hours
           </Link>
         </div>
       </div>

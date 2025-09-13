@@ -28,6 +28,8 @@ interface CartItem {
 interface MerchantData {
   _id: string;
   name: string;
+   slug?: string;      
+  logoUrl?: string; 
   tax?: number; // Optional tax percentage
   allowedDelivery?: boolean; // Whether delivery is allowed
   deliveryFee?: number; // Delivery fee amount
