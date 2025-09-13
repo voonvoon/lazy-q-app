@@ -7,7 +7,6 @@ import { MdOutlineDeliveryDining } from "react-icons/md";
 import { LiaRunningSolid } from "react-icons/lia";
 import { MdAccessTime } from "react-icons/md";
 import NavbarMerchant from "@/components/shared/NavbarMerchant";
-import { ItemsProvider } from "@/contexts/ItemsContext";
 
 // Helper to get now + 30 minutes in "HH:mm" format
 //setMinutes, getMinutes, and getHours are all built-in methods of JavaScript’s Date object.
@@ -28,6 +27,8 @@ interface CheckoutLayoutProps {
   children: ReactNode;
 }
 
+
+
 export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
   const {
     merchantData,
@@ -40,10 +41,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
     setCustomerInfoValid,
   } = useCart();
 
-  console.log(
-    "🛒 CheckoutLayout merchantData----------------------->",
-    merchantData
-  );
+
 
   // Handler for radio change
   const handleDeliveryOptionChange = (
@@ -94,9 +92,10 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
     }
   };
 
+
   return (
     <>
-      {/* <NavbarMerchant logoUrl="{merchant.logoUrl}" name="{merchant.name}" /> */}
+      <NavbarMerchant logoUrl={merchantData?.logoUrl} name={merchantData?.name ?? " "} slug={merchantData?.slug} />
       <div className="flex flex-col lg:flex-row min-h-screen bg-white">
         {/* Sidebar: Mobile top, Desktop left */}
         <aside className="w-full lg:w-2/5 lg:max-w-md bg-gray-50 p-6 lg:p-4 min-h-[40vh] lg:min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 lg:overflow-y-auto lg:h-screen lg:sticky lg:top-0 text-black">
@@ -260,7 +259,7 @@ export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
 
         {/* Main content: Mobile full width, Desktop right side */}
         <main className="flex-1 p-4">
-          <ItemsProvider>{children}</ItemsProvider>
+          {children}
         </main>
       </div>
     </>

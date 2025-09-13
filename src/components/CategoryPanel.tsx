@@ -74,15 +74,15 @@ export default function CategoryPanel() {
 
   return (
     <div className="flex flex-col items-center min-h-full">
-      <h2 className="text-sm font-light mb-20 text-gray-600">{merchantData?.name || "Merchant Menu"}</h2>
+      <h2 className="text-sm font-light mb-20 text-gray-600"></h2>
 
       <ul className="space-y-6 text-center">
         {sortedCategories.map((cat) => (
           <li key={cat}>
             <button
-              className={`text-lg font-semibold italic cursor-pointer ${
-                activeCategory === cat ? "text-blue-600" : "text-gray-800 "
-              }`}
+              className={`font-semibold italic cursor-pointer ${
+                activeCategory === cat ? "text-blue-600" : "text-gray-800"
+              } text-base sm:text-xl`}
               onClick={() => {
                 setSelectedCategory(null); //reset ensure no stale state,need fresh state even is the same state for code to work properly
                 setSelectedSubcategory(null); //Reset subcategory to ensure no stale state
@@ -103,10 +103,10 @@ export default function CategoryPanel() {
                   <li key={sub} className="list-none">
                     <button
                       className={`px-3 py-1 rounded transition-colors duration-200 cursor-pointer font-light ${
-                      scrollSubcategory === sub
-                        ? "bg-blue-100 text-blue-700 shadow"
-                        : "bg-transparent text-gray-950 hover:bg-gray-100"
-                      } text-sm sm:text-base`}
+                        scrollSubcategory === sub
+                          ? "bg-blue-100 text-blue-700 shadow"
+                          : "bg-transparent text-gray-950 hover:bg-gray-100"
+                      } text-xs sm:text-base`}
                       onClick={() => {
                         setSelectedCategory(cat); // Always reset parent category avoid stale state lead to weird behavior
                         setSelectedSubcategory(sub); //set subcategory
