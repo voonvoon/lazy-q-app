@@ -36,7 +36,7 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
 
   return (
     <nav
-      className="bg-white sticky top-0 z-50 shadow-lg border-b"
+      className="bg-gray-100 sticky top-0 z-50 shadow-lg"
       ref={menuRef}
     >
       <div className="mx-auto px-4">
