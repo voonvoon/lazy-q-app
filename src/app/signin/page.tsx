@@ -6,6 +6,7 @@ import { useState } from "react"
 import Link from 'next/link'
 import { toast } from "react-hot-toast"
 
+
 export default function Signin() {
   const { data: session, status } = useSession()
   const [email, setEmail] = useState("")
@@ -109,7 +110,7 @@ export default function Signin() {
         
         <div className="mt-6 p-4 bg-gray-100 rounded-md">
           <p className="text-sm text-gray-600">
-            <strong>Test Account:</strong><br/>
+            <strong>Test Super_admin Account:</strong><br/>
             Email: peter@gmail.com<br/>
             Password: 123321
           </p>

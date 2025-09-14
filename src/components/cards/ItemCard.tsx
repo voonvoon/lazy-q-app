@@ -11,7 +11,7 @@ interface ItemCardProps {
 export default function ItemCard({
   title,
   price,
-  description,
+  //description,
   images = [],
   onClick,
 }: ItemCardProps) {
@@ -26,23 +26,23 @@ export default function ItemCard({
 
   return (
     <div
-      className="flex items-center  rounded-lg overflow-hidden shadow-lg bg-white transform transition duration-300 hover:scale-102 cursor-pointer p-1 gap-4 w-56"
-      style={{ minHeight: "80px" }} // Fixed height for consistency
+      className="flex items-center  rounded-lg overflow-hidden shadow-lg bg-white transform transition duration-300 hover:scale-102 cursor-pointer p-1 w-56 sm:w-48"
+      style={{ minHeight: "70px" }} // Fixed height for consistency
       onClick={onClick}
     >
       {/* Left side - Info */}
       <div className="flex-1 flex flex-col justify-center">
-        <div className="font-medium text-lg text-gray-800 mb-1 italic">{title}</div>
-        <div className="text-sm font-medium text-blue-500">RM{price}</div>
+        <div className="font-medium text-sm sm:text-lg text-gray-800 mb-1 italic">{title}</div>
+        <div className="text-xs sm:text-sm font-medium text-blue-500">RM{price}</div>
       </div>
 
       <div className="flex-shrink-0">
-        <Image  
-          className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+        <Image
+          className="w-16 h-16 object-cover rounded-lg border border-gray-200"
           src={thumbnailUrl}
           alt={title}
-          width={80}
-          height={80}
+          width={60}
+          height={60}
         />
       </div>
     </div>

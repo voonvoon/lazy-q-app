@@ -207,7 +207,7 @@ export default function MerchantPage() {
               }}
               className="mb-8"
             >
-              <h2 className="text-xl font-extrabold text-gray-700 mb-4 text-center rounded-lg py-2 px-4 bg-gray-50 shadow-sm  drop-shadow-amber-100 tracking-wide font-serif bg-gradient-to-r from-blue-100 via-white to-blue-100">
+              <h2 className="text-base sm:text-xl font-extrabold text-gray-700 mb-4 text-center rounded-lg py-1 px-3 bg-gray-50 shadow-sm  drop-shadow-amber-100 tracking-wide font-serif bg-gradient-to-r from-gray-300 via-white to-gray-300">
                 {cat}
               </h2>
               {/* Object.entries(categorized[cat]) turns it into an array of pairs */}
@@ -220,10 +220,10 @@ export default function MerchantPage() {
                   }}
                   className="mb-4"
                 >
-                  <h3 className="text-lg italic text-gray-600 mb-8 text-center">
+                  <h3 className="text-sm sm:text-lg font-semibold italic text-gray-600 mb-2 text-center">
                     {subcat}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-4 justify-center  w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-1 justify-center w-full">
                     {items.map((item) => (
                       <ItemCard
                         onClick={() =>

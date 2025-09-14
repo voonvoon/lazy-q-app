@@ -35,10 +35,7 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
   }, [isMenuOpen]);
 
   return (
-    <nav
-      className="bg-gray-100 sticky top-0 z-50 shadow-lg"
-      ref={menuRef}
-    >
+    <nav className="bg-gray-100 sticky top-0 z-50 shadow-lg" ref={menuRef}>
       <div className="mx-auto px-4">
         <div className="relative flex h-16 items-center justify-between">
           <div className="flex items-center justify-start">
@@ -88,30 +85,31 @@ const NavbarMerchant = ({ logoUrl, name, slug }: NavbarMerchantProps) => {
             : "max-h-0 opacity-0 invisible"
         }`}
       >
-        <div className="px-2 pb-1 pt-2 text-center transition-all duration-300 ease-in-out space-y-1">
+        <div className="flex justify-around items-center font-serif font-light px-2 pb-1 pt-2 text-center transition-all duration-300 ease-in-out flex-col sm:flex-row gap-1">
           <Link
             href="/checkout"
-            className="block rounded-md px-3 py-2 text-base  tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+            className="block rounded-md px-3 py-1 text-xs tracking-wide text-gray-700 hover:text-blue-700  transition-colors duration-200 sm:text-base sm:py-1 font-light"
           >
             My Cart
           </Link>
+
           <Link
             href="/menu"
-            className="block rounded-md px-3 py-2 text-base  tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
-          >
-            About Us
-          </Link>
-          <Link
-            href="/menu"
-            className="block rounded-md px-3 py-2 text-base  tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+            className="block rounded-md px-3 py-1 text-xs tracking-wide text-gray-700 hover:text-blue-700  transition-colors duration-200 sm:text-base sm:py-1 font-light"
           >
             Contact
           </Link>
           <Link
             href="/dashboard/admin"
-            className="block rounded-md px-3 py-2 text-base tracking-wide text-gray-700 hover:text-blue-700 hover:bg-blue-50 transition-colors duration-200"
+            className="block rounded-md px-3 py-1 text-xs tracking-wide text-gray-700 hover:text-blue-700 transition-colors duration-200 sm:text-base sm:py-1 font-light"
           >
             Opening Hours
+          </Link>
+          <Link
+            href="/menu"
+            className="block rounded-md px-3 py-1 text-xs tracking-wide text-gray-700 hover:text-blue-700  transition-colors duration-200 sm:text-base sm:py-1 font-light"
+          >
+            About Us
           </Link>
         </div>
       </div>

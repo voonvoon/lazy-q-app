@@ -5,6 +5,17 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import { checkPermission } from "@/lib/casl/permissions"; // Assuming you have a permissions utility
 
+// Password strength checker
+function isStrongPassword(password: string) {
+  return (
+    typeof password === "string" &&
+    password.length >= 8 &&
+    /[!@#$%^&*(),.?":{}|<>]/.test(password) && // special char
+    /\d/.test(password) &&                    // number
+    /[a-zA-Z]/.test(password)                 // letter
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const { email, password, name, role } = await request.json();
@@ -27,6 +38,17 @@ export async function POST(request: Request) {
     if (!email || !password || !name) {
       return NextResponse.json(
         { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+        // Password strength validation
+    if (!isStrongPassword(password)) {
+      return NextResponse.json(
+        {
+          error:
+            "Password must be at least 8 characters, include at least one letter, one number, and one special character.",
+        },
         { status: 400 }
       );
     }
