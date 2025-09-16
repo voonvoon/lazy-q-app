@@ -15,6 +15,7 @@ import {
 import { GiMeal, GiKnifeFork } from "react-icons/gi";
 import { SiTheboringcompany } from "react-icons/si";
 import { RiLockPasswordLine } from "react-icons/ri";
+import { ca } from "zod/v4/locales";
 
 export default function AdminSidebar() {
   const { selectedMerchantId, isLoading } = useMerchant();
@@ -160,3 +161,4 @@ function NavLink({
     </Link>
   );
 }
+

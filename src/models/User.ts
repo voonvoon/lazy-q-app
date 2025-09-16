@@ -24,6 +24,8 @@ export interface IUser extends Document {
   // Auth.js fields
   emailVerified?: Date;
   image?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
 
   // Timestamps
   createdAt: Date;
@@ -48,6 +50,8 @@ const userSchema = new Schema<IUser>(
       type: String,
       select: false, // Don't include in queries by default, should be hidden unless explicitly requested
     },
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
     phone: {
       type: String,
       trim: true,
