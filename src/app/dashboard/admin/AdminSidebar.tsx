@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { GiMeal, GiKnifeFork } from "react-icons/gi";
 import { SiTheboringcompany } from "react-icons/si";
+import { RiLockPasswordLine } from "react-icons/ri";
 
 export default function AdminSidebar() {
   const { selectedMerchantId, isLoading } = useMerchant();
@@ -97,6 +98,14 @@ export default function AdminSidebar() {
             disabled={!isMerchantSelected}
           >
             Logo
+          </NavLink>
+
+           <NavLink
+            href="/dashboard/admin/change-pw"
+            icon={RiLockPasswordLine}
+            disabled={!isMerchantSelected}
+          >
+            Change Password
           </NavLink>
 
           <NavLink
