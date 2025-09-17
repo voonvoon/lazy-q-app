@@ -6,16 +6,12 @@ import { IoMenu } from "react-icons/io5";
 import { signOut, useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 
-
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
 
   console.log("Session:", session);
-
-
-
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -86,9 +82,21 @@ const Navbar = () => {
                       className="w-8 h-8 rounded-full border-2 border-gray-300"
                     />
                   )}
-                  <span className="text-sm text-gray-300">
-                    Hello, {session.user?.name}
+                  <span className="text-sm text-gray-300 hover:text-white  transition-colors">
+                    Hello,
                   </span>
+                  <Link
+                    href={
+                      session.user?.role === "super_admin"
+                        ? "/dashboard/super-admin"
+                        : session.user?.role === "admin"
+                        ? "/dashboard/admin"
+                        : "/"
+                    }
+                    className="text-sm text-gray-300 hover:text-white transition-colors"
+                  >
+                    {session.user?.name}
+                  </Link>
                 </div>
                 <button
                   onClick={async () => {
@@ -121,7 +129,7 @@ const Navbar = () => {
         }`}
       >
         <div className="px-2 pb-1 pt-2 text-center  transition-all duration-300 ease-in-out">
-          <Link
+          {/* <Link
             href="/checkout"
             className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
           >
@@ -132,9 +140,15 @@ const Navbar = () => {
             className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
           >
             Menu
-          </Link>
+          </Link> */}
           <Link
-            href="/dashboard/admin"
+            href={
+              session?.user?.role === "super_admin"
+                ? "/dashboard/super-admin"
+                : session?.user?.role === "admin"
+                ? "/dashboard/admin"
+                : "/"
+            }
             className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
           >
             Dashboard

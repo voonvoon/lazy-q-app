@@ -4,6 +4,7 @@ import { MerchantProvider } from "@/contexts/MerchantContext";
 // ✅ Import relevant icons
 import { FiShield } from "react-icons/fi";
 import AdminSidebar from "@/app/dashboard/admin/AdminSidebar";
+import Navbar from "@/components/shared/Navbar";
 
 export default async function SuperAdminLayout({
   children,
@@ -21,6 +22,7 @@ export default async function SuperAdminLayout({
   }
   return (
     <MerchantProvider>
+      <Navbar />
       <div className="min-h-screen bg-gray-100">
         {/* Header */}
         <header className="bg-white shadow-sm border-b">
