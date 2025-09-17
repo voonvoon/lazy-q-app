@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FiUsers, FiShoppingBag, FiSettings, FiShield } from "react-icons/fi";
+import Navbar from "@/components/shared/Navbar";
 
 export default async function SuperAdminLayout({
   children,
@@ -18,6 +19,7 @@ export default async function SuperAdminLayout({
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
+      <Navbar />
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">

@@ -25,10 +25,34 @@ export async function POST(request: Request) {
   // Send email with Resend
   const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/reset-password?token=${token}`;
   await resend.emails.send({
-    from: "resetpw@pelicanwebdev.com",
+    from: "reset@pelicanwebdev.com",
     to: user.email,
-    subject: "Password Reset Request",
-    html: `<p>Click <a href="${resetUrl}">here</a> to reset your password. This link expires in 1 hour.</p>`,
+    subject: "Lazy Q Password Reset Instructions",
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #333;">
+        <h2>Password Reset Requested</h2>
+        <p>Hello${user.name ? ` ${user.name}` : ""},</p>
+        <p>
+          We received a request to reset your password for your Lazy Q account. If you did not make this request, you can safely ignore this email.
+        </p>
+        <p>
+          To reset your password, please click the button below. This link will expire in <strong>1 hour</strong> for your security.
+        </p>
+        <p style="text-align: center; margin: 24px 0;">
+          <a href="${resetUrl}" style="background: #0070f3; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Reset Password
+          </a>
+        </p>
+        <p>
+          If the button above does not work, copy and paste the following URL into your browser:<br>
+          <a href="${resetUrl}">${resetUrl}</a>
+        </p>
+        <hr>
+        <p style="font-size: 12px; color: #888;">
+          If you have any questions or need further assistance, please contact our support team.
+        </p>
+      </div>
+    `,
   });
 
   return NextResponse.json({ message: "If your email exists, you will receive a reset link." });

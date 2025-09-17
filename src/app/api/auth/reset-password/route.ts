@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
   const user = await User.findOne({
     resetPasswordToken: token,
-    resetPasswordExpires: { $gt: Date.now() },
+    resetPasswordExpires: { $gt: Date.now() }, //not expired
   }).select("+password");
 
   if (!user) {
