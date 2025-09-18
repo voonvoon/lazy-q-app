@@ -60,7 +60,7 @@ function ResetPasswordForm() {
       <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <form
-          className="bg-white p-6 rounded shadow-md w-full max-w-sm"
+          className="bg-white p-4 rounded w-full max-w-sm m-3 shadow-md"
           onSubmit={handleSubmit}
         >
           <h2 className="text-xl font-bold mb-4 text-gray-800">
@@ -69,7 +69,7 @@ function ResetPasswordForm() {
           <input
             type="password"
             required
-            className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500px-3 py-2 mb-2 text-gray-900"
+            className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 px-1 py-2 mb-2 text-gray-900"
             placeholder="New password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -77,7 +77,7 @@ function ResetPasswordForm() {
           <input
             type="password"
             required
-            className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 px-3 py-2 mb-2 text-gray-900"
+            className="w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 px-1 py-2 mb-2 text-gray-900"
             placeholder="Confirm new password"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}

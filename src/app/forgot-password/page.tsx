@@ -29,13 +29,13 @@ export default function ForgotPasswordPage() {
 
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <form
-          className="bg-white p-4 rounded shadow-md w-full max-w-sm"
+          className="bg-white p-4 m-3 rounded shadow-md w-full max-w-sm"
           onSubmit={handleSubmit}
         >
           <h2 className="text-xl font-bold mb-4 text-gray-800">
             Reset Password
           </h2>
-          <p className="text-xs text-gray-500 mb-4 text-center">
+          <p className="text-xs text-gray-500 mb-4 ">
             Enter your email and we’ll send you a link to reset your password.
           </p>
           <input
