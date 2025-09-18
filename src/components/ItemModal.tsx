@@ -197,7 +197,7 @@ export default function ItemModal({
 
         {/* Image Section */}
         <div className="relative">
-          <div className="relative h-80 bg-gray-100 rounded-t-2xl overflow-hidden">
+          <div className="relative h-50 sm:h-70 bg-gray-100 rounded-t-2xl overflow-hidden">
             <Image
               src={getCurrentImageUrl()}
               alt={item.title}
@@ -269,25 +269,25 @@ export default function ItemModal({
         </div>
 
         {/* Content Section */}
-        <div className="p-6">
+        <div className="p-4">
           {/* Title and Price */}
           <div className="flex justify-between items-start mb-2">
-            <h2 className="text-2xl font-bold text-gray-800 flex-1 pr-4">
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex-1 pr-4">
               {item.title}
             </h2>
 
-            <div className="text-2xl font-bold text-blue-600 flex-shrink-0">
+            <div className="text-lg sm:text-2xl font-bold text-blue-600 flex-shrink-0">
               RM{item.price}
             </div>
           </div>
 
           {/* Category Tags */}
-          <div className="flex flex-wrap gap-1 mb-1">
-            <span className="py-1 text-blue-700 text-sm font-medium underline underline-offset-4">
+          <div className="flex flex-wrap gap-1 mb-3">
+            <span className="py-1 text-blue-700 text-xs sm:text-sm underline underline-offset-4">
               {item.category}
             </span>
             {item.subcategory && (
-              <span className="px-1 py-1 text-gray-700 text-sm font-light">
+              <span className="px-1 py-1 text-gray-700 text-xs sm:text-sm font-light">
                --{'>'} {item.subcategory}
               </span>
             )}
@@ -296,10 +296,10 @@ export default function ItemModal({
           {/* Description */}
           {item.description && (
             <div className="mb-3">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">
+              {/* <h3 className="text-sm sm:text-lg  text-gray-800 mb-2">
                 Description
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
+              </h3> */}
+              <p className="text-gray-600 leading-relaxed text-sm sm:text-base italic">
                 {item.description}
               </p>
             </div>
@@ -308,15 +308,15 @@ export default function ItemModal({
           {/* Add-ons Section */}
           {hasAddOns && (
             <div className="mb-3">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+              <h3 className="text-sm sm:text-lg text-gray-800 mb-1">
                 Add-ons
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-1">
                 {item.addOns!.map((addOn: any) => (
                   <button
                     key={addOn._id}
                     onClick={() => toggleAddOn(addOn)}
-                    className={`p-2 rounded-lg border-2 transition-all duration-200 text-left hover:shadow-md cursor-pointer ${
+                    className={`p-1 rounded-lg border-2 transition-all duration-200 text-left hover:shadow-md cursor-pointer ${
                       isAddOnSelected(addOn._id)
                         ? "border-blue-500 bg-blue-50 shadow-md"
                         : "border-gray-200 bg-white hover:border-gray-300"
@@ -326,7 +326,7 @@ export default function ItemModal({
                       <div className="flex items-center">
                         {/* Checkbox indicator box */}
                         <div
-                          className={`w-5 h-5 rounded border-2 mr-3 flex items-center justify-center ${
+                          className={`w-3 h-3 rounded border-2 mr-1 flex items-center justify-center ${
                             isAddOnSelected(addOn._id)
                               ? "border-blue-500 bg-blue-500"
                               : "border-gray-300"
@@ -350,11 +350,11 @@ export default function ItemModal({
 
                         <div>
                           <span
-                            className={`font-medium ${
+                            className={`${
                               isAddOnSelected(addOn._id)
                                 ? "text-blue-700"
                                 : "text-gray-800"
-                            } text-xs sm:text-base`}
+                            } text-xs sm:text-sm font-thin`}
                           >
                             {addOn.name}
                           </span>
@@ -362,11 +362,11 @@ export default function ItemModal({
                       </div>
 
                       <span
-                        className={`font-semibold ${
+                        className={` ${
                           isAddOnSelected(addOn._id)
                             ? "text-blue-600"
                             : "text-gray-600"
-                        } text-xs sm:text-base`}
+                        } text-xs sm:text-sm font-thin`}
                       >
                         +RM{addOn.price.toFixed(2)}
                       </span>
@@ -379,12 +379,12 @@ export default function ItemModal({
 
           {/* Remarks Section */}
           <div className="mb-3">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold text-gray-800">
+            <div className="flex items-center justify-between mb-1">
+              <h3 className="text-sm sm:text-lg text-gray-800">
                 Special Instructions
               </h3>
               <span
-                className={`text-sm ${
+                className={`text-xs sm:text-sm ${
                   remarks.length > MAX_REMARKS_LENGTH * 0.9
                     ? "text-red-500"
                     : "text-gray-500"
@@ -402,7 +402,7 @@ export default function ItemModal({
                 }
               }}
               placeholder="e.g., No onions, extra spicy, well done..."
-              className={`w-full p-3 border-2 rounded-lg resize-none transition-colors duration-200 focus:outline-none text-gray-900 ${
+              className={`w-full p-3 border-2 text-xs sm:text-sm rounded-lg resize-none transition-colors duration-200 focus:outline-none text-gray-900 ${
                 remarks.length > MAX_REMARKS_LENGTH * 0.9
                   ? "border-orange-300 focus:border-orange-500"
                   : "border-gray-200 focus:border-blue-500"
@@ -439,7 +439,7 @@ export default function ItemModal({
           <div className="flex items-center justify-between mb-2">
             <div>
               <span className="text-base text-gray-600 mr-2">Total:</span>
-              <span className="text-2xl font-bold text-blue-700">
+              <span className="text-lg sm:text-2xl font-bold text-blue-700">
                 RM{calculateTotalPrice().toFixed(2)}
               </span>
             </div>
@@ -455,10 +455,10 @@ export default function ItemModal({
               />
             </div>
           </div>
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
+          <div className="flex gap-3 pt-3 border-t border-gray-200">
             <button
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium cursor-pointer"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium cursor-pointer"
             >
               Close
             </button>
