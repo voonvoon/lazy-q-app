@@ -11,35 +11,28 @@ const Navbar = () => {
   const menuRef = useRef<HTMLDivElement>(null);
   const { data: session } = useSession();
 
-  console.log("Session:", session);
-
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
     };
-
-    // Only add listener when menu is open
     if (isMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
-
-    // Cleanup listener
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMenuOpen]);
 
   return (
-    <nav className="bg-gray-900 sticky top-0 z-50" ref={menuRef}>
+    <nav className="bg-white sticky top-0 z-50 " ref={menuRef}>
       <div className="mx-auto px-4">
-        <div className="relative flex h-16 items-center justify-between">
+        <div className="relative flex h-24 items-center justify-between">
           <div className="flex items-center justify-start">
             <div className="flex items-center justify-center">
               <Link
@@ -49,11 +42,11 @@ const Navbar = () => {
                 <Image
                   src="/food-logo.svg"
                   alt="Next.js Logo"
-                  width={30}
-                  height={30}
-                  className="invert"
+                  width={35}
+                  height={35}
+                  className="mb-1"
                 />
-                <span className="mb-1 text-sm font-bold tracking-wide text-white drop-shadow-lg font-serif">
+                <span className="mb-1 text-sm sm:text-base font-bold tracking-wide text-gray-800 drop-shadow-lg font-serif">
                   Lazy<span className="text-red-400"> Q</span>
                 </span>
                 <div className="flex items-center justify-center"> </div>
@@ -63,10 +56,10 @@ const Navbar = () => {
 
           <div className="absolute right-0 flex items-center ">
             <button
-              className="flex items-center justify-center rounded-md p-1 text-gray-400 hover:text-white cursor-pointer"
+              className="flex items-center justify-center rounded-md p-1 text-gray-700 hover:text-gray-900 cursor-pointer"
               onClick={toggleMenu}
             >
-              <IoMenu size={30} />
+              <IoMenu size={40} />
             </button>
           </div>
 
@@ -74,15 +67,14 @@ const Navbar = () => {
             {session ? (
               <>
                 <div className="flex items-center space-x-2">
-                  {/* Google Profile Image */}
                   {session.user?.image && (
                     <img
                       src={session.user.image}
                       alt={session.user?.name || "Profile"}
-                      className="w-8 h-8 rounded-full border-2 border-gray-300"
+                      className="w-8 h-8 rounded-full border-2 border-gray-400"
                     />
                   )}
-                  <span className="text-sm text-gray-300 hover:text-white  transition-colors">
+                  <span className="text-base text-gray-700 hover:text-gray-900 transition-colors">
                     Hello,
                   </span>
                   <Link
@@ -93,7 +85,7 @@ const Navbar = () => {
                         ? "/dashboard/admin"
                         : "/"
                     }
-                    className="text-sm text-gray-300 hover:text-white transition-colors"
+                    className="text-sm text-gray-700 hover:text-gray-900 transition-colors"
                   >
                     {session.user?.name}
                   </Link>
@@ -104,7 +96,7 @@ const Navbar = () => {
                     toast.success("Signed out successfully");
                     await promise;
                   }}
-                  className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white cursor-pointer"
+                  className="rounded-md px-1 py-2 text-sm text-gray-700 hover:text-gray-900 cursor-pointer"
                 >
                   Logout
                 </button>
@@ -112,7 +104,7 @@ const Navbar = () => {
             ) : (
               <Link
                 href="/signin"
-                className="rounded-md px-1 py-2 text-sm text-gray-300 hover:text-white"
+                className="rounded-md px-3 py-2 mr-2 text-base sm:text-lg font-semibold text-[#ecfef6] bg-[#34d0a8] hover:bg-[#5ec2a7] hover:text-[#ecfef6] shadow transition-all duration-200 border border-[#34d0a8]"
               >
                 Login
               </Link>
@@ -128,19 +120,7 @@ const Navbar = () => {
             : "max-h-0 opacity-0 invisible"
         }`}
       >
-        <div className="px-2 pb-1 pt-2 text-center  transition-all duration-300 ease-in-out">
-          {/* <Link
-            href="/checkout"
-            className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
-          >
-            Cart
-          </Link>
-          <Link
-            href="/menu"
-            className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
-          >
-            Menu
-          </Link> */}
+        <div className="px-2 pb-1 pt-2 text-center transition-all duration-300 ease-in-out">
           <Link
             href={
               session?.user?.role === "super_admin"
@@ -149,7 +129,7 @@ const Navbar = () => {
                 ? "/dashboard/admin"
                 : "/"
             }
-            className="block rounded-md px-3 py-2 text-sm text-gray-300 hover:text-white"
+            className="block rounded-md px-3 py-2 text-sm text-gray-700 hover:text-gray-900"
           >
             Dashboard
           </Link>
