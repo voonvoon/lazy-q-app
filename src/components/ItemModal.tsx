@@ -192,7 +192,7 @@ export default function ItemModal({
           onClick={onClose}
           className="absolute top-4 right-4 z-10 cursor-pointer"
         >
-          <MdCancel className="w-9 h-9 text-gray-900" />
+          <MdCancel className="w-9 h-9 text-gray-900/70 hover:text-gray-900/90 transition-colors" />
         </button>
 
         {/* Image Section */}
@@ -269,29 +269,29 @@ export default function ItemModal({
         </div>
 
         {/* Content Section */}
-        <div className="p-4">
+        <div className="p-3 ">
           {/* Title and Price */}
-          <div className="flex justify-between items-start mb-2">
+          <div className="flex justify-between items-start mb-1">
             <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex-1 pr-4">
               {item.title}
             </h2>
 
-            <div className="text-lg sm:text-2xl font-bold text-blue-600 flex-shrink-0">
+            <div className="text-lg sm:text-2xl font-bold text-gray-600 flex-shrink-0">
               RM{item.price}
             </div>
           </div>
 
           {/* Category Tags */}
-          <div className="flex flex-wrap gap-1 mb-3">
-            <span className="py-1 text-blue-700 text-xs sm:text-sm underline underline-offset-4">
+          {/* <div className="flex flex-wrap mb-1">
+            <span className=" px-1 py-1 text-gray-700 text-xs sm:text-sm font-light">
               {item.category}
             </span>
             {item.subcategory && (
-              <span className="px-1 py-1 text-gray-700 text-xs sm:text-sm font-light">
-               --{'>'} {item.subcategory}
+              <span className=" py-1 text-gray-700 text-xs sm:text-sm font-light">
+              --{'>'} {item.subcategory}
               </span>
             )}
-          </div>
+          </div> */}
 
           {/* Description */}
           {item.description && (
@@ -316,9 +316,9 @@ export default function ItemModal({
                   <button
                     key={addOn._id}
                     onClick={() => toggleAddOn(addOn)}
-                    className={`p-1 rounded-lg border-2 transition-all duration-200 text-left hover:shadow-md cursor-pointer ${
+                    className={`p-1 rounded-lg border-1 transition-all duration-200 text-left hover:shadow-md cursor-pointer ${
                       isAddOnSelected(addOn._id)
-                        ? "border-blue-500 bg-blue-50 shadow-md"
+                        ? "border-blue-300 bg-blue-50 shadow-md"
                         : "border-gray-200 bg-white hover:border-gray-300"
                     }`}
                   >
@@ -326,9 +326,9 @@ export default function ItemModal({
                       <div className="flex items-center">
                         {/* Checkbox indicator box */}
                         <div
-                          className={`w-3 h-3 rounded border-2 mr-1 flex items-center justify-center ${
+                          className={`w-3 h-3 rounded border-1 mr-1 flex items-center justify-center ${
                             isAddOnSelected(addOn._id)
-                              ? "border-blue-500 bg-blue-500"
+                              ? "border-blue-300 bg-blue-500"
                               : "border-gray-300"
                           }`}
                         >
@@ -354,7 +354,7 @@ export default function ItemModal({
                               isAddOnSelected(addOn._id)
                                 ? "text-blue-700"
                                 : "text-gray-800"
-                            } text-xs sm:text-sm font-thin`}
+                            } text-xs sm:text-sm `}
                           >
                             {addOn.name}
                           </span>
@@ -366,7 +366,7 @@ export default function ItemModal({
                           isAddOnSelected(addOn._id)
                             ? "text-blue-600"
                             : "text-gray-600"
-                        } text-xs sm:text-sm font-thin`}
+                        } text-xs sm:text-sm`}
                       >
                         +RM{addOn.price.toFixed(2)}
                       </span>
@@ -402,7 +402,7 @@ export default function ItemModal({
                 }
               }}
               placeholder="e.g., No onions, extra spicy, well done..."
-              className={`w-full p-3 border-2 text-xs sm:text-sm rounded-lg resize-none transition-colors duration-200 focus:outline-none text-gray-900 ${
+              className={`w-full p-3 border-1 text-xs sm:text-sm rounded-lg resize-none transition-colors duration-200 focus:outline-none text-gray-900 ${
                 remarks.length > MAX_REMARKS_LENGTH * 0.9
                   ? "border-orange-300 focus:border-orange-500"
                   : "border-gray-200 focus:border-blue-500"
