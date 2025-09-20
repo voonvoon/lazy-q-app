@@ -148,8 +148,8 @@ export async function POST(req: NextRequest) {
     const sec_key = decrypt(merchant.paymentConfig.fiuuPrivateKey);
     console.log("Decrypted fiuuPrivateKey:", sec_key);
 
-    const printServerAPI = merchant.printServerAPI;
-    console.log("printServerAPI------>", printServerAPI);
+    const printServerApi = merchant.printServerApi;
+    console.log("printServerApi------>", printServerApi);
 
     // Data integrity check
     let {
@@ -206,9 +206,9 @@ export async function POST(req: NextRequest) {
         "Thank you!\n" +
         "\n\n\n" + // Feed paper
         "\x1D\x56\x41"; // Cut paper
-        
+
       try {
-        await printReceipt(printServerAPI, printMessage);
+        await printReceipt(printServerApi, printMessage);
         console.log("Print job sent to printer.");
       } catch (err) {
         console.error("Error sending print job:", err);
