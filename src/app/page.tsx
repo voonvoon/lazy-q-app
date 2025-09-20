@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="relative min-h-screen flex items-center justify-center overflow-hidden" style={{ backgroundColor: "#ecfef6" }}>
+     <main className="relative min-h-screen flex items-start justify-center pt-20 sm:pt-48 overflow-hidden" style={{ backgroundColor: "#F0EEF7" }}>
         {/* Content */}
         <div className="relative z-10 flex flex-col md:flex-row sm:flex-row items-center justify-center w-full px-6 sm:px-0">
           {/* Text Section */}

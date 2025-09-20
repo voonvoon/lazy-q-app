@@ -15,6 +15,7 @@ import {
 } from "@/lib/utils/telegram";
 
 import { sendReceiptEmail, buildOrderEmailHtml } from "@/lib/utils/email";
+import { printReceipt } from "@/lib/utils/print";
 
 //Create order in DB
 async function createOrderFromWebhook(
@@ -147,6 +148,9 @@ export async function POST(req: NextRequest) {
     const sec_key = decrypt(merchant.paymentConfig.fiuuPrivateKey);
     console.log("Decrypted fiuuPrivateKey:", sec_key);
 
+    const printServerAPI = merchant.printServerAPI;
+    console.log("printServerAPI------>", printServerAPI);
+
     // Data integrity check
     let {
       tranID,
@@ -187,7 +191,30 @@ export async function POST(req: NextRequest) {
       // collect data send to telegram
       const orderNumber = orderSequentialNoForDay; // already padded, e.g. "001"
       const orderSummaryTelegram = buildOrderMessage(data, meta, orderNumber);
+      //test print
+      const printMessage =
+        "\x1B\x40" + // Initialize printer
+        "\x1B\x61\x01" + // Center alignment
+        "***** LazyQ Order *****\n" +
+        "\x1B\x61\x00" + // Left alignment
+        "------------------------\n" +
+        "You have a new order\n" +
+        `Order ID: ${orderSequentialNoForDay}\n` +
+        `Name: ${meta.merchantData?.name}\n` +
+        "------------------------\n" +
+        "\x1B\x61\x01" + // Center alignment
+        "Thank you!\n" +
+        "\n\n\n" + // Feed paper
+        "\x1D\x56\x41"; // Cut paper
+        
+      try {
+        await printReceipt(printServerAPI, printMessage);
+        console.log("Print job sent to printer.");
+      } catch (err) {
+        console.error("Error sending print job:", err);
+      }
 
+      //test print
       try {
         await createOrderFromWebhook(
           data,
