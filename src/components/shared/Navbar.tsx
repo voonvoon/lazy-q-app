@@ -32,7 +32,7 @@ const Navbar = () => {
   return (
     <nav className="bg-white sticky top-0 z-50 " ref={menuRef}>
       <div className="mx-auto px-4">
-        <div className="relative flex h-24 items-center justify-between">
+        <div className="relative flex h-20 items-center justify-between">
           <div className="flex items-center justify-start">
             <div className="flex items-center justify-center">
               <Link
@@ -59,7 +59,7 @@ const Navbar = () => {
               className="flex items-center justify-center rounded-md p-1 text-gray-700 hover:text-gray-900 cursor-pointer"
               onClick={toggleMenu}
             >
-              <IoMenu size={40} />
+              <IoMenu size={35} />
             </button>
           </div>
 
